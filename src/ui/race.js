@@ -1,4 +1,4 @@
-// Race mode (skeleton): the player vs a simulated ghost that fills cells at a set pace.
+// Race mode: the player vs a simulated ghost that fills cells at a set pace.
 import { generatePuzzle, CLUES } from '../core/generator.js';
 import { formatTime, createCell, highlightBoard, buildPad, updatePadState, isComplete } from './board.js';
 import { incrementCounter } from './storage.js';

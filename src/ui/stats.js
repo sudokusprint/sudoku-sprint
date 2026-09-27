@@ -1,17 +1,9 @@
-// Home progress tiles and the Profile page (best times, completions, race record, friends).
+// Home progress tiles and the Profile page (best times, completions, race record).
 import { TECHNIQUES_INFO, MASTERY_TARGET } from '../core/techniques.js';
 import { readInt, getMasteryCount, readBestSeconds } from './storage.js';
 import { formatTime } from './board.js';
 
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
-
-// Placeholder data — friends aren't connected to anything yet.
-const FRIENDS = [
-  { name: 'Jordan', status: 'Playing Medium', online: true },
-  { name: 'Sam', status: 'Last seen 2h ago', online: false },
-  { name: 'Riley', status: 'Playing Hard', online: true },
-  { name: 'Casey', status: 'Last seen yesterday', online: false }
-];
 
 export function renderHomeStats() {
   const grid = document.getElementById('homeStatsGrid');
@@ -32,7 +24,6 @@ export function renderHomeStats() {
 export function renderProfile() {
   const grid = document.getElementById('completedGrid');
   const totalsEl = document.getElementById('profileTotals');
-  const friendsEl = document.getElementById('friendsList');
 
   grid.innerHTML = '';
   let total = 0;
@@ -58,17 +49,6 @@ export function renderProfile() {
     '<div class="profileTotal"><div class="profileTotalValue">' + wins + '</div><div class="profileTotalLabel">Wins</div></div>' +
     '<div class="profileTotal"><div class="profileTotalValue">' + losses + '</div><div class="profileTotalLabel">Losses</div></div>' +
     '<div class="profileTotal"><div class="profileTotalValue">' + winRate + '</div><div class="profileTotalLabel">Win rate</div></div>';
-
-  friendsEl.innerHTML = '';
-  FRIENDS.forEach(f => {
-    const card = document.createElement('div');
-    card.className = 'friendCard';
-    card.innerHTML =
-      '<div class="friendAvatar">🙂</div>' +
-      '<div><div class="friendName">' + f.name + '</div><div class="friendStatus">' + f.status + '</div></div>' +
-      '<div class="friendDot ' + (f.online ? 'online' : 'offline') + '"></div>';
-    friendsEl.appendChild(card);
-  });
 }
 
 // Best-time tiles on the Profile page.

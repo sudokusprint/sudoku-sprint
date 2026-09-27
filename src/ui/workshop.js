@@ -48,7 +48,7 @@ function renderTechniqueList() {
       let actionHtml, masteryHtml = '', diagramHtml = '';
       if (t.practiceable === false) {
         diagramHtml = buildTechniqueDiagram(t.name);
-        actionHtml = '<div class="raceNote" style="margin-top: 0;">The solver recognizes this correctly, but it\'s too structurally rare to reliably generate a practice puzzle for on demand — testing showed generation attempts can run a minute or more with no result. Detection only, no practice button.</div>';
+        actionHtml = '<div class="raceNote" style="margin-top: 0;">This pattern is too rare to build practice puzzles around on demand, so it\'s shown as a worked example instead.</div>';
       } else {
         actionHtml = '<button>Practice this</button>';
         const count = getMasteryCount(t.name);
