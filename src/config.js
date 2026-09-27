@@ -1,3 +1,9 @@
+// Player accounts (sign-in, cloud-saved progress). While false, the game is
+// guest-only: no sign-in UI is shown and Supabase is never contacted.
+// Turn on once sign-in has been tested and a custom email (SMTP) service is set
+// up, since Supabase's built-in email only reaches the project's own team.
+export const ACCOUNTS_ENABLED = false;
+
 // Supabase project used for accounts and saved progress.
 // The publishable key is meant to be public: what it can do is limited by the
 // Row Level Security rules in supabase/schema.sql. Never put a secret or

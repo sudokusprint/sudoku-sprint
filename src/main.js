@@ -7,6 +7,7 @@ import { renderHomeStats, renderProfile, renderLobbyBest } from './ui/stats.js';
 import { initAccountView } from './ui/accountView.js';
 import { initAccount } from './services/account.js';
 import { initProgress, onProgressChange } from './services/progress.js';
+import { ACCOUNTS_ENABLED } from './config.js';
 
 function isViewActive(id) {
   return document.getElementById(id).classList.contains('active');
@@ -66,5 +67,10 @@ loadTheme();
 solo.initSolo();
 renderLobbyBest();
 renderHomeStats();
-initAccountView();
-initAccount();
+if (ACCOUNTS_ENABLED) {
+  initAccountView();
+  initAccount();
+} else {
+  document.getElementById('accountCard').hidden = true;
+  document.getElementById('homeAccountNote').hidden = true;
+}
