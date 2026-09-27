@@ -66,7 +66,8 @@ function startRace() {
   raceSelected = null;
   raceMoveHistory = [];
   updateRaceUndoState();
-  raceTotalBlanks = 81 - clues;
+  // generatePuzzle can stop above the requested clue count, so count the real blanks.
+  raceTotalBlanks = p.flat().filter(v => v === 0).length;
   raceGhostFilled = 0;
   raceStartTime = Date.now();
 

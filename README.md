@@ -49,8 +49,8 @@ Dependencies only point downward: `main` → `ui/*` → `core/*`. Nothing in `co
 
 The generator, solver, grading and game rules are moved over unchanged. A seeded-RNG
 comparison against `legacy/prototype.html` gives the same puzzles, solutions, tiers and
-technique lists. Two fixes, both caused by page-wide DOM queries that are now limited to
-their own view:
+technique lists. There are three fixes. The first two were caused by page-wide DOM
+queries, which are now limited to their own view:
 
 1. **Solo mode could never be won.** Solo's highlight function ran on *every* `.cell` on the
    page, including the Workshop's example diagrams, which have no row/column data. Once the
@@ -62,13 +62,15 @@ their own view:
    changed Solo's difficulty, started a new Solo puzzle and cleared the Solo button highlight.
    Picking a Solo difficulty also cleared the Race highlight.
 
+3. **Race progress could win below 100%.** Race uses the ungraded `generatePuzzle`, which
+   can stop above the requested clue count. Progress was divided by `81 - CLUES[difficulty]`
+   anyway. So your bar could win short of 100%, and the ghost needed more steps than there
+   were blanks. Both now use the puzzle's real blank count.
+
 Also dropped: `raceErase()`, which nothing called.
 
 ## Known quirks kept as-is
 
-- Race mode uses the ungraded `generatePuzzle`, which can stop above the requested clue
-  count. Progress is still divided by `81 - CLUES[difficulty]`, so your bar can finish
-  below 100%, and the ghost may need more steps than there are blanks.
 - Undo in Solo doesn't restore notes cleared by a placement. Notes changes aren't undoable.
 - localStorage is per-origin, so stats saved while opening the prototype as a file won't
   appear at `http://localhost:5173`.
