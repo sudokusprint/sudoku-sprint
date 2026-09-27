@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sudoku Sprint</title>
+<link rel="stylesheet" href="src/styles/base.css">
+<link rel="stylesheet" href="src/styles/controls.css">
+<link rel="stylesheet" href="src/styles/board.css">
+<link rel="stylesheet" href="src/styles/home-profile.css">
+<link rel="stylesheet" href="src/styles/race.css">
+<link rel="stylesheet" href="src/styles/workshop.css">
+<link rel="stylesheet" href="src/styles/overlays.css">
+<script type="module" src="src/main.js"></script>
+</head>
+<body>
+<canvas id="confettiCanvas" style="position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 200;"></canvas>
+<div class="view active" id="homeView">
+  <div class="wrap">
+    <div>
+      <h1>Sudoku sprint</h1>
+      <p class="tag">Your lobby — jump into a puzzle, a race, or a lesson</p>
+    </div>
+
+    <div class="bestGridTitle">Your progress</div>
+    <div class="bestGrid" id="homeStatsGrid"></div>
+
+    <div class="bestGridTitle" style="margin-top: 26px;">Play</div>
+    <div class="lobbyCard" data-goto="soloView">
+      <span class="lobbyIcon">🧩</span>
+      <div>
+        <div class="lobbyTitle">Solo play</div>
+        <div class="lobbyDesc">Practice at your own pace</div>
+      </div>
+    </div>
+    <div class="lobbyCard" data-goto="raceView">
+      <span class="lobbyIcon">🏁</span>
+      <div>
+        <div class="lobbyTitle">Race mode</div>
+        <div class="lobbyDesc">Race a ghost opponent to finish first</div>
+      </div>
+    </div>
+    <div class="lobbyCard" data-goto="workshopView">
+      <span class="lobbyIcon">💡</span>
+      <div>
+        <div class="lobbyTitle">Workshop</div>
+        <div class="lobbyDesc">Learn techniques and practice them directly</div>
+      </div>
+    </div>
+    <div class="lobbyCard" data-goto="profileView">
+      <span class="lobbyIcon">🙂</span>
+      <div>
+        <div class="lobbyTitle">Profile</div>
+        <div class="lobbyDesc">Stats, mastery, and friends</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="view" id="soloView">
+<div class="wrap">
+  <div>
+    <h1>Sudoku sprint</h1>
+    <p class="tag">Solo mode prototype — racing comes next</p>
+    <div class="best" id="best"></div>
+  </div>
+
+  <div class="bar">
+    <div class="stats">
+      <div class="timer" id="timer">0:00</div>
+      <div class="mistakes" id="mistakes">0 mistakes</div>
+    </div>
+    <div class="barRight">
+      <div class="diff">
+        <button data-d="easy" class="active">Easy</button>
+        <button data-d="medium">Medium</button>
+        <button data-d="hard">Hard</button>
+      </div>
+      <button class="iconBtn" id="pauseBtn" aria-label="Pause">⏸</button>
+      <button class="iconBtn" id="settingsBtn" aria-label="Settings">⚙️</button>
+    </div>
+  </div>
+
+  <p class="genNote" id="genNote"></p>
+
+  <div class="boardWrap">
+    <div class="board" id="board"></div>
+    <div class="pauseOverlay" id="pauseOverlay">
+      <div class="pauseText">Paused</div>
+      <button id="resumeBtn">▶ Resume</button>
+    </div>
+  </div>
+
+  <div class="pad" id="pad"></div>
+
+  <div class="actions">
+    <button id="newBtn">New puzzle</button>
+    <button id="notesBtn" class="ghost">Notes: Off</button>
+    <button id="undoBtn" class="ghost" disabled>Undo</button>
+  </div>
+</div>
+</div>
+
+<div class="view" id="raceView">
+  <div class="wrap">
+    <div id="racePreStart">
+      <div>
+        <h1>Race mode</h1>
+        <p class="tag">Race a simulated ghost to finish first</p>
+      </div>
+      <div class="diff" id="raceDiff" style="margin-top: 18px;">
+        <button data-d="easy" class="active">Easy</button>
+        <button data-d="medium">Medium</button>
+        <button data-d="hard">Hard</button>
+      </div>
+      <div class="actions" style="margin-top: 18px;">
+        <button id="raceStartBtn">Start race</button>
+      </div>
+      <p class="raceNote">You'll race a ghost that fills in cells at a realistic pace. First to correctly finish the board wins. This is an early skeleton — no real opponents yet.</p>
+    </div>
+
+    <div id="raceActive" style="display: none;">
+      <div class="raceProgressWrap">
+        <div class="raceCardRow">
+          <span class="raceAvatar">🧑</span>
+          <div class="raceBarTrack"><div class="raceBarFill" id="raceYouBar" style="width: 0%"></div></div>
+          <span class="racePct" id="raceYouPct">0%</span>
+        </div>
+        <div class="raceCardRow">
+          <span class="raceAvatar">👻</span>
+          <div class="raceBarTrack"><div class="raceBarFill ghost" id="raceGhostBar" style="width: 0%"></div></div>
+          <span class="racePct" id="raceGhostPct">0%</span>
+        </div>
+      </div>
+      <div class="timer" id="raceTimer" style="margin: 10px 0 14px;">0:00</div>
+
+      <div class="board" id="raceBoard"></div>
+      <div class="pad" id="racePad"></div>
+      <div class="actions">
+        <button id="raceUndoBtn" class="ghost" disabled>Undo</button>
+        <button id="raceQuitBtn" class="ghost">Quit race</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="winOverlay" id="raceResultOverlay">
+  <div class="winCard">
+    <div class="winTitle" id="raceResultTitle">🏁 Result</div>
+    <div class="winDetail" id="raceResultDetail"></div>
+    <button id="raceResultBtn">Back to race lobby</button>
+  </div>
+</div>
+
+<div class="view" id="profileView">
+  <div class="wrap">
+    <div>
+      <h1>Profile</h1>
+      <p class="tag">Your stats and friends</p>
+    </div>
+
+    <div class="bestGridTitle">Best times</div>
+    <div class="bestGrid" id="bestGrid"></div>
+
+    <div class="bestGridTitle" style="margin-top: 30px;">Solo puzzles completed</div>
+    <div class="bestGrid" id="completedGrid"></div>
+
+    <div class="profileTotals" id="profileTotals"></div>
+
+    <div class="bestGridTitle" style="margin-top: 30px;">Race record</div>
+    <div class="profileTotals" id="raceRecordTotals"></div>
+
+    <div class="bestGridTitle" style="margin-top: 30px;">Friends</div>
+    <div class="friendsList" id="friendsList"></div>
+    <p class="raceNote">Friends and challenges are just a preview here — not connected to anything yet.</p>
+  </div>
+</div>
+
+<div class="view" id="workshopView">
+  <div class="wrap" id="workshopHome">
+    <div>
+      <h1>Workshop</h1>
+      <p class="tag">Learn each technique, then practice a puzzle built around it</p>
+    </div>
+    <div id="techniqueList"></div>
+  </div>
+
+  <div class="wrap" id="workshopPractice" style="display: none;">
+    <div class="bar">
+      <div class="stats">
+        <div class="mistakes" id="workTechName" style="font-size: 16px; color: var(--ink); font-weight: 600;">Naked Single</div>
+      </div>
+      <button class="iconBtn" id="workBackBtn" aria-label="Back to Workshop">←</button>
+    </div>
+    <p class="genNote" id="workGenNote"></p>
+    <div class="board" id="workBoard"></div>
+    <div class="pad" id="workPad"></div>
+    <div class="actions">
+      <button id="workNewBtn">New practice puzzle</button>
+      <button id="workEraseBtn" class="ghost">Erase</button>
+    </div>
+  </div>
+</div>
+
+<nav class="tabbar">
+  <button class="tabBtn active" data-view="homeView">
+    <span class="tabIcon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z"/>
+      </svg>
+    </span>
+    <span>Home</span>
+  </button>
+  <button class="tabBtn" data-view="soloView">
+    <span class="tabIcon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1 1 0 0 0-.878-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1 1 0 0 0-.289-.878L1.71 12.831a2.404 2.404 0 0 1-.706-1.704c0-.617.235-1.234.706-1.704L3.28 7.85a1 1 0 0 0 .29-.878c-.074-.493-.504-.84-.968-1.02a2.5 2.5 0 1 1 3.237-3.237c.18.464.527.894 1.02.967a1 1 0 0 0 .878-.289l1.568-1.568A2.404 2.404 0 0 1 11.009 1c.617 0 1.234.235 1.704.706l1.568 1.568c.23.23.556.338.878.29c.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/>
+      </svg>
+    </span>
+    <span>Solo</span>
+  </button>
+  <button class="tabBtn" data-view="raceView">
+    <span class="tabIcon">🏁</span>
+    <span>Race</span>
+  </button>
+  <button class="tabBtn" data-view="workshopView">
+    <span class="tabIcon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.4.3.6.8.6 1.3V16h5.8v-.8c0-.5.2-1 .6-1.3A6 6 0 0 0 12 3z"/>
+      </svg>
+    </span>
+    <span>Workshop</span>
+  </button>
+  <button class="tabBtn" data-view="profileView">
+    <span class="tabIcon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
+      </svg>
+    </span>
+    <span>Profile</span>
+  </button>
+</nav>
+
+
+<div class="winOverlay" id="winOverlay">
+  <div class="winCard">
+    <div class="winTitle">🎉 Solved!</div>
+    <div class="winDetail" id="winDetail"></div>
+    <button id="winAgain">New puzzle</button>
+  </div>
+</div>
+
+<div class="settingsOverlay" id="settingsOverlay">
+  <div class="settingsPanel">
+    <div class="settingsHeader">
+      <span>Board style</span>
+      <button id="closeSettings" aria-label="Close">✕</button>
+    </div>
+    <div id="themeList"></div>
+  </div>
+</div>
+</body>
+</html>

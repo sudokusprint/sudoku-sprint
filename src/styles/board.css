@@ -1,0 +1,123 @@
+.boardWrap { position: relative; }
+.board.paused {
+  filter: blur(10px);
+  pointer-events: none;
+}
+.pauseOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  border-radius: 6px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  z-index: 10;
+}
+.pauseOverlay.show { display: flex; }
+.pauseText {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 600;
+}
+.pauseOverlay button {
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  grid-template-rows: repeat(9, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.board.notesActive {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+.cell {
+  background: var(--board-a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(14px, 3.6vw, 20px);
+  color: var(--given);
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.cell.zoneB { background: var(--board-b); }
+.cell.entered { color: var(--accent); font-weight: 500; }
+.cell.selected { background: color-mix(in srgb, var(--accent) 25%, var(--accent-soft)); }
+.cell.peer { background: var(--accent-soft); }
+.cell.match { background: color-mix(in srgb, var(--accent) 45%, var(--board-a)); }
+.cell.zoneB.match { background: color-mix(in srgb, var(--accent) 45%, var(--board-b)); }
+.cell.bad { color: var(--bad); }
+.cell.blockR:not(.blockB) { box-shadow: inset -2px 0 0 0 var(--line); }
+.cell.blockB:not(.blockR) { box-shadow: inset 0 -2px 0 0 var(--line); }
+.cell.blockR.blockB { box-shadow: inset -2px -2px 0 0 var(--line); }
+.pad {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 18px;
+}
+.pad button {
+  padding: 12px 0;
+  font-size: 17px;
+  border-radius: 8px;
+  border: 1px solid var(--paper-line);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.pad button:active { background: var(--accent-soft); }
+.pad button.done {
+  opacity: 0.32;
+  pointer-events: none;
+  position: relative;
+}
+.pad button.done::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 50%;
+  height: 3px;
+  background: currentColor;
+  transform: translateY(-50%) rotate(-25deg);
+}
+.cell .notes {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  pointer-events: none;
+}
+.cell .notes span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(7px, 1.6vw, 10px);
+  line-height: 1;
+  color: var(--ink-soft);
+  overflow: hidden;
+}
+

@@ -1,0 +1,122 @@
+.lobbyCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--paper-line);
+  border-radius: 12px;
+  margin-top: 16px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.lobbyCard:hover { border-color: var(--accent); }
+.lobbyIcon { font-size: 28px; }
+.lobbyTitle { font-size: 16px; font-weight: 600; }
+.lobbyDesc { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+.lobbyBest {
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--ink-soft);
+  text-align: center;
+}
+.bestGridTitle {
+  margin-top: 26px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+.bestGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+.bestStat {
+  background: var(--accent-soft);
+  border-radius: 14px;
+  padding: 18px 6px 16px;
+  text-align: center;
+}
+.bestStatLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+.bestStatValue {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.bestStatValue.empty {
+  font-size: 20px;
+  color: var(--ink-soft);
+  opacity: 0.5;
+  font-weight: 500;
+}
+.bestEmptyNote {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  color: var(--ink-soft);
+  text-align: center;
+  margin-top: 4px;
+}
+.profileTotals {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+.profileTotal {
+  flex: 1;
+  text-align: center;
+  padding: 12px 6px;
+  border: 1px solid var(--paper-line);
+  border-radius: 10px;
+}
+.profileTotalValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.profileTotalLabel {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+.friendsList { margin-top: 10px; }
+.friendCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--paper-line);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+.friendAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.friendName { font-size: 14px; font-weight: 500; }
+.friendStatus { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+.friendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.friendDot.online { background: var(--good); }
+.friendDot.offline { background: var(--paper-line); }
+

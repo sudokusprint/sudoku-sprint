@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sudoku Sprint tests</title>
+<style>
+  body { font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 24px; }
+  .pass { color: #2E7D4F; }
+  .fail { color: #C24B3F; }
+  pre { margin: 2px 0 8px 20px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h1 id="summary">Running…</h1>
+<ul id="results"></ul>
+<script type="module">
+  import { tests } from './core.test.js';
+  const list = document.getElementById('results');
+  let failed = 0;
+  for (const { name, fn } of tests) {
+    // Yield between tests so progress paints; generator tests take a moment.
+    await new Promise(r => setTimeout(r, 0));
+    const li = document.createElement('li');
+    const t0 = performance.now();
+    try {
+      await fn();
+      li.className = 'pass';
+      li.textContent = '✓ ' + name + ' (' + Math.round(performance.now() - t0) + ' ms)';
+    } catch (e) {
+      failed++;
+      li.className = 'fail';
+      li.textContent = '✗ ' + name;
+      const pre = document.createElement('pre');
+      pre.textContent = e.message;
+      li.appendChild(pre);
+    }
+    list.appendChild(li);
+  }
+  const summary = document.getElementById('summary');
+  summary.textContent = failed ? failed + ' of ' + tests.length + ' failed' : 'All ' + tests.length + ' tests passed';
+  summary.className = failed ? 'fail' : 'pass';
+  window.__testResult = { total: tests.length, failed };
+</script>
+</body>
+</html>

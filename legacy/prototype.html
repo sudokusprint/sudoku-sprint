@@ -1,0 +1,2632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sudoku Sprint — prototype</title>
+<style>
+  :root {
+    --paper: #FAF8F3;
+    --paper-line: #E4E0D4;
+    --ink: #21262B;
+    --ink-soft: #6B7178;
+    --accent: #1B5FD6;
+    --accent-soft: #E7EEFB;
+    --good: #2E7D4F;
+    --bad: #C24B3F;
+    --given: #21262B;
+    --board-a: #FAF8F3;
+    --board-b: #F0EDE2;
+    --line: #21262B;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #1B1D22;
+      --paper-line: #33363E;
+      --ink: #ECEAE3;
+      --ink-soft: #9A9FA6;
+      --accent: #6FA3F5;
+      --accent-soft: #1E2C42;
+      --good: #6FCF97;
+      --bad: #F2897C;
+      --given: #ECEAE3;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1B1D22;
+    --paper-line: #33363E;
+    --ink: #ECEAE3;
+    --ink-soft: #9A9FA6;
+    --accent: #6FA3F5;
+    --accent-soft: #1E2C42;
+    --good: #6FCF97;
+    --bad: #F2897C;
+    --given: #ECEAE3;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .wrap {
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 28px 20px 116px;
+  }
+  .view { display: none; }
+  .view.active { display: block; }
+  .tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    background: var(--paper);
+    border-top: 1px solid var(--paper-line);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 40;
+  }
+  .tabBtn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 0 14px;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .tabBtn.active { color: var(--accent); }
+  .tabBtn[data-view="homeView"].active { color: var(--ink-soft); }
+  .tabIcon { font-size: 30px; }
+  .tabIcon svg { color: var(--ink); }
+  .raceWrap { text-align: center; }
+  .raceLock {
+    font-size: 40px;
+    margin-top: 20px;
+    opacity: 0.6;
+  }
+  .raceCard {
+    margin-top: 28px;
+    padding: 20px;
+    border: 1px solid var(--paper-line);
+    border-radius: 12px;
+    text-align: left;
+  }
+  .raceCardRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .raceCardRow:last-child { margin-bottom: 0; }
+  .raceAvatar { font-size: 22px; }
+  .raceBarTrack {
+    flex: 1;
+    height: 10px;
+    background: var(--paper-line);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .raceBarFill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+  }
+  .raceBarFill.ghost { background: var(--ink-soft); opacity: 0.5; }
+  .raceProgressWrap { margin-top: 4px; }
+  .racePct {
+    font-size: 12px;
+    color: var(--ink-soft);
+    width: 34px;
+    text-align: right;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .raceNote {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .lobbyCard {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    border: 1px solid var(--paper-line);
+    border-radius: 12px;
+    margin-top: 16px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .lobbyCard:hover { border-color: var(--accent); }
+  .lobbyIcon { font-size: 28px; }
+  .lobbyTitle { font-size: 16px; font-weight: 600; }
+  .lobbyDesc { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+  .lobbyBest {
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+  .bestGridTitle {
+    margin-top: 26px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  .bestGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .bestStat {
+    background: var(--accent-soft);
+    border-radius: 14px;
+    padding: 18px 6px 16px;
+    text-align: center;
+  }
+  .bestStatLabel {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .bestStatValue {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .bestStatValue.empty {
+    font-size: 20px;
+    color: var(--ink-soft);
+    opacity: 0.5;
+    font-weight: 500;
+  }
+  .bestEmptyNote {
+    grid-column: 1 / -1;
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 4px;
+  }
+  .profileTotals {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .profileTotal {
+    flex: 1;
+    text-align: center;
+    padding: 12px 6px;
+    border: 1px solid var(--paper-line);
+    border-radius: 10px;
+  }
+  .profileTotalValue {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .profileTotalLabel {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .friendsList { margin-top: 10px; }
+  .friendCard {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--paper-line);
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .friendAvatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .friendName { font-size: 14px; font-weight: 500; }
+  .friendStatus { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+  .friendDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .friendDot.online { background: var(--good); }
+  .friendDot.offline { background: var(--paper-line); }
+  .techGroupTitle {
+    margin-top: 26px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .techGroupTitle:first-of-type { margin-top: 10px; }
+  .techCard {
+    border: 1px solid var(--paper-line);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 12px;
+  }
+  .techName { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .techDesc { font-size: 13px; color: var(--ink-soft); line-height: 1.5; margin-bottom: 12px; }
+  .techCard button {
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .techDiagram { margin-top: 10px; margin-bottom: 12px; }
+  .exBoardWrap { max-width: 280px; margin: 0 auto; }
+  .exBoardWrap .board { font-size: 10px; }
+  .exBoardWrap .cell { font-size: 17px; font-weight: 700; line-height: 1; }
+  .cell.exHi { box-shadow: inset 0 0 0 2px var(--accent); }
+  .cell.exTarget { box-shadow: inset 0 0 0 2px var(--bad); }
+  .cell.exPivot { box-shadow: inset 0 0 0 2px var(--accent); background: color-mix(in srgb, var(--accent) 20%, var(--board-a)) !important; }
+  .cell.exPincer { box-shadow: inset 0 0 0 2px var(--accent); }
+  .exKeep { color: var(--accent) !important; font-weight: 700; }
+  .exElim { color: var(--bad) !important; text-decoration: line-through; opacity: 0.75; }
+  .diagCaption {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 10px;
+    font-style: italic;
+    text-align: center;
+  }
+  .diagLegend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 8px;
+    font-size: 10px;
+    color: var(--ink-soft);
+  }
+  .diagLegend span { display: flex; align-items: center; gap: 4px; }
+  .diagSwatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .techMastery { margin-top: 12px; }
+  .techMasteryLabel {
+    font-size: 11px;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .techMasteryLabel .status { font-weight: 600; color: var(--ink); }
+  .techMasteryTrack {
+    height: 6px;
+    background: var(--paper-line);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .techMasteryFill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 2px;
+    letter-spacing: -0.01em;
+  }
+  .tag {
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin: 0 0 22px;
+  }
+  .bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+  .stats {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .timer {
+    font-variant-numeric: tabular-nums;
+    font-size: 20px;
+    font-weight: 500;
+  }
+  .mistakes {
+    font-size: 16px;
+    color: var(--ink-soft);
+  }
+  .barRight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .boardWrap { position: relative; }
+  .board.paused {
+    filter: blur(10px);
+    pointer-events: none;
+  }
+  .pauseOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.25);
+    border-radius: 6px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    z-index: 10;
+  }
+  .pauseOverlay.show { display: flex; }
+  .pauseText {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  .pauseOverlay button {
+    padding: 10px 22px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .diff {
+    display: flex;
+    gap: 6px;
+  }
+  .diff button {
+    border: 1px solid var(--paper-line);
+    background: transparent;
+    color: var(--ink-soft);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .diff button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    grid-template-rows: repeat(9, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    width: 100%;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .board.notesActive {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+  .cell {
+    background: var(--board-a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(14px, 3.6vw, 20px);
+    color: var(--given);
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .cell.zoneB { background: var(--board-b); }
+  .cell.entered { color: var(--accent); font-weight: 500; }
+  .cell.selected { background: color-mix(in srgb, var(--accent) 25%, var(--accent-soft)); }
+  .cell.peer { background: var(--accent-soft); }
+  .cell.match { background: color-mix(in srgb, var(--accent) 45%, var(--board-a)); }
+  .cell.zoneB.match { background: color-mix(in srgb, var(--accent) 45%, var(--board-b)); }
+  .cell.bad { color: var(--bad); }
+  .cell.blockR:not(.blockB) { box-shadow: inset -2px 0 0 0 var(--line); }
+  .cell.blockB:not(.blockR) { box-shadow: inset 0 -2px 0 0 var(--line); }
+  .cell.blockR.blockB { box-shadow: inset -2px -2px 0 0 var(--line); }
+  .pad {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .pad button {
+    padding: 12px 0;
+    font-size: 17px;
+    border-radius: 8px;
+    border: 1px solid var(--paper-line);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .pad button:active { background: var(--accent-soft); }
+  .pad button.done {
+    opacity: 0.32;
+    pointer-events: none;
+    position: relative;
+  }
+  .pad button.done::after {
+    content: '';
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    top: 50%;
+    height: 3px;
+    background: currentColor;
+    transform: translateY(-50%) rotate(-25deg);
+  }
+  .cell .notes {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    pointer-events: none;
+  }
+  .cell .notes span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(7px, 1.6vw, 10px);
+    line-height: 1;
+    color: var(--ink-soft);
+    overflow: hidden;
+  }
+  .actions button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .actions button {
+    flex: 1;
+    padding: 12px 0;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .actions button.ghost {
+    background: transparent;
+    border: 1px solid var(--paper-line);
+    color: var(--ink-soft);
+  }
+  .actions button.ghost.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+  .genNote {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 10px 0 0;
+    min-height: 16px;
+  }
+  #undoBtn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .best {
+    margin-top: 14px;
+    font-size: 16px;
+    color: var(--ink-soft);
+  }
+  .win {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 8px;
+    background: var(--accent-soft);
+    color: var(--ink);
+    font-size: 14px;
+    display: none;
+  }
+  .win.show { display: block; }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .iconBtn {
+    border: 1px solid var(--paper-line);
+    background: var(--paper);
+    color: var(--ink);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .settingsOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 60;
+  }
+  .settingsOverlay.show { opacity: 1; pointer-events: auto; }
+  .settingsPanel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: min(280px, 85vw);
+    background: var(--paper);
+    box-shadow: -12px 0 30px rgba(0,0,0,0.25);
+    padding: 20px;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    padding-top: calc(20px + env(safe-area-inset-top, 0px));
+    overflow-y: auto;
+  }
+  .settingsOverlay.show .settingsPanel { transform: translateX(0); }
+  .settingsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .settingsHeader button {
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .themeSwatch {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--paper-line);
+    background: transparent;
+    cursor: pointer;
+    margin-bottom: 8px;
+    color: var(--ink);
+    font-size: 14px;
+  }
+  .themeSwatch.selected {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, var(--paper));
+  }
+  .swatchPreview {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+  .winOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 50;
+    padding: 20px;
+  }
+  .winOverlay.show { opacity: 1; pointer-events: auto; }
+  .winCard {
+    background: var(--paper);
+    border-radius: 16px;
+    padding: 32px 30px;
+    text-align: center;
+    max-width: 320px;
+    width: 100%;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+    transform: scale(0.9);
+    transition: transform 0.2s ease;
+  }
+  .winOverlay.show .winCard { transform: scale(1); }
+  .winTitle {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .winDetail {
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin-bottom: 22px;
+  }
+  .winCard button {
+    width: 100%;
+    padding: 13px 0;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<canvas id="confettiCanvas" style="position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 200;"></canvas>
+<div class="view active" id="homeView">
+  <div class="wrap">
+    <div>
+      <h1>Sudoku sprint</h1>
+      <p class="tag">Your lobby — jump into a puzzle, a race, or a lesson</p>
+    </div>
+
+    <div class="bestGridTitle">Your progress</div>
+    <div class="bestGrid" id="homeStatsGrid"></div>
+
+    <div class="bestGridTitle" style="margin-top: 26px;">Play</div>
+    <div class="lobbyCard" data-goto="soloView">
+      <span class="lobbyIcon">🧩</span>
+      <div>
+        <div class="lobbyTitle">Solo play</div>
+        <div class="lobbyDesc">Practice at your own pace</div>
+      </div>
+    </div>
+    <div class="lobbyCard" data-goto="raceView">
+      <span class="lobbyIcon">🏁</span>
+      <div>
+        <div class="lobbyTitle">Race mode</div>
+        <div class="lobbyDesc">Race a ghost opponent to finish first</div>
+      </div>
+    </div>
+    <div class="lobbyCard" data-goto="workshopView">
+      <span class="lobbyIcon">💡</span>
+      <div>
+        <div class="lobbyTitle">Workshop</div>
+        <div class="lobbyDesc">Learn techniques and practice them directly</div>
+      </div>
+    </div>
+    <div class="lobbyCard" data-goto="profileView">
+      <span class="lobbyIcon">🙂</span>
+      <div>
+        <div class="lobbyTitle">Profile</div>
+        <div class="lobbyDesc">Stats, mastery, and friends</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="view" id="soloView">
+<div class="wrap">
+  <div>
+    <h1>Sudoku sprint</h1>
+    <p class="tag">Solo mode prototype — racing comes next</p>
+    <div class="best" id="best"></div>
+  </div>
+
+  <div class="bar">
+    <div class="stats">
+      <div class="timer" id="timer">0:00</div>
+      <div class="mistakes" id="mistakes">0 mistakes</div>
+    </div>
+    <div class="barRight">
+      <div class="diff">
+        <button data-d="easy" class="active">Easy</button>
+        <button data-d="medium">Medium</button>
+        <button data-d="hard">Hard</button>
+      </div>
+      <button class="iconBtn" id="pauseBtn" aria-label="Pause">⏸</button>
+      <button class="iconBtn" id="settingsBtn" aria-label="Settings">⚙️</button>
+    </div>
+  </div>
+
+  <p class="genNote" id="genNote"></p>
+
+  <div class="boardWrap">
+    <div class="board" id="board"></div>
+    <div class="pauseOverlay" id="pauseOverlay">
+      <div class="pauseText">Paused</div>
+      <button id="resumeBtn">▶ Resume</button>
+    </div>
+  </div>
+
+  <div class="pad" id="pad"></div>
+
+  <div class="actions">
+    <button id="newBtn">New puzzle</button>
+    <button id="notesBtn" class="ghost">Notes: Off</button>
+    <button id="undoBtn" class="ghost" disabled>Undo</button>
+  </div>
+</div>
+</div>
+
+<div class="view" id="raceView">
+  <div class="wrap">
+    <div id="racePreStart">
+      <div>
+        <h1>Race mode</h1>
+        <p class="tag">Race a simulated ghost to finish first</p>
+      </div>
+      <div class="diff" id="raceDiff" style="margin-top: 18px;">
+        <button data-d="easy" class="active">Easy</button>
+        <button data-d="medium">Medium</button>
+        <button data-d="hard">Hard</button>
+      </div>
+      <div class="actions" style="margin-top: 18px;">
+        <button id="raceStartBtn">Start race</button>
+      </div>
+      <p class="raceNote">You'll race a ghost that fills in cells at a realistic pace. First to correctly finish the board wins. This is an early skeleton — no real opponents yet.</p>
+    </div>
+
+    <div id="raceActive" style="display: none;">
+      <div class="raceProgressWrap">
+        <div class="raceCardRow">
+          <span class="raceAvatar">🧑</span>
+          <div class="raceBarTrack"><div class="raceBarFill" id="raceYouBar" style="width: 0%"></div></div>
+          <span class="racePct" id="raceYouPct">0%</span>
+        </div>
+        <div class="raceCardRow">
+          <span class="raceAvatar">👻</span>
+          <div class="raceBarTrack"><div class="raceBarFill ghost" id="raceGhostBar" style="width: 0%"></div></div>
+          <span class="racePct" id="raceGhostPct">0%</span>
+        </div>
+      </div>
+      <div class="timer" id="raceTimer" style="margin: 10px 0 14px;">0:00</div>
+
+      <div class="board" id="raceBoard"></div>
+      <div class="pad" id="racePad"></div>
+      <div class="actions">
+        <button id="raceUndoBtn" class="ghost" disabled>Undo</button>
+        <button id="raceQuitBtn" class="ghost">Quit race</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="winOverlay" id="raceResultOverlay">
+  <div class="winCard">
+    <div class="winTitle" id="raceResultTitle">🏁 Result</div>
+    <div class="winDetail" id="raceResultDetail"></div>
+    <button id="raceResultBtn">Back to race lobby</button>
+  </div>
+</div>
+
+<div class="view" id="profileView">
+  <div class="wrap">
+    <div>
+      <h1>Profile</h1>
+      <p class="tag">Your stats and friends</p>
+    </div>
+
+    <div class="bestGridTitle">Best times</div>
+    <div class="bestGrid" id="bestGrid"></div>
+
+    <div class="bestGridTitle" style="margin-top: 30px;">Solo puzzles completed</div>
+    <div class="bestGrid" id="completedGrid"></div>
+
+    <div class="profileTotals" id="profileTotals"></div>
+
+    <div class="bestGridTitle" style="margin-top: 30px;">Race record</div>
+    <div class="profileTotals" id="raceRecordTotals"></div>
+
+    <div class="bestGridTitle" style="margin-top: 30px;">Friends</div>
+    <div class="friendsList" id="friendsList"></div>
+    <p class="raceNote">Friends and challenges are just a preview here — not connected to anything yet.</p>
+  </div>
+</div>
+
+<div class="view" id="workshopView">
+  <div class="wrap" id="workshopHome">
+    <div>
+      <h1>Workshop</h1>
+      <p class="tag">Learn each technique, then practice a puzzle built around it</p>
+    </div>
+    <div id="techniqueList"></div>
+  </div>
+
+  <div class="wrap" id="workshopPractice" style="display: none;">
+    <div class="bar">
+      <div class="stats">
+        <div class="mistakes" id="workTechName" style="font-size: 16px; color: var(--ink); font-weight: 600;">Naked Single</div>
+      </div>
+      <button class="iconBtn" id="workBackBtn" aria-label="Back to Workshop">←</button>
+    </div>
+    <p class="genNote" id="workGenNote"></p>
+    <div class="board" id="workBoard"></div>
+    <div class="pad" id="workPad"></div>
+    <div class="actions">
+      <button id="workNewBtn">New practice puzzle</button>
+      <button id="workEraseBtn" class="ghost">Erase</button>
+    </div>
+  </div>
+</div>
+
+<nav class="tabbar">
+  <button class="tabBtn active" data-view="homeView">
+    <span class="tabIcon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z"/>
+      </svg>
+    </span>
+    <span>Home</span>
+  </button>
+  <button class="tabBtn" data-view="soloView">
+    <span class="tabIcon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1 1 0 0 0-.878-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1 1 0 0 0-.289-.878L1.71 12.831a2.404 2.404 0 0 1-.706-1.704c0-.617.235-1.234.706-1.704L3.28 7.85a1 1 0 0 0 .29-.878c-.074-.493-.504-.84-.968-1.02a2.5 2.5 0 1 1 3.237-3.237c.18.464.527.894 1.02.967a1 1 0 0 0 .878-.289l1.568-1.568A2.404 2.404 0 0 1 11.009 1c.617 0 1.234.235 1.704.706l1.568 1.568c.23.23.556.338.878.29c.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/>
+      </svg>
+    </span>
+    <span>Solo</span>
+  </button>
+  <button class="tabBtn" data-view="raceView">
+    <span class="tabIcon">🏁</span>
+    <span>Race</span>
+  </button>
+  <button class="tabBtn" data-view="workshopView">
+    <span class="tabIcon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.4.3.6.8.6 1.3V16h5.8v-.8c0-.5.2-1 .6-1.3A6 6 0 0 0 12 3z"/>
+      </svg>
+    </span>
+    <span>Workshop</span>
+  </button>
+  <button class="tabBtn" data-view="profileView">
+    <span class="tabIcon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
+      </svg>
+    </span>
+    <span>Profile</span>
+  </button>
+</nav>
+
+
+<div class="winOverlay" id="winOverlay">
+  <div class="winCard">
+    <div class="winTitle">🎉 Solved!</div>
+    <div class="winDetail" id="winDetail"></div>
+    <button id="winAgain">New puzzle</button>
+  </div>
+</div>
+
+<div class="settingsOverlay" id="settingsOverlay">
+  <div class="settingsPanel">
+    <div class="settingsHeader">
+      <span>Board style</span>
+      <button id="closeSettings" aria-label="Close">✕</button>
+    </div>
+    <div id="themeList"></div>
+  </div>
+</div>
+
+<script>
+
+(function () {
+  const boardEl = document.getElementById('board');
+  const padEl = document.getElementById('pad');
+  const timerEl = document.getElementById('timer');
+  const bestEl = document.getElementById('best');
+  const mistakesEl = document.getElementById('mistakes');
+  const winOverlay = document.getElementById('winOverlay');
+  const winDetail = document.getElementById('winDetail');
+  const diffButtons = document.querySelectorAll('.diff button');
+  const settingsOverlay = document.getElementById('settingsOverlay');
+  const themeList = document.getElementById('themeList');
+
+  const THEMES = [
+    { id: 'classic', name: 'Classic', boardA: '#FAF8F3', boardB: '#F0EDE2', line: '#21262B', accent: '#1B5FD6', accentSoft: '#E7EEFB' },
+    { id: 'ocean', name: 'Ocean', boardA: '#EAF4F7', boardB: '#CFE6EC', line: '#0B4B5C', accent: '#0E8FA6', accentSoft: '#DFF3F6' },
+    { id: 'forest', name: 'Forest', boardA: '#F2F5EC', boardB: '#DDE7CD', line: '#33461F', accent: '#5C8A2E', accentSoft: '#E8F0DA' },
+    { id: 'walnut', name: 'Walnut', boardA: '#F6EEE3', boardB: '#E7D5BD', line: '#5A3B23', accent: '#B4652F', accentSoft: '#F4E4D2' },
+    { id: 'slate', name: 'Slate', boardA: '#EEF1F5', boardB: '#D7DEE8', line: '#2B3A4A', accent: '#4C6E91', accentSoft: '#E2E9F1' },
+    { id: 'sunset', name: 'Sunset', boardA: '#FDF1E9', boardB: '#F7D9C4', line: '#7A3B2E', accent: '#D96C4A', accentSoft: '#FBE3D6' },
+    { id: 'mono', name: 'Mono', boardA: '#FFFFFF', boardB: '#FFFFFF', line: '#000000', accent: '#4A4A4A', accentSoft: '#E8E8E8' }
+  ];
+  let currentTheme = 'classic';
+
+  const CLUES = { easy: 40, medium: 32, hard: 26 };
+  let difficulty = 'easy';
+  let solution = [];
+  let puzzle = [];
+  let given = [];
+  let selected = null;
+  let startTime = null;
+  let elapsed = 0;
+  let ticking = null;
+  let solved = false;
+  let paused = false;
+  let mistakes = 0;
+  let moveHistory = [];
+  let notes = [];
+  let notesMode = false;
+
+  function emptyGrid() {
+    return Array.from({ length: 9 }, () => Array(9).fill(0));
+  }
+
+  function shuffled(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function valid(grid, r, c, v) {
+    for (let i = 0; i < 9; i++) {
+      if (grid[r][i] === v || grid[i][c] === v) return false;
+    }
+    const br = r - (r % 3), bc = c - (c % 3);
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (grid[br + i][bc + j] === v) return false;
+      }
+    }
+    return true;
+  }
+
+  function fill(grid) {
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (grid[r][c] === 0) {
+          for (const v of shuffled([1,2,3,4,5,6,7,8,9])) {
+            if (valid(grid, r, c, v)) {
+              grid[r][c] = v;
+              if (fill(grid)) return true;
+              grid[r][c] = 0;
+            }
+          }
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function countSolutions(grid, limit) {
+    let count = 0;
+    function solve(g) {
+      if (count >= limit) return;
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (g[r][c] === 0) {
+            for (let v = 1; v <= 9; v++) {
+              if (valid(g, r, c, v)) {
+                g[r][c] = v;
+                solve(g);
+                g[r][c] = 0;
+                if (count >= limit) return;
+              }
+            }
+            return;
+          }
+        }
+      }
+      count++;
+    }
+    solve(grid.map(row => row.slice()));
+    return count;
+  }
+
+  function generatePuzzle(clueCount) {
+    const full = emptyGrid();
+    fill(full);
+    const p = full.map(row => row.slice());
+    const cells = shuffled(Array.from({ length: 81 }, (_, i) => i));
+    let removed = 0;
+    const toRemove = 81 - clueCount;
+    for (const idx of cells) {
+      if (removed >= toRemove) break;
+      const r = Math.floor(idx / 9), c = idx % 9;
+      const backup = p[r][c];
+      p[r][c] = 0;
+      if (countSolutions(p, 2) !== 1) {
+        p[r][c] = backup;
+      } else {
+        removed++;
+      }
+    }
+    return { full, p };
+  }
+
+  // ---------- Real logical solver (human techniques, not brute force) ----------
+  // Tier 1 = singles only ("Easy"), Tier 2 = + pairs/pointing/box-line ("Medium"),
+  // Tier 3 = + triples/X-wing ("Hard"). Tier 4 = our technique set couldn't finish it.
+  const UNITS = (function buildUnits() {
+    const units = [];
+    for (let r = 0; r < 9; r++) { const u = []; for (let c = 0; c < 9; c++) u.push([r, c]); units.push(u); }
+    for (let c = 0; c < 9; c++) { const u = []; for (let r = 0; r < 9; r++) u.push([r, c]); units.push(u); }
+    for (let br = 0; br < 3; br++) for (let bc = 0; bc < 3; bc++) {
+      const u = [];
+      for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) u.push([br * 3 + i, bc * 3 + j]);
+      units.push(u);
+    }
+    return units;
+  })();
+
+  function popcount(m) { let n = 0; while (m) { n += m & 1; m >>= 1; } return n; }
+  function bitFor(d) { return 1 << (d - 1); }
+
+  function computeCandidates(grid) {
+    const cand = Array.from({ length: 9 }, () => Array(9).fill(0));
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (grid[r][c] !== 0) continue;
+        let mask = 0x1FF;
+        for (let i = 0; i < 9; i++) {
+          if (grid[r][i]) mask &= ~bitFor(grid[r][i]);
+          if (grid[i][c]) mask &= ~bitFor(grid[i][c]);
+        }
+        const br = r - (r % 3), bc = c - (c % 3);
+        for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+          const v = grid[br + i][bc + j];
+          if (v) mask &= ~bitFor(v);
+        }
+        cand[r][c] = mask;
+      }
+    }
+    return cand;
+  }
+
+  function assignDigit(grid, cand, r, c, d) {
+    grid[r][c] = d;
+    cand[r][c] = 0;
+    const clearBit = ~bitFor(d);
+    for (let i = 0; i < 9; i++) {
+      if (grid[r][i] === 0) cand[r][i] &= clearBit;
+      if (grid[i][c] === 0) cand[i][c] &= clearBit;
+    }
+    const br = r - (r % 3), bc = c - (c % 3);
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+      const rr = br + i, cc = bc + j;
+      if (grid[rr][cc] === 0) cand[rr][cc] &= clearBit;
+    }
+  }
+
+  function tryNakedSingle(grid, cand) {
+    for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
+      if (grid[r][c] === 0 && popcount(cand[r][c]) === 1) {
+        const d = Math.log2(cand[r][c]) + 1;
+        assignDigit(grid, cand, r, c, d);
+        return { tier: 1, name: 'Naked Single' };
+      }
+    }
+    return null;
+  }
+
+  function tryHiddenSingle(grid, cand) {
+    for (const unit of UNITS) {
+      for (let d = 1; d <= 9; d++) {
+        const bit = bitFor(d);
+        let count = 0, at = null;
+        for (const [r, c] of unit) {
+          if (grid[r][c] === 0 && (cand[r][c] & bit)) { count++; at = [r, c]; }
+        }
+        if (count === 1) {
+          assignDigit(grid, cand, at[0], at[1], d);
+          return { tier: 1, name: 'Hidden Single' };
+        }
+      }
+    }
+    return null;
+  }
+
+  function tryNakedPair(grid, cand) {
+    for (const unit of UNITS) {
+      const cells = unit.filter(([r, c]) => grid[r][c] === 0 && popcount(cand[r][c]) === 2);
+      for (let i = 0; i < cells.length; i++) {
+        for (let j = i + 1; j < cells.length; j++) {
+          const [r1, c1] = cells[i], [r2, c2] = cells[j];
+          if (cand[r1][c1] !== cand[r2][c2]) continue;
+          const mask = cand[r1][c1];
+          let changed = false;
+          for (const [r, c] of unit) {
+            if ((r === r1 && c === c1) || (r === r2 && c === c2)) continue;
+            if (grid[r][c] === 0 && (cand[r][c] & mask)) { cand[r][c] &= ~mask; changed = true; }
+          }
+          if (changed) return { tier: 2, name: 'Naked Pair' };
+        }
+      }
+    }
+    return null;
+  }
+
+  function tryHiddenPair(grid, cand) {
+    for (const unit of UNITS) {
+      for (let d1 = 1; d1 <= 9; d1++) {
+        for (let d2 = d1 + 1; d2 <= 9; d2++) {
+          const b1 = bitFor(d1), b2 = bitFor(d2);
+          const cellsD1 = unit.filter(([r, c]) => grid[r][c] === 0 && (cand[r][c] & b1));
+          const cellsD2 = unit.filter(([r, c]) => grid[r][c] === 0 && (cand[r][c] & b2));
+          if (cellsD1.length === 2 && cellsD2.length === 2 &&
+              cellsD1[0][0] === cellsD2[0][0] && cellsD1[0][1] === cellsD2[0][1] &&
+              cellsD1[1][0] === cellsD2[1][0] && cellsD1[1][1] === cellsD2[1][1]) {
+            const mask = b1 | b2;
+            let changed = false;
+            for (const [r, c] of cellsD1) {
+              if (cand[r][c] & ~mask) { cand[r][c] = mask; changed = true; }
+            }
+            if (changed) return { tier: 2, name: 'Hidden Pair' };
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  function tryLockedCandidates(grid, cand) {
+    // Pointing: digit confined to one row/col within a box -> eliminate outside the box.
+    for (let br = 0; br < 3; br++) for (let bc = 0; bc < 3; bc++) {
+      for (let d = 1; d <= 9; d++) {
+        const bit = bitFor(d);
+        const cells = [];
+        for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+          const r = br * 3 + i, c = bc * 3 + j;
+          if (grid[r][c] === 0 && (cand[r][c] & bit)) cells.push([r, c]);
+        }
+        if (cells.length < 2) continue;
+        const sameRow = cells.every(([r]) => r === cells[0][0]);
+        const sameCol = cells.every(([, c]) => c === cells[0][1]);
+        if (sameRow) {
+          const r = cells[0][0]; let changed = false;
+          for (let c = 0; c < 9; c++) {
+            if (c >= bc * 3 && c < bc * 3 + 3) continue;
+            if (grid[r][c] === 0 && (cand[r][c] & bit)) { cand[r][c] &= ~bit; changed = true; }
+          }
+          if (changed) return { tier: 2, name: 'Pointing Pair' };
+        } else if (sameCol) {
+          const c = cells[0][1]; let changed = false;
+          for (let r = 0; r < 9; r++) {
+            if (r >= br * 3 && r < br * 3 + 3) continue;
+            if (grid[r][c] === 0 && (cand[r][c] & bit)) { cand[r][c] &= ~bit; changed = true; }
+          }
+          if (changed) return { tier: 2, name: 'Pointing Pair' };
+        }
+      }
+    }
+    // Box-line reduction: digit confined to one box within a row/col -> eliminate rest of box.
+    for (let r = 0; r < 9; r++) {
+      for (let d = 1; d <= 9; d++) {
+        const bit = bitFor(d);
+        const cols = [];
+        for (let c = 0; c < 9; c++) if (grid[r][c] === 0 && (cand[r][c] & bit)) cols.push(c);
+        if (cols.length < 2) continue;
+        const bc = Math.floor(cols[0] / 3);
+        if (!cols.every(c => Math.floor(c / 3) === bc)) continue;
+        const br = Math.floor(r / 3);
+        let changed = false;
+        for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+          const rr = br * 3 + i, cc = bc * 3 + j;
+          if (rr === r) continue;
+          if (grid[rr][cc] === 0 && (cand[rr][cc] & bit)) { cand[rr][cc] &= ~bit; changed = true; }
+        }
+        if (changed) return { tier: 2, name: 'Box-Line Reduction' };
+      }
+    }
+    for (let c = 0; c < 9; c++) {
+      for (let d = 1; d <= 9; d++) {
+        const bit = bitFor(d);
+        const rows = [];
+        for (let r = 0; r < 9; r++) if (grid[r][c] === 0 && (cand[r][c] & bit)) rows.push(r);
+        if (rows.length < 2) continue;
+        const br = Math.floor(rows[0] / 3);
+        if (!rows.every(r => Math.floor(r / 3) === br)) continue;
+        const bc = Math.floor(c / 3);
+        let changed = false;
+        for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+          const rr = br * 3 + i, cc = bc * 3 + j;
+          if (cc === c) continue;
+          if (grid[rr][cc] === 0 && (cand[rr][cc] & bit)) { cand[rr][cc] &= ~bit; changed = true; }
+        }
+        if (changed) return { tier: 2, name: 'Box-Line Reduction' };
+      }
+    }
+    return null;
+  }
+
+  function tryNakedTriple(grid, cand) {
+    for (const unit of UNITS) {
+      const cells = unit.filter(([r, c]) => grid[r][c] === 0 && popcount(cand[r][c]) >= 2 && popcount(cand[r][c]) <= 3);
+      for (let i = 0; i < cells.length; i++) for (let j = i + 1; j < cells.length; j++) for (let k = j + 1; k < cells.length; k++) {
+        const [r1, c1] = cells[i], [r2, c2] = cells[j], [r3, c3] = cells[k];
+        const union = cand[r1][c1] | cand[r2][c2] | cand[r3][c3];
+        if (popcount(union) !== 3) continue;
+        let changed = false;
+        for (const [r, c] of unit) {
+          if ((r === r1 && c === c1) || (r === r2 && c === c2) || (r === r3 && c === c3)) continue;
+          if (grid[r][c] === 0 && (cand[r][c] & union)) { cand[r][c] &= ~union; changed = true; }
+        }
+        if (changed) return { tier: 3, name: 'Naked Triple' };
+      }
+    }
+    return null;
+  }
+
+  function tryXWing(grid, cand) {
+    for (let d = 1; d <= 9; d++) {
+      const bit = bitFor(d);
+      for (let r1 = 0; r1 < 9; r1++) {
+        const cols1 = [];
+        for (let c = 0; c < 9; c++) if (grid[r1][c] === 0 && (cand[r1][c] & bit)) cols1.push(c);
+        if (cols1.length !== 2) continue;
+        for (let r2 = r1 + 1; r2 < 9; r2++) {
+          const cols2 = [];
+          for (let c = 0; c < 9; c++) if (grid[r2][c] === 0 && (cand[r2][c] & bit)) cols2.push(c);
+          if (cols2.length !== 2 || cols2[0] !== cols1[0] || cols2[1] !== cols1[1]) continue;
+          let changed = false;
+          for (let r = 0; r < 9; r++) {
+            if (r === r1 || r === r2) continue;
+            for (const c of cols1) {
+              if (grid[r][c] === 0 && (cand[r][c] & bit)) { cand[r][c] &= ~bit; changed = true; }
+            }
+          }
+          if (changed) return { tier: 3, name: 'X-Wing' };
+        }
+      }
+    }
+    return null;
+  }
+
+  function tryHiddenTriple(grid, cand) {
+    for (const unit of UNITS) {
+      for (let d1 = 1; d1 <= 9; d1++) for (let d2 = d1 + 1; d2 <= 9; d2++) for (let d3 = d2 + 1; d3 <= 9; d3++) {
+        const mask = bitFor(d1) | bitFor(d2) | bitFor(d3);
+        const cells = unit.filter(([r, c]) => grid[r][c] === 0 && (cand[r][c] & mask));
+        if (cells.length !== 3) continue;
+        let changed = false;
+        for (const [r, c] of cells) {
+          if (cand[r][c] & ~mask) { cand[r][c] &= mask; changed = true; }
+        }
+        if (changed) return { tier: 3, name: 'Hidden Triple' };
+      }
+    }
+    return null;
+  }
+
+  function tryNakedQuad(grid, cand) {
+    for (const unit of UNITS) {
+      const cells = unit.filter(([r, c]) => grid[r][c] === 0 && popcount(cand[r][c]) >= 2 && popcount(cand[r][c]) <= 4);
+      for (let i = 0; i < cells.length; i++) for (let j = i + 1; j < cells.length; j++) for (let k = j + 1; k < cells.length; k++) for (let l = k + 1; l < cells.length; l++) {
+        const [r1, c1] = cells[i], [r2, c2] = cells[j], [r3, c3] = cells[k], [r4, c4] = cells[l];
+        const union = cand[r1][c1] | cand[r2][c2] | cand[r3][c3] | cand[r4][c4];
+        if (popcount(union) !== 4) continue;
+        let changed = false;
+        for (const [r, c] of unit) {
+          if ((r===r1&&c===c1)||(r===r2&&c===c2)||(r===r3&&c===c3)||(r===r4&&c===c4)) continue;
+          if (grid[r][c] === 0 && (cand[r][c] & union)) { cand[r][c] &= ~union; changed = true; }
+        }
+        if (changed) return { tier: 3, name: 'Naked Quad' };
+      }
+    }
+    return null;
+  }
+
+  function tryHiddenQuad(grid, cand) {
+    for (const unit of UNITS) {
+      for (let d1 = 1; d1 <= 9; d1++) for (let d2 = d1+1; d2 <= 9; d2++) for (let d3 = d2+1; d3 <= 9; d3++) for (let d4 = d3+1; d4 <= 9; d4++) {
+        const mask = bitFor(d1) | bitFor(d2) | bitFor(d3) | bitFor(d4);
+        const cells = unit.filter(([r, c]) => grid[r][c] === 0 && (cand[r][c] & mask));
+        if (cells.length !== 4) continue;
+        let changed = false;
+        for (const [r, c] of cells) {
+          if (cand[r][c] & ~mask) { cand[r][c] &= mask; changed = true; }
+        }
+        if (changed) return { tier: 3, name: 'Hidden Quad' };
+      }
+    }
+    return null;
+  }
+
+  function trySwordfish(grid, cand) {
+    for (let d = 1; d <= 9; d++) {
+      const bit = bitFor(d);
+      const rowInfo = [];
+      for (let r = 0; r < 9; r++) {
+        const cols = [];
+        for (let c = 0; c < 9; c++) if (grid[r][c] === 0 && (cand[r][c] & bit)) cols.push(c);
+        if (cols.length >= 2 && cols.length <= 3) rowInfo.push({ r, cols });
+      }
+      for (let i=0;i<rowInfo.length;i++) for (let j=i+1;j<rowInfo.length;j++) for (let k=j+1;k<rowInfo.length;k++) {
+        const rows = [rowInfo[i], rowInfo[j], rowInfo[k]];
+        const unionCols = new Set();
+        rows.forEach(rc => rc.cols.forEach(c => unionCols.add(c)));
+        if (unionCols.size !== 3) continue;
+        const rowNums = rows.map(rc => rc.r);
+        let changed = false;
+        for (let r = 0; r < 9; r++) {
+          if (rowNums.includes(r)) continue;
+          for (const c of unionCols) {
+            if (grid[r][c] === 0 && (cand[r][c] & bit)) { cand[r][c] &= ~bit; changed = true; }
+          }
+        }
+        if (changed) return { tier: 4, name: 'Swordfish' };
+      }
+      const colInfo = [];
+      for (let c = 0; c < 9; c++) {
+        const rows = [];
+        for (let r = 0; r < 9; r++) if (grid[r][c] === 0 && (cand[r][c] & bit)) rows.push(r);
+        if (rows.length >= 2 && rows.length <= 3) colInfo.push({ c, rows });
+      }
+      for (let i=0;i<colInfo.length;i++) for (let j=i+1;j<colInfo.length;j++) for (let k=j+1;k<colInfo.length;k++) {
+        const cols = [colInfo[i], colInfo[j], colInfo[k]];
+        const unionRows = new Set();
+        cols.forEach(cc => cc.rows.forEach(r => unionRows.add(r)));
+        if (unionRows.size !== 3) continue;
+        const colNums = cols.map(cc => cc.c);
+        let changed = false;
+        for (let c = 0; c < 9; c++) {
+          if (colNums.includes(c)) continue;
+          for (const r of unionRows) {
+            if (grid[r][c] === 0 && (cand[r][c] & bit)) { cand[r][c] &= ~bit; changed = true; }
+          }
+        }
+        if (changed) return { tier: 4, name: 'Swordfish' };
+      }
+    }
+    return null;
+  }
+
+  function seesCell(r1, c1, r2, c2) {
+    if (r1 === r2 && c1 === c2) return false;
+    if (r1 === r2 || c1 === c2) return true;
+    return Math.floor(r1/3) === Math.floor(r2/3) && Math.floor(c1/3) === Math.floor(c2/3);
+  }
+
+  function tryXYWing(grid, cand) {
+    const bival = [];
+    for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
+      if (grid[r][c] === 0 && popcount(cand[r][c]) === 2) bival.push({ r, c, mask: cand[r][c] });
+    }
+    for (const pivot of bival) {
+      const seers = bival.filter(o => o !== pivot && seesCell(pivot.r, pivot.c, o.r, o.c) && popcount(pivot.mask & o.mask) === 1);
+      for (let i = 0; i < seers.length; i++) for (let j = i+1; j < seers.length; j++) {
+        const p1 = seers[i], p2 = seers[j];
+        if (p1.mask === p2.mask) continue;
+        const shared1 = pivot.mask & p1.mask;
+        const shared2 = pivot.mask & p2.mask;
+        if (shared1 === shared2) continue;
+        const z1 = p1.mask & ~pivot.mask;
+        const z2 = p2.mask & ~pivot.mask;
+        if (z1 !== z2 || z1 === 0) continue;
+        const z = z1;
+        let changed = false;
+        for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
+          if (grid[r][c] !== 0) continue;
+          if ((r===pivot.r&&c===pivot.c)||(r===p1.r&&c===p1.c)||(r===p2.r&&c===p2.c)) continue;
+          if (seesCell(p1.r,p1.c,r,c) && seesCell(p2.r,p2.c,r,c) && (cand[r][c] & z)) { cand[r][c] &= ~z; changed = true; }
+        }
+        if (changed) return { tier: 4, name: 'XY-Wing' };
+      }
+    }
+    return null;
+  }
+
+  function solveLogical(inputGrid) {
+    const grid = inputGrid.map(row => row.slice());
+    const cand = computeCandidates(grid);
+    let maxTier = 0;
+    const used = new Set();
+    for (let iter = 0; iter < 300; iter++) {
+      let empty = false;
+      for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) if (grid[r][c] === 0) empty = true;
+      if (!empty) break;
+      const step =
+        tryNakedSingle(grid, cand) || tryHiddenSingle(grid, cand) ||
+        tryNakedPair(grid, cand) || tryHiddenPair(grid, cand) || tryLockedCandidates(grid, cand) ||
+        tryNakedTriple(grid, cand) || tryHiddenTriple(grid, cand) || tryNakedQuad(grid, cand) || tryHiddenQuad(grid, cand) || tryXWing(grid, cand) ||
+        trySwordfish(grid, cand) || tryXYWing(grid, cand);
+      if (!step) break;
+      maxTier = Math.max(maxTier, step.tier);
+      used.add(step.name);
+    }
+    let remaining = 0;
+    for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) if (grid[r][c] === 0) remaining++;
+    const solved = remaining === 0;
+    return { solved, tier: solved ? Math.max(maxTier, 1) : 5, techniques: Array.from(used) };
+  }
+
+  const DIFFICULTY_TIER = { easy: 1, medium: 2, hard: 3 };
+  const MIN_CLUES = { easy: 36, medium: 17, hard: 17 };
+
+  function generatePuzzleByDifficulty(targetTier, minClues) {
+    let best = null;
+    const ATTEMPTS = 4;
+    for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
+      const full = emptyGrid();
+      fill(full);
+      const p = full.map(row => row.slice());
+      const cellOrder = shuffled(Array.from({ length: 81 }, (_, i) => i));
+      let clueCount = 81;
+      for (const idx of cellOrder) {
+        if (clueCount <= minClues) break;
+        const r = Math.floor(idx / 9), c = idx % 9;
+        if (p[r][c] === 0) continue;
+        const backup = p[r][c];
+        p[r][c] = 0;
+        if (countSolutions(p, 2) !== 1) { p[r][c] = backup; continue; }
+        const res = solveLogical(p);
+        const tier = res.solved ? res.tier : 5;
+        if (tier > targetTier) {
+          p[r][c] = backup; // too hard for our target, keep the clue
+        } else {
+          clueCount--;
+        }
+      }
+      const final = solveLogical(p);
+      const finalTier = final.solved ? final.tier : 5;
+      const candidate = { full, p, tier: finalTier, techniques: final.techniques, clueCount };
+      if (finalTier === targetTier) return candidate;
+      if (!best || (finalTier <= targetTier && finalTier > best.tier)) best = candidate;
+    }
+    return best;
+  }
+
+  function startPuzzle() {
+    solved = false;
+    paused = false;
+    boardEl.classList.remove('paused');
+    document.getElementById('pauseOverlay').classList.remove('show');
+    document.getElementById('pauseBtn').textContent = '⏸';
+    mistakes = 0;
+    moveHistory = [];
+    updateUndoState();
+    renderMistakes();
+    winOverlay.classList.remove('show');
+    const genNote = document.getElementById('genNote');
+    if (genNote) genNote.textContent = 'Generating a verified ' + difficulty + ' puzzle…';
+    clearInterval(ticking);
+    // Defer the heavy generation one tick so the "generating" note can actually paint first.
+    setTimeout(() => {
+      const targetTier = DIFFICULTY_TIER[difficulty];
+      const gen = generatePuzzleByDifficulty(targetTier, MIN_CLUES[difficulty]);
+      solution = gen.full;
+      puzzle = gen.p;
+      given = gen.p.map(row => row.map(v => v !== 0));
+      notes = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+      selected = null;
+      elapsed = 0;
+      startTime = Date.now();
+      clearInterval(ticking);
+      ticking = setInterval(tick, 1000);
+      renderBoard();
+      renderBest();
+      tick();
+      if (genNote) {
+        const TIER_NAME = { 1: 'Easy', 2: 'Medium', 3: 'Hard', 4: 'Expert' };
+        const base = 'Verified ' + TIER_NAME[gen.tier] + ' · ' + gen.clueCount + ' clues · needs: ' + (gen.techniques.join(', ') || 'Singles only');
+        genNote.textContent = gen.tier < targetTier
+          ? base + '  (couldn\'t find a genuine ' + TIER_NAME[targetTier] + ' this time — try New Puzzle again)'
+          : base;
+      }
+    }, 20);
+  }
+
+  function renderMistakes() {
+    mistakesEl.textContent = mistakes + (mistakes === 1 ? ' mistake' : ' mistakes');
+  }
+
+  function tick() {
+    if (solved || paused) return;
+    elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    timerEl.textContent = m + ':' + String(s).padStart(2, '0');
+  }
+
+  function renderBoard() {
+    boardEl.innerHTML = '';
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        const blockRow = Math.floor(r / 3), blockCol = Math.floor(c / 3);
+        if ((blockRow + blockCol) % 2 === 1) cell.classList.add('zoneB');
+        if (c === 2 || c === 5) cell.classList.add('blockR');
+        if (r === 2 || r === 5) cell.classList.add('blockB');
+        const v = puzzle[r][c];
+        if (v !== 0) {
+          cell.textContent = v;
+          if (given[r][c]) {
+            // original clue, leave default ink color
+          } else {
+            cell.classList.add('entered');
+            if (v !== solution[r][c]) cell.classList.add('bad');
+          }
+        } else if (notes[r][c] && notes[r][c].size > 0) {
+          const grid = document.createElement('div');
+          grid.className = 'notes';
+          for (let n = 1; n <= 9; n++) {
+            const s = document.createElement('span');
+            if (notes[r][c].has(n)) s.textContent = n;
+            grid.appendChild(s);
+          }
+          cell.appendChild(grid);
+        }
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        cell.addEventListener('click', () => selectCell(r, c));
+        boardEl.appendChild(cell);
+      }
+    }
+    highlight();
+    updatePadState();
+  }
+
+  function updatePadState() {
+    for (let v = 1; v <= 9; v++) {
+      let count = 0;
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (puzzle[r][c] === v && v === solution[r][c]) count++;
+        }
+      }
+      const btn = padEl.querySelector('button[data-v="' + v + '"]');
+      if (btn) btn.classList.toggle('done', count === 9);
+    }
+  }
+
+  function highlight() {
+    const selectedValue = selected ? puzzle[selected[0]][selected[1]] : 0;
+    document.querySelectorAll('.cell').forEach(el => {
+      el.classList.remove('selected', 'peer', 'match');
+      const r = +el.dataset.r, c = +el.dataset.c;
+      if (selected) {
+        const [sr, sc] = selected;
+        if (r === sr && c === sc) el.classList.add('selected');
+        else if (r === sr || c === sc) el.classList.add('peer');
+      }
+      if (selectedValue !== 0 && puzzle[r][c] === selectedValue && !(selected && r === selected[0] && c === selected[1])) {
+        el.classList.add('match');
+      }
+    });
+  }
+
+  function selectCell(r, c) {
+    selected = [r, c];
+    highlight();
+  }
+
+  function isGiven(r, c) {
+    return given[r][c] === true;
+  }
+
+  function place(v) {
+    if (!selected || solved || paused) return;
+    const [r, c] = selected;
+    if (isGiven(r, c)) return;
+    if (notesMode) {
+      if (puzzle[r][c] !== 0) return;
+      if (notes[r][c].has(v)) notes[r][c].delete(v);
+      else notes[r][c].add(v);
+      renderBoard();
+      return;
+    }
+    if (puzzle[r][c] === v) return;
+    const prevValue = puzzle[r][c];
+    puzzle[r][c] = v;
+    notes[r][c] = new Set();
+    let mistakeDelta = 0;
+    if (v !== solution[r][c]) {
+      mistakes++;
+      mistakeDelta = 1;
+      renderMistakes();
+    }
+    moveHistory.push({ r, c, prevValue, mistakeDelta });
+    updateUndoState();
+    renderBoard();
+    checkWin();
+  }
+
+  function undo() {
+    if (moveHistory.length === 0 || paused || solved) return;
+    const last = moveHistory.pop();
+    puzzle[last.r][last.c] = last.prevValue;
+    if (last.mistakeDelta) {
+      mistakes = Math.max(0, mistakes - last.mistakeDelta);
+      renderMistakes();
+    }
+    updateUndoState();
+    renderBoard();
+  }
+
+  function updateUndoState() {
+    const btn = document.getElementById('undoBtn');
+    if (btn) btn.disabled = moveHistory.length === 0;
+  }
+
+  function checkWin() {
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (puzzle[r][c] !== solution[r][c]) return;
+      }
+    }
+    solved = true;
+    clearInterval(ticking);
+    saveBest();
+    incrementCounter('sudoku-completed-' + difficulty);
+    addLifetimeMistakes(mistakes);
+    winDetail.textContent = 'Time: ' + timerEl.textContent + ' · ' + mistakes + (mistakes === 1 ? ' mistake' : ' mistakes');
+    winOverlay.classList.add('show');
+    launchConfetti();
+  }
+
+  function incrementCounter(key) {
+    try {
+      const cur = parseInt(localStorage.getItem(key) || '0', 10);
+      localStorage.setItem(key, String(cur + 1));
+    } catch (e) {}
+  }
+
+  // ---------- Confetti burst on solve ----------
+  const confettiCanvas = document.getElementById('confettiCanvas');
+  const confettiCtx = confettiCanvas.getContext('2d');
+  const CONFETTI_COLORS = ['#1B5FD6', '#D96C4A', '#2E7D4F', '#F2C14E', '#8C7CFF', '#E23E57'];
+  let confettiParticles = [];
+  let confettiRunning = false;
+
+  function launchConfetti() {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+    const originX = confettiCanvas.width / 2;
+    const count = 160;
+    confettiParticles = [];
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.random() * Math.PI) + Math.PI; // upward-ish spread
+      const speed = 6 + Math.random() * 10;
+      confettiParticles.push({
+        x: originX + (Math.random() - 0.5) * 60,
+        y: confettiCanvas.height * 0.35,
+        vx: Math.cos(angle) * speed * (Math.random() < 0.5 ? 1 : -1),
+        vy: Math.sin(angle) * speed - 6,
+        size: 5 + Math.random() * 5,
+        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+        rotation: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.3,
+        shape: Math.random() < 0.5 ? 'rect' : 'circle',
+        life: 0,
+        maxLife: 110 + Math.random() * 40
+      });
+    }
+    if (!confettiRunning) {
+      confettiRunning = true;
+      requestAnimationFrame(confettiTick);
+    }
+  }
+
+  function confettiTick() {
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    let alive = false;
+    for (const p of confettiParticles) {
+      p.life++;
+      if (p.life > p.maxLife) continue;
+      alive = true;
+      p.vy += 0.28; // gravity
+      p.vx *= 0.995;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rotation += p.rotSpeed;
+      const fade = Math.max(0, 1 - p.life / p.maxLife);
+      confettiCtx.save();
+      confettiCtx.globalAlpha = fade;
+      confettiCtx.translate(p.x, p.y);
+      confettiCtx.rotate(p.rotation);
+      confettiCtx.fillStyle = p.color;
+      if (p.shape === 'rect') {
+        confettiCtx.fillRect(-p.size / 2, -p.size / 3, p.size, p.size * 0.6);
+      } else {
+        confettiCtx.beginPath();
+        confettiCtx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        confettiCtx.fill();
+      }
+      confettiCtx.restore();
+    }
+    if (alive) {
+      requestAnimationFrame(confettiTick);
+    } else {
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      confettiRunning = false;
+    }
+  }
+
+  function addLifetimeMistakes(n) {
+    try {
+      const cur = parseInt(localStorage.getItem('sudoku-lifetime-mistakes') || '0', 10);
+      localStorage.setItem('sudoku-lifetime-mistakes', String(cur + n));
+    } catch (e) {}
+  }
+
+  function bestKey() {
+    return 'sudoku-best-' + difficulty;
+  }
+
+  function saveBest() {
+    try {
+      const key = bestKey();
+      const prev = localStorage.getItem(key);
+      if (!prev || elapsed < parseInt(prev, 10)) {
+        localStorage.setItem(key, String(elapsed));
+      }
+    } catch (e) {}
+    renderBest();
+  }
+
+  function renderBest() {
+    try {
+      const raw = localStorage.getItem(bestKey());
+      if (raw) {
+        const s = parseInt(raw, 10);
+        const m = Math.floor(s / 60), r = s % 60;
+        bestEl.textContent = 'Best on ' + difficulty + ': ' + m + ':' + String(r).padStart(2, '0');
+      } else {
+        bestEl.textContent = 'No best time yet on ' + difficulty;
+      }
+    } catch (e) {
+      bestEl.textContent = '';
+    }
+  }
+
+  function buildPad() {
+    padEl.innerHTML = '';
+    for (let v = 1; v <= 9; v++) {
+      const b = document.createElement('button');
+      b.textContent = v;
+      b.dataset.v = v;
+      b.addEventListener('click', () => place(v));
+      padEl.appendChild(b);
+    }
+  }
+
+  document.getElementById('winAgain').addEventListener('click', startPuzzle);
+
+  diffButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      diffButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      difficulty = btn.dataset.d;
+      startPuzzle();
+    });
+  });
+
+  document.getElementById('newBtn').addEventListener('click', startPuzzle);
+  document.getElementById('undoBtn').addEventListener('click', undo);
+  document.getElementById('pauseBtn').addEventListener('click', () => {
+    if (paused) resumeGame(); else pauseGame();
+  });
+  document.getElementById('resumeBtn').addEventListener('click', resumeGame);
+
+  function pauseGame() {
+    if (solved || paused || !puzzle.length) return;
+    paused = true;
+    clearInterval(ticking);
+    boardEl.classList.add('paused');
+    document.getElementById('pauseOverlay').classList.add('show');
+    document.getElementById('pauseBtn').textContent = '▶';
+  }
+
+  function resumeGame() {
+    if (!paused) return;
+    paused = false;
+    startTime = Date.now() - elapsed * 1000;
+    clearInterval(ticking);
+    ticking = setInterval(tick, 1000);
+    boardEl.classList.remove('paused');
+    document.getElementById('pauseOverlay').classList.remove('show');
+    document.getElementById('pauseBtn').textContent = '⏸';
+  }
+  document.getElementById('notesBtn').addEventListener('click', (e) => {
+    notesMode = !notesMode;
+    e.currentTarget.classList.toggle('active', notesMode);
+    e.currentTarget.textContent = notesMode ? 'Notes: On' : 'Notes: Off';
+    boardEl.classList.toggle('notesActive', notesMode);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const soloIsActive = document.getElementById('soloView').classList.contains('active');
+    const raceIsActive = document.getElementById('raceView').classList.contains('active');
+    const workIsActive = document.getElementById('workshopView').classList.contains('active') &&
+      document.getElementById('workshopPractice').style.display !== 'none';
+    if (e.key >= '1' && e.key <= '9') {
+      const v = parseInt(e.key, 10);
+      if (soloIsActive) place(v);
+      else if (raceIsActive) racePlace(v);
+      else if (workIsActive) workPlace(v);
+    }
+    if (e.key === 'Backspace' || e.key === '0' || e.key === 'Delete') {
+      if (soloIsActive) undo();
+      else if (raceIsActive) raceUndo();
+      else if (workIsActive) workErase();
+    }
+  });
+
+  // ---------- Race mode (skeleton: solo player vs a simulated ghost) ----------
+  const raceBoardEl = document.getElementById('raceBoard');
+  const racePadEl = document.getElementById('racePad');
+  const raceTimerEl = document.getElementById('raceTimer');
+  const raceYouBar = document.getElementById('raceYouBar');
+  const raceGhostBar = document.getElementById('raceGhostBar');
+  const raceYouPct = document.getElementById('raceYouPct');
+  const raceGhostPct = document.getElementById('raceGhostPct');
+  const raceResultOverlay = document.getElementById('raceResultOverlay');
+  const raceResultTitle = document.getElementById('raceResultTitle');
+  const raceResultDetail = document.getElementById('raceResultDetail');
+  const raceDiffButtons = document.querySelectorAll('#raceDiff button');
+
+  const GHOST_PACE_MS = { easy: 2800, medium: 3400, hard: 4000 };
+
+  let raceDifficulty = 'easy';
+  let raceSolution = [];
+  let racePuzzle = [];
+  let raceGiven = [];
+  let raceSelected = null;
+  let raceMoveHistory = [];
+  let raceTotalBlanks = 0;
+  let raceGhostFilled = 0;
+  let raceGhostTimeout = null;
+  let raceTicking = null;
+  let raceStartTime = null;
+  let raceOver = false;
+
+  raceDiffButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      raceDiffButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      raceDifficulty = btn.dataset.d;
+    });
+  });
+
+  document.getElementById('raceStartBtn').addEventListener('click', startRace);
+  document.getElementById('raceUndoBtn').addEventListener('click', raceUndo);
+  document.getElementById('raceQuitBtn').addEventListener('click', quitRace);
+  document.getElementById('raceResultBtn').addEventListener('click', () => {
+    raceResultOverlay.classList.remove('show');
+    quitRace();
+  });
+
+  function buildRacePad() {
+    racePadEl.innerHTML = '';
+    for (let v = 1; v <= 9; v++) {
+      const b = document.createElement('button');
+      b.textContent = v;
+      b.dataset.v = v;
+      b.addEventListener('click', () => racePlace(v));
+      racePadEl.appendChild(b);
+    }
+  }
+
+  function startRace() {
+    raceOver = false;
+    raceResultOverlay.classList.remove('show');
+    const clues = CLUES[raceDifficulty];
+    const { full, p } = generatePuzzle(clues);
+    raceSolution = full;
+    racePuzzle = p;
+    raceGiven = p.map(row => row.map(v => v !== 0));
+    raceSelected = null;
+    raceMoveHistory = [];
+    updateRaceUndoState();
+    raceTotalBlanks = 81 - clues;
+    raceGhostFilled = 0;
+    raceStartTime = Date.now();
+
+    document.getElementById('racePreStart').style.display = 'none';
+    document.getElementById('raceActive').style.display = 'block';
+
+    buildRacePad();
+    renderRaceBoard();
+    updateRaceProgress();
+
+    clearInterval(raceTicking);
+    raceTicking = setInterval(raceTick, 1000);
+    scheduleGhostStep();
+  }
+
+  function raceTick() {
+    if (raceOver) return;
+    const elapsed = Math.floor((Date.now() - raceStartTime) / 1000);
+    const m = Math.floor(elapsed / 60), s = elapsed % 60;
+    raceTimerEl.textContent = m + ':' + String(s).padStart(2, '0');
+  }
+
+  function scheduleGhostStep() {
+    if (raceOver) return;
+    const base = GHOST_PACE_MS[raceDifficulty];
+    const jitter = base * (0.5 + Math.random());
+    raceGhostTimeout = setTimeout(() => {
+      if (raceOver) return;
+      raceGhostFilled = Math.min(raceGhostFilled + 1, raceTotalBlanks);
+      updateRaceProgress();
+      if (raceGhostFilled >= raceTotalBlanks) {
+        endRace('ghost');
+      } else {
+        scheduleGhostStep();
+      }
+    }, jitter);
+  }
+
+  function renderRaceBoard() {
+    raceBoardEl.innerHTML = '';
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        const blockRow = Math.floor(r / 3), blockCol = Math.floor(c / 3);
+        if ((blockRow + blockCol) % 2 === 1) cell.classList.add('zoneB');
+        if (c === 2 || c === 5) cell.classList.add('blockR');
+        if (r === 2 || r === 5) cell.classList.add('blockB');
+        const v = racePuzzle[r][c];
+        if (v !== 0) {
+          cell.textContent = v;
+          if (raceGiven[r][c]) {
+            // clue
+          } else {
+            cell.classList.add('entered');
+            if (v !== raceSolution[r][c]) cell.classList.add('bad');
+          }
+        }
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        cell.addEventListener('click', () => {
+          if (raceGiven[r][c]) { raceSelected = [r, c]; raceHighlight(); return; }
+          raceSelected = [r, c];
+          raceHighlight();
+        });
+        raceBoardEl.appendChild(cell);
+      }
+    }
+    raceHighlight();
+    updateRacePadState();
+  }
+
+  function updateRacePadState() {
+    for (let v = 1; v <= 9; v++) {
+      let count = 0;
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (racePuzzle[r][c] === v && v === raceSolution[r][c]) count++;
+        }
+      }
+      const btn = racePadEl.querySelector('button[data-v="' + v + '"]');
+      if (btn) btn.classList.toggle('done', count === 9);
+    }
+  }
+
+  function raceHighlight() {
+    const selectedValue = raceSelected ? racePuzzle[raceSelected[0]][raceSelected[1]] : 0;
+    document.querySelectorAll('#raceBoard .cell').forEach(el => {
+      el.classList.remove('selected', 'peer', 'match');
+      const r = +el.dataset.r, c = +el.dataset.c;
+      if (raceSelected) {
+        const [sr, sc] = raceSelected;
+        if (r === sr && c === sc) el.classList.add('selected');
+        else if (r === sr || c === sc) el.classList.add('peer');
+      }
+      if (selectedValue !== 0 && racePuzzle[r][c] === selectedValue && !(raceSelected && r === raceSelected[0] && c === raceSelected[1])) {
+        el.classList.add('match');
+      }
+    });
+  }
+
+  function racePlace(v) {
+    if (!raceSelected || raceOver) return;
+    const [r, c] = raceSelected;
+    if (raceGiven[r][c]) return;
+    if (racePuzzle[r][c] === v) return;
+    raceMoveHistory.push({ r, c, prevValue: racePuzzle[r][c] });
+    updateRaceUndoState();
+    racePuzzle[r][c] = v;
+    renderRaceBoard();
+    updateRaceProgress();
+    checkRaceWin();
+  }
+
+  function raceUndo() {
+    if (raceMoveHistory.length === 0 || raceOver) return;
+    const last = raceMoveHistory.pop();
+    racePuzzle[last.r][last.c] = last.prevValue;
+    updateRaceUndoState();
+    renderRaceBoard();
+    updateRaceProgress();
+  }
+
+  function updateRaceUndoState() {
+    const btn = document.getElementById('raceUndoBtn');
+    if (btn) btn.disabled = raceMoveHistory.length === 0;
+  }
+
+  function raceErase() {
+    if (!raceSelected || raceOver) return;
+    const [r, c] = raceSelected;
+    if (raceGiven[r][c]) return;
+    racePuzzle[r][c] = 0;
+    renderRaceBoard();
+    updateRaceProgress();
+  }
+
+  function updateRaceProgress() {
+    let youCorrect = 0;
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (!raceGiven[r][c] && racePuzzle[r][c] === raceSolution[r][c] && racePuzzle[r][c] !== 0) youCorrect++;
+      }
+    }
+    const youPct = raceTotalBlanks > 0 ? Math.round((youCorrect / raceTotalBlanks) * 100) : 0;
+    const ghostPctVal = raceTotalBlanks > 0 ? Math.round((raceGhostFilled / raceTotalBlanks) * 100) : 0;
+    raceYouBar.style.width = youPct + '%';
+    raceGhostBar.style.width = ghostPctVal + '%';
+    raceYouPct.textContent = youPct + '%';
+    raceGhostPct.textContent = ghostPctVal + '%';
+  }
+
+  function checkRaceWin() {
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (racePuzzle[r][c] !== raceSolution[r][c]) return;
+      }
+    }
+    endRace('you');
+  }
+
+  function endRace(winner) {
+    raceOver = true;
+    clearInterval(raceTicking);
+    clearTimeout(raceGhostTimeout);
+    if (winner === 'you') {
+      incrementCounter('sudoku-race-wins');
+      raceResultTitle.textContent = '🎉 You won the race!';
+      raceResultDetail.textContent = 'You finished in ' + raceTimerEl.textContent + ', ahead of the ghost.';
+    } else {
+      incrementCounter('sudoku-race-losses');
+      raceResultTitle.textContent = '👻 Ghost won this one';
+      raceResultDetail.textContent = 'The ghost finished first at ' + raceTimerEl.textContent + '. Try again?';
+    }
+    raceResultOverlay.classList.add('show');
+  }
+
+  function quitRace() {
+    if (!raceOver) {
+      incrementCounter('sudoku-race-losses');
+    }
+    raceOver = true;
+    clearInterval(raceTicking);
+    clearTimeout(raceGhostTimeout);
+    document.getElementById('raceActive').style.display = 'none';
+    document.getElementById('racePreStart').style.display = 'block';
+  }
+
+  // ---------- Workshop: learn techniques + practice puzzles that require them ----------
+  const TECHNIQUES_INFO = [
+    { name: 'Naked Single', tier: 1, desc: 'A cell has only one possible candidate left once every other digit is ruled out by its row, column, and box. That candidate must go there — there\'s nowhere else it could be.' },
+    { name: 'Hidden Single', tier: 1, desc: 'A digit can only fit in one cell within a row, column, or box, even if that cell still lists other candidates too. Since the digit has nowhere else to go in that unit, it belongs there.' },
+    { name: 'Naked Pair', tier: 2, desc: 'Two cells in the same unit share the exact same two candidates and nothing else. Since those two digits must occupy those two cells between them, you can remove both digits as candidates from every other cell in that unit.' },
+    { name: 'Hidden Pair', tier: 2, desc: 'Two digits only appear as candidates in the same two cells within a unit, even if those cells list other candidates too. Since the two digits must go in those two cells, you can strip away any other candidates from those two cells.' },
+    { name: 'Pointing Pair', tier: 2, desc: 'Within a single 3×3 box, a digit\'s remaining candidates all fall in the same row or column. That means the digit must be placed there — so it can be eliminated from that row or column everywhere outside the box.' },
+    { name: 'Box-Line Reduction', tier: 2, desc: 'The mirror of a pointing pair: within a row or column, a digit\'s remaining candidates are all confined to a single box. That lets you eliminate the digit from the rest of that box, outside the row or column.' },
+    { name: 'Naked Triple', tier: 3, desc: 'Three cells in a unit collectively share only three candidate digits between them, even if no single cell has all three. Those three digits must occupy those three cells, so they can be eliminated from every other cell in the unit.' },
+    { name: 'X-Wing', tier: 3, desc: 'A digit\'s candidates in two different rows are both confined to exactly the same two columns, forming a rectangle. The digit must occupy diagonally opposite corners of it — letting you eliminate it from the rest of those two columns.' },
+    { name: 'Hidden Triple', tier: 3, desc: 'Three digits are only found as candidates within the same three cells of a unit, even if those cells list other candidates too. Since those three digits must occupy those three cells, every other candidate can be stripped from them.', practiceable: false },
+    { name: 'Naked Quad', tier: 3, desc: 'Four cells in a unit collectively share only four candidate digits between them. Those four digits must occupy those four cells, so they can be eliminated from every other cell in the unit.', practiceable: false },
+    { name: 'Hidden Quad', tier: 3, desc: 'Four digits are only found as candidates within the same four cells of a unit. Since those four digits must occupy those four cells, any other candidates in them can be removed.', practiceable: false },
+    { name: 'Swordfish', tier: 4, desc: 'The three-row (or three-column) generalization of an X-Wing: a digit\'s candidates across three rows are all confined to the same three columns, letting you eliminate it from those columns everywhere else.', practiceable: false },
+    { name: 'XY-Wing', tier: 4, desc: 'A "pivot" cell with two candidates (X, Y) sees two other cells, one with candidates (X, Z) and one with (Y, Z). Whichever of X or Y turns out to be true in the pivot, Z gets forced elsewhere — so Z can be eliminated from any cell that sees both of those two pincer cells.', practiceable: false }
+  ];
+  const TIER_LABEL = { 1: 'Easy techniques', 2: 'Medium techniques', 3: 'Hard techniques', 4: 'Expert techniques (detection only)' };
+
+  const MASTERY_TARGET = 5;
+
+  function getMasteryCount(techName) {
+    try { return parseInt(localStorage.getItem('sudoku-mastery-' + techName) || '0', 10); } catch (e) { return 0; }
+  }
+
+  function masteryStatus(count) {
+    if (count <= 0) return 'Not started';
+    if (count < 3) return 'Learning';
+    if (count < MASTERY_TARGET) return 'Practiced';
+    return 'Mastered';
+  }
+
+  const EXAMPLE_DATA = {"Hidden Triple":{"name":"Hidden Triple","patternCells":[[1,4],[2,4],[4,4]],"digits":[1,2,3],"eliminations":[{"r":1,"c":4,"d":7},{"r":4,"c":4,"d":9}],"gridBefore":[[6,1,2,8,0,9,5,3,4],[5,4,0,3,0,6,9,1,8],[9,8,3,5,0,4,2,7,6],[0,9,6,4,5,1,3,2,7],[7,3,1,6,0,0,8,4,5],[2,5,4,7,8,3,1,0,9],[4,7,5,0,3,0,6,9,2],[1,6,9,2,0,5,7,8,3],[3,2,8,9,6,7,4,5,1]]},"Naked Quad":{"name":"Naked Quad","patternCells":[[3,7],[4,8],[5,7],[5,8]],"digits":[3,4,6,9],"eliminations":[{"r":5,"c":6,"d":4}],"gridBefore":[[1,7,8,3,4,9,6,2,5],[5,2,6,1,8,7,3,9,4],[3,4,9,5,0,0,0,8,1],[4,0,0,0,9,5,0,0,7],[0,8,5,4,3,0,2,1,0],[9,0,2,0,1,8,0,0,0],[6,3,0,8,0,4,9,5,2],[0,9,7,0,5,1,0,0,8],[0,5,4,9,0,0,0,7,0]]},"Hidden Quad":{"name":"Hidden Quad","patternCells":[[0,2],[1,1],[2,0],[2,2]],"digits":[1,2,5,9],"eliminations":[{"r":2,"c":0,"d":3}],"gridBefore":[[8,1,0,9,7,2,4,3,0],[7,0,4,1,3,6,0,0,5],[0,6,0,0,8,5,7,2,1],[1,7,0,8,9,4,3,5,2],[4,8,2,0,0,3,1,6,9],[0,5,3,2,0,1,0,4,7],[6,9,1,3,2,0,5,7,4],[5,0,8,6,1,7,2,9,3],[2,3,0,5,4,0,6,1,8]]},"Swordfish":{"name":"Swordfish","patternCells":[[0,3],[0,5],[4,3],[4,5],[7,0],[7,5]],"digits":[4],"baseRows":[0,4,7],"baseCols":[3,5,0],"eliminations":[{"r":6,"c":3,"d":4},{"r":6,"c":0,"d":4},{"r":8,"c":3,"d":4},{"r":8,"c":0,"d":4}],"gridBefore":[[0,0,0,0,3,0,2,0,0],[7,2,4,0,6,8,3,0,0],[0,9,3,0,0,2,0,0,4],[8,0,1,7,0,0,9,4,0],[0,0,0,0,5,0,0,0,0],[3,4,5,8,0,0,0,0,0],[0,0,7,0,0,5,0,6,3],[0,0,2,3,1,0,8,9,0],[0,3,0,0,0,7,5,1,2]]},"XY-Wing":{"name":"XY-Wing","pivot":[1,4],"pincer1":[1,1],"pincer2":[1,8],"pivotDigits":[2,4],"p1Digits":[2,3],"p2Digits":[3,4],"zDigit":3,"eliminations":[{"r":1,"c":2,"d":3}],"gridBefore":[[0,4,0,6,0,3,0,2,9],[9,0,0,7,0,1,6,5,0],[0,0,0,8,0,9,0,7,0],[2,9,4,3,0,7,0,0,0],[0,0,0,4,0,0,9,3,0],[6,1,0,0,9,0,7,0,8],[5,8,0,2,7,4,0,9,6],[7,6,9,1,0,0,2,0,0],[4,0,0,9,6,0,5,0,0]]}};
+
+  function cellRole(techName, ex, r, c) {
+    if (techName === 'XY-Wing') {
+      if (ex.pivot[0] === r && ex.pivot[1] === c) return 'exPivot';
+      if (ex.pincer1[0] === r && ex.pincer1[1] === c) return 'exPincer';
+      if (ex.pincer2[0] === r && ex.pincer2[1] === c) return 'exPincer';
+    } else if (ex.patternCells && ex.patternCells.some(([pr, pc]) => pr === r && pc === c)) {
+      return 'exHi';
+    }
+    if (ex.eliminations.some(e => e.r === r && e.c === c)) return 'exTarget';
+    return '';
+  }
+
+  function buildTechniqueDiagram(techName) {
+    const ex = EXAMPLE_DATA[techName];
+    if (!ex) return '';
+    const grid = ex.gridBefore;
+    const cand = computeCandidates(grid);
+    const keepDigits = ex.digits || (ex.pivotDigits ? ex.pivotDigits.concat(ex.p1Digits, ex.p2Digits) : []);
+    const elimByCell = {};
+    ex.eliminations.forEach(e => {
+      const key = e.r + '_' + e.c;
+      (elimByCell[key] = elimByCell[key] || []).push(e.d);
+    });
+
+    let html = '<div class="techDiagram"><div class="exBoardWrap"><div class="board">';
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const role = cellRole(techName, ex, r, c);
+        let cls = 'cell';
+        const blockRow = Math.floor(r / 3), blockCol = Math.floor(c / 3);
+        if ((blockRow + blockCol) % 2 === 1) cls += ' zoneB';
+        if (c === 2 || c === 5) cls += ' blockR';
+        if (r === 2 || r === 5) cls += ' blockB';
+        if (role) cls += ' ' + role;
+        let inner = '';
+        if (grid[r][c] !== 0) {
+          inner = String(grid[r][c]);
+        } else {
+          const elims = elimByCell[r + '_' + c] || [];
+          const spans = [];
+          for (let d = 1; d <= 9; d++) {
+            if (cand[r][c] & (1 << (d - 1))) {
+              let spanCls = '';
+              if (elims.includes(d)) spanCls = 'exElim';
+              else if (keepDigits.includes(d) && (techName === 'XY-Wing' ? (ex.p1Digits.includes(d) || ex.p2Digits.includes(d) || ex.pivotDigits.includes(d)) : true)) spanCls = 'exKeep';
+              spans.push('<span' + (spanCls ? ' class="' + spanCls + '"' : '') + '>' + d + '</span>');
+            } else {
+              spans.push('<span></span>');
+            }
+          }
+          inner = '<div class="notes">' + spans.join('') + '</div>';
+        }
+        html += '<div class="' + cls + '">' + inner + '</div>';
+      }
+    }
+    html += '</div></div>';
+
+    let caption = '';
+    let legend = '<div class="diagLegend">' +
+      '<span><span class="diagSwatch" style="background:var(--accent)"></span>Pattern</span>' +
+      '<span><span class="diagSwatch" style="background:var(--bad)"></span>Eliminated</span></div>';
+    if (techName === 'Hidden Triple' || techName === 'Hidden Quad') {
+      caption = 'A real solved-board snapshot. The ' + (ex.digits.length === 3 ? 'three' : 'four') + ' outlined cells are the only ones in their unit that can hold ' + ex.digits.join(', ') + ' — so their other candidates (red, struck through) get removed.';
+    } else if (techName === 'Naked Quad') {
+      caption = 'A real solved-board snapshot. The four outlined cells share only ' + ex.digits.join(', ') + ' between them, so those digits are removed from every other cell in the unit (red, struck through).';
+    } else if (techName === 'Swordfish') {
+      caption = 'A real solved-board snapshot. Digit ' + ex.digits[0] + ' across three rows is confined to the same three columns (outlined). In other rows, ' + ex.digits[0] + ' can be eliminated from those columns (red, struck through).';
+    } else if (techName === 'XY-Wing') {
+      caption = 'A real solved-board snapshot. Pivot (' + ex.pivotDigits.join(',') + ') sees both pincers. Either way the pivot resolves, digit ' + ex.zDigit + ' gets forced into one pincer — so it can be eliminated from any cell that sees both pincers (red, struck through).';
+    }
+    return html + '<div class="diagCaption">' + caption + '</div>' + legend + '</div>';
+  }
+
+  function renderTechniqueList() {
+    const el = document.getElementById('techniqueList');
+    if (!el) return;
+    el.innerHTML = '';
+    [1, 2, 3, 4].forEach(tier => {
+      const inTier = TECHNIQUES_INFO.filter(t => t.tier === tier);
+      if (inTier.length === 0) return;
+      const title = document.createElement('div');
+      title.className = 'techGroupTitle';
+      title.textContent = TIER_LABEL[tier];
+      el.appendChild(title);
+      inTier.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'techCard';
+        let actionHtml, masteryHtml = '', diagramHtml = '';
+        if (t.practiceable === false) {
+          diagramHtml = buildTechniqueDiagram(t.name);
+          actionHtml = '<div class="raceNote" style="margin-top: 0;">The solver recognizes this correctly, but it\'s too structurally rare to reliably generate a practice puzzle for on demand — testing showed generation attempts can run a minute or more with no result. Detection only, no practice button.</div>';
+        } else {
+          actionHtml = '<button>Practice this</button>';
+          const count = getMasteryCount(t.name);
+          const pct = Math.min(100, Math.round((count / MASTERY_TARGET) * 100));
+          masteryHtml =
+            '<div class="techMastery">' +
+            '<div class="techMasteryLabel"><span>' + count + '/' + MASTERY_TARGET + ' solved</span><span class="status">' + masteryStatus(count) + '</span></div>' +
+            '<div class="techMasteryTrack"><div class="techMasteryFill" style="width:' + pct + '%"></div></div>' +
+            '</div>';
+        }
+        card.innerHTML =
+          '<div class="techName">' + t.name + '</div>' +
+          '<div class="techDesc">' + t.desc + '</div>' +
+          diagramHtml + actionHtml + masteryHtml;
+        if (t.practiceable !== false) {
+          card.querySelector('button').addEventListener('click', () => startWorkshopPractice(t.name));
+        }
+        el.appendChild(card);
+      });
+    });
+  }
+
+  function generatePuzzleForTechnique(techName) {
+    const ATTEMPTS = 10;
+    for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
+      const full = emptyGrid();
+      fill(full);
+      const p = full.map(row => row.slice());
+      const cellOrder = shuffled(Array.from({ length: 81 }, (_, i) => i));
+      for (const idx of cellOrder) {
+        const r = Math.floor(idx / 9), c = idx % 9;
+        if (p[r][c] === 0) continue;
+        const backup = p[r][c];
+        p[r][c] = 0;
+        if (countSolutions(p, 2) !== 1) { p[r][c] = backup; continue; }
+        const res = solveLogical(p);
+        if (!res.solved) { p[r][c] = backup; continue; }
+        if (res.techniques.includes(techName)) {
+          const clueCount = p.flat().filter(v => v !== 0).length;
+          return { full, p, techniques: res.techniques, clueCount, matched: true };
+        }
+      }
+    }
+    return null;
+  }
+
+  let workSolution = [], workPuzzle = [], workGiven = [], workSelected = null, workTechnique = '', workGenuineMatch = false;
+  const workBoardEl = document.getElementById('workBoard');
+  const workPadEl = document.getElementById('workPad');
+  const workGenNoteEl = document.getElementById('workGenNote');
+  const workTechNameEl = document.getElementById('workTechName');
+
+  function startWorkshopPractice(techName) {
+    workTechnique = techName;
+    document.getElementById('workshopHome').style.display = 'none';
+    document.getElementById('workshopPractice').style.display = 'block';
+    workTechNameEl.textContent = techName;
+    workGenNoteEl.textContent = 'Generating a puzzle that requires ' + techName + '…';
+    workBoardEl.innerHTML = '';
+    workPadEl.innerHTML = '';
+    setTimeout(() => {
+      let gen = generatePuzzleForTechnique(techName);
+      let fellBack = false;
+      if (!gen) {
+        fellBack = true;
+        const fallback = generatePuzzleByDifficulty(3, 17);
+        gen = { full: fallback.full, p: fallback.p, techniques: fallback.techniques, clueCount: fallback.clueCount };
+      }
+      workGenuineMatch = !fellBack;
+      workSolution = gen.full;
+      workPuzzle = gen.p;
+      workGiven = gen.p.map(row => row.map(v => v !== 0));
+      workSelected = null;
+      buildWorkPad();
+      renderWorkBoard();
+      workGenNoteEl.textContent = fellBack
+        ? 'Couldn\'t generate one needing exactly ' + techName + ' this time — here\'s a puzzle needing: ' + (gen.techniques.join(', ') || 'Singles only') + '. Try again below.'
+        : gen.clueCount + ' clues · confirmed to require: ' + gen.techniques.join(', ');
+    }, 20);
+  }
+
+  function buildWorkPad() {
+    workPadEl.innerHTML = '';
+    for (let v = 1; v <= 9; v++) {
+      const b = document.createElement('button');
+      b.textContent = v;
+      b.addEventListener('click', () => workPlace(v));
+      workPadEl.appendChild(b);
+    }
+  }
+
+  function renderWorkBoard() {
+    workBoardEl.innerHTML = '';
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        const blockRow = Math.floor(r / 3), blockCol = Math.floor(c / 3);
+        if ((blockRow + blockCol) % 2 === 1) cell.classList.add('zoneB');
+        if (c === 2 || c === 5) cell.classList.add('blockR');
+        if (r === 2 || r === 5) cell.classList.add('blockB');
+        const v = workPuzzle[r][c];
+        if (v !== 0) {
+          cell.textContent = v;
+          if (workGiven[r][c]) {
+            // clue
+          } else {
+            cell.classList.add('entered');
+            if (v !== workSolution[r][c]) cell.classList.add('bad');
+          }
+        }
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        cell.addEventListener('click', () => { workSelected = [r, c]; workHighlight(); });
+        workBoardEl.appendChild(cell);
+      }
+    }
+    workHighlight();
+  }
+
+  function workHighlight() {
+    const selectedValue = workSelected ? workPuzzle[workSelected[0]][workSelected[1]] : 0;
+    document.querySelectorAll('#workBoard .cell').forEach(el => {
+      el.classList.remove('selected', 'peer', 'match');
+      const r = +el.dataset.r, c = +el.dataset.c;
+      if (workSelected) {
+        const [sr, sc] = workSelected;
+        if (r === sr && c === sc) el.classList.add('selected');
+        else if (r === sr || c === sc) el.classList.add('peer');
+      }
+      if (selectedValue !== 0 && workPuzzle[r][c] === selectedValue && !(workSelected && r === workSelected[0] && c === workSelected[1])) {
+        el.classList.add('match');
+      }
+    });
+  }
+
+  function workPlace(v) {
+    if (!workSelected) return;
+    const [r, c] = workSelected;
+    if (workGiven[r][c]) return;
+    workPuzzle[r][c] = v;
+    renderWorkBoard();
+    checkWorkWin();
+  }
+
+  function workErase() {
+    if (!workSelected) return;
+    const [r, c] = workSelected;
+    if (workGiven[r][c]) return;
+    workPuzzle[r][c] = 0;
+    renderWorkBoard();
+  }
+
+  function checkWorkWin() {
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (workPuzzle[r][c] !== workSolution[r][c]) return;
+      }
+    }
+    if (workGenuineMatch) {
+      incrementCounter('sudoku-mastery-' + workTechnique);
+      const count = getMasteryCount(workTechnique);
+      workGenNoteEl.textContent = '🎉 Solved! This puzzle required: ' + workTechnique + '. (' + count + '/' + MASTERY_TARGET + ' toward mastery)';
+    } else {
+      workGenNoteEl.textContent = '🎉 Solved! (This one was a fallback puzzle, so it doesn\'t count toward ' + workTechnique + ' mastery.)';
+    }
+    launchConfetti();
+  }
+
+  function showWorkshopHome() {
+    document.getElementById('workshopPractice').style.display = 'none';
+    document.getElementById('workshopHome').style.display = 'block';
+    renderTechniqueList();
+  }
+
+  document.getElementById('workBackBtn').addEventListener('click', showWorkshopHome);
+  document.getElementById('workNewBtn').addEventListener('click', () => startWorkshopPractice(workTechnique));
+  document.getElementById('workEraseBtn').addEventListener('click', workErase);
+
+  renderTechniqueList();
+
+  function applyTheme(id, skipBoardRerender) {
+    const t = THEMES.find(x => x.id === id) || THEMES[0];
+    currentTheme = t.id;
+    const root = document.documentElement.style;
+    root.setProperty('--board-a', t.boardA);
+    root.setProperty('--board-b', t.boardB);
+    root.setProperty('--line', t.line);
+    root.setProperty('--given', t.line);
+    root.setProperty('--accent', t.accent);
+    root.setProperty('--accent-soft', t.accentSoft);
+    try { localStorage.setItem('sudoku-board-theme', t.id); } catch (e) {}
+    renderThemeList();
+    if (!skipBoardRerender && puzzle.length) renderBoard();
+  }
+
+  function renderThemeList() {
+    themeList.innerHTML = '';
+    THEMES.forEach(t => {
+      const btn = document.createElement('button');
+      btn.className = 'themeSwatch' + (t.id === currentTheme ? ' selected' : '');
+      btn.innerHTML =
+        '<span class="swatchPreview">' +
+        '<span style="background:' + t.boardA + '"></span>' +
+        '<span style="background:' + t.boardB + '"></span>' +
+        '<span style="background:' + t.boardB + '"></span>' +
+        '<span style="background:' + t.boardA + '"></span>' +
+        '</span><span>' + t.name + '</span>';
+      btn.addEventListener('click', () => applyTheme(t.id));
+      themeList.appendChild(btn);
+    });
+  }
+
+  function loadTheme() {
+    let saved = 'classic';
+    try {
+      saved = localStorage.getItem('sudoku-board-theme') || 'classic';
+    } catch (e) {}
+    applyTheme(saved, true);
+  }
+
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    settingsOverlay.classList.add('show');
+  });
+  document.getElementById('closeSettings').addEventListener('click', () => {
+    settingsOverlay.classList.remove('show');
+  });
+  settingsOverlay.addEventListener('click', (e) => {
+    if (e.target === settingsOverlay) settingsOverlay.classList.remove('show');
+  });
+
+  function switchView(viewId) {
+    const wasSoloActive = document.getElementById('soloView').classList.contains('active');
+    if (wasSoloActive && viewId !== 'soloView') {
+      pauseGame();
+    }
+    document.querySelectorAll('.tabBtn').forEach(b => b.classList.toggle('active', b.dataset.view === viewId));
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === viewId));
+    if (viewId === 'homeView') { renderHomeStats(); }
+    if (viewId === 'profileView') { renderProfile(); renderLobbyBest(); }
+  }
+
+  const FRIENDS = [
+    { name: 'Jordan', status: 'Playing Medium', online: true },
+    { name: 'Sam', status: 'Last seen 2h ago', online: false },
+    { name: 'Riley', status: 'Playing Hard', online: true },
+    { name: 'Casey', status: 'Last seen yesterday', online: false }
+  ];
+
+  function renderProfile() {
+    const grid = document.getElementById('completedGrid');
+    const totalsEl = document.getElementById('profileTotals');
+    const friendsEl = document.getElementById('friendsList');
+    if (grid) {
+      grid.innerHTML = '';
+      let total = 0;
+      ['easy', 'medium', 'hard'].forEach(d => {
+        let count = 0;
+        try { count = parseInt(localStorage.getItem('sudoku-completed-' + d) || '0', 10); } catch (e) {}
+        total += count;
+        const stat = document.createElement('div');
+        stat.className = 'bestStat';
+        stat.innerHTML =
+          '<div class="bestStatLabel">' + d + '</div>' +
+          '<div class="bestStatValue' + (count === 0 ? ' empty' : '') + '">' + count + '</div>';
+        grid.appendChild(stat);
+      });
+      if (totalsEl) {
+        totalsEl.innerHTML =
+          '<div class="profileTotal"><div class="profileTotalValue">' + total + '</div><div class="profileTotalLabel">Total solved</div></div>';
+      }
+    }
+    const raceTotalsEl = document.getElementById('raceRecordTotals');
+    if (raceTotalsEl) {
+      let wins = 0, losses = 0;
+      try { wins = parseInt(localStorage.getItem('sudoku-race-wins') || '0', 10); } catch (e) {}
+      try { losses = parseInt(localStorage.getItem('sudoku-race-losses') || '0', 10); } catch (e) {}
+      const played = wins + losses;
+      const winRate = played > 0 ? Math.round((wins / played) * 100) + '%' : '—';
+      raceTotalsEl.innerHTML =
+        '<div class="profileTotal"><div class="profileTotalValue">' + wins + '</div><div class="profileTotalLabel">Wins</div></div>' +
+        '<div class="profileTotal"><div class="profileTotalValue">' + losses + '</div><div class="profileTotalLabel">Losses</div></div>' +
+        '<div class="profileTotal"><div class="profileTotalValue">' + winRate + '</div><div class="profileTotalLabel">Win rate</div></div>';
+    }
+    if (friendsEl) {
+      friendsEl.innerHTML = '';
+      FRIENDS.forEach(f => {
+        const card = document.createElement('div');
+        card.className = 'friendCard';
+        card.innerHTML =
+          '<div class="friendAvatar">🙂</div>' +
+          '<div><div class="friendName">' + f.name + '</div><div class="friendStatus">' + f.status + '</div></div>' +
+          '<div class="friendDot ' + (f.online ? 'online' : 'offline') + '"></div>';
+        friendsEl.appendChild(card);
+      });
+    }
+  }
+
+  function renderHomeStats() {
+    const grid = document.getElementById('homeStatsGrid');
+    if (!grid) return;
+    let totalSolved = 0;
+    ['easy', 'medium', 'hard'].forEach(d => {
+      try { totalSolved += parseInt(localStorage.getItem('sudoku-completed-' + d) || '0', 10); } catch (e) {}
+    });
+    let wins = 0, losses = 0;
+    try { wins = parseInt(localStorage.getItem('sudoku-race-wins') || '0', 10); } catch (e) {}
+    try { losses = parseInt(localStorage.getItem('sudoku-race-losses') || '0', 10); } catch (e) {}
+    const racedAny = (wins + losses) > 0;
+    const masteredCount = TECHNIQUES_INFO.filter(t => t.practiceable !== false && getMasteryCount(t.name) >= MASTERY_TARGET).length;
+    const totalPracticeable = TECHNIQUES_INFO.filter(t => t.practiceable !== false).length;
+
+    grid.innerHTML =
+      '<div class="bestStat"><div class="bestStatLabel">Solved</div><div class="bestStatValue' + (totalSolved === 0 ? ' empty' : '') + '">' + (totalSolved || '—') + '</div></div>' +
+      '<div class="bestStat"><div class="bestStatLabel">Race record</div><div class="bestStatValue' + (racedAny ? '' : ' empty') + '">' + (racedAny ? (wins + '-' + losses) : '—') + '</div></div>' +
+      '<div class="bestStat"><div class="bestStatLabel">Mastered</div><div class="bestStatValue' + (masteredCount === 0 ? ' empty' : '') + '">' + masteredCount + '/' + totalPracticeable + '</div></div>';
+  }
+
+  function renderLobbyBest() {
+    const grid = document.getElementById('bestGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    let anySet = false;
+    ['easy', 'medium', 'hard'].forEach(d => {
+      let display = '—';
+      let empty = true;
+      try {
+        const raw = localStorage.getItem('sudoku-best-' + d);
+        if (raw) {
+          const s = parseInt(raw, 10), m = Math.floor(s / 60), r = s % 60;
+          display = m + ':' + String(r).padStart(2, '0');
+          empty = false;
+          anySet = true;
+        }
+      } catch (e) {}
+      const stat = document.createElement('div');
+      stat.className = 'bestStat';
+      stat.innerHTML =
+        '<div class="bestStatLabel">' + d + '</div>' +
+        '<div class="bestStatValue' + (empty ? ' empty' : '') + '">' + display + '</div>';
+      grid.appendChild(stat);
+    });
+    if (!anySet) {
+      const note = document.createElement('div');
+      note.className = 'bestEmptyNote';
+      note.textContent = 'Play a puzzle to set your first best time.';
+      grid.appendChild(note);
+    }
+  }
+
+  document.querySelectorAll('.tabBtn').forEach(btn => {
+    btn.addEventListener('click', () => switchView(btn.dataset.view));
+  });
+  document.querySelectorAll('.lobbyCard').forEach(card => {
+    card.addEventListener('click', () => switchView(card.dataset.goto));
+  });
+
+  loadTheme();
+  buildPad();
+  startPuzzle();
+  renderLobbyBest();
+  renderHomeStats();
+})();
+</script>
+</body>
+</html>

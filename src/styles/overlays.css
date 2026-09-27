@@ -1,0 +1,116 @@
+.settingsOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 60;
+}
+.settingsOverlay.show { opacity: 1; pointer-events: auto; }
+.settingsPanel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(280px, 85vw);
+  background: var(--paper);
+  box-shadow: -12px 0 30px rgba(0,0,0,0.25);
+  padding: 20px;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  padding-top: calc(20px + env(safe-area-inset-top, 0px));
+  overflow-y: auto;
+}
+.settingsOverlay.show .settingsPanel { transform: translateX(0); }
+.settingsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.settingsHeader button {
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 18px;
+  cursor: pointer;
+}
+.themeSwatch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--paper-line);
+  background: transparent;
+  cursor: pointer;
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-size: 14px;
+}
+.themeSwatch.selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--paper));
+}
+.swatchPreview {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+.winOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 50;
+  padding: 20px;
+}
+.winOverlay.show { opacity: 1; pointer-events: auto; }
+.winCard {
+  background: var(--paper);
+  border-radius: 16px;
+  padding: 32px 30px;
+  text-align: center;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+  transform: scale(0.9);
+  transition: transform 0.2s ease;
+}
+.winOverlay.show .winCard { transform: scale(1); }
+.winTitle {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.winDetail {
+  color: var(--ink-soft);
+  font-size: 14px;
+  margin-bottom: 22px;
+}
+.winCard button {
+  width: 100%;
+  padding: 13px 0;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
