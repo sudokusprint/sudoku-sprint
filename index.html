@@ -65,8 +65,36 @@
   <div>
     <h1>Sudoku sprint</h1>
     <p class="tag">Verified puzzles, graded by the techniques they need</p>
-    <div class="best" id="best"></div>
   </div>
+
+  <div id="soloPicker">
+    <div class="bestGridTitle">Choose a difficulty</div>
+    <button type="button" class="lobbyCard diffCard" data-pick="easy">
+      <span class="diffCardText">
+        <span class="lobbyTitle">Easy</span>
+        <span class="lobbyDesc">Solvable with singles only</span>
+      </span>
+      <span class="diffCardBest" data-best="easy"></span>
+    </button>
+    <button type="button" class="lobbyCard diffCard" data-pick="medium">
+      <span class="diffCardText">
+        <span class="lobbyTitle">Medium</span>
+        <span class="lobbyDesc">Needs pairs and pointing techniques</span>
+      </span>
+      <span class="diffCardBest" data-best="medium"></span>
+    </button>
+    <button type="button" class="lobbyCard diffCard" data-pick="hard">
+      <span class="diffCardText">
+        <span class="lobbyTitle">Hard</span>
+        <span class="lobbyDesc">Needs triples, quads, or X-Wings</span>
+      </span>
+      <span class="diffCardBest" data-best="hard"></span>
+    </button>
+    <p class="raceNote">The timer starts when your puzzle appears.</p>
+  </div>
+
+  <div id="soloGame" hidden>
+  <div class="best" id="best"></div>
 
   <div class="bar">
     <div class="stats">
@@ -100,6 +128,7 @@
     <button id="newBtn">New puzzle</button>
     <button id="notesBtn" class="ghost">Notes: Off</button>
     <button id="undoBtn" class="ghost" disabled>Undo</button>
+  </div>
   </div>
 </div>
 </div>

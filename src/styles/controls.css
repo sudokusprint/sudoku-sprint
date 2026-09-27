@@ -91,3 +91,22 @@
   flex-shrink: 0;
 }
 
+/* Solo difficulty picker: .lobbyCard styling on a <button> */
+.diffCard {
+  width: 100%;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+}
+.diffCard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.diffCardText { display: flex; flex-direction: column; min-width: 0; }
+.diffCardBest {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+

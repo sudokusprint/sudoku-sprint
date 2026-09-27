@@ -36,18 +36,19 @@ export function initSolo() {
     pauseBtn: document.getElementById('pauseBtn'),
     undoBtn: document.getElementById('undoBtn'),
     notesBtn: document.getElementById('notesBtn'),
-    diffButtons: document.querySelectorAll('#soloView .diff button')
+    diffButtons: document.querySelectorAll('#soloView .diff button'),
+    picker: document.getElementById('soloPicker'),
+    game: document.getElementById('soloGame')
   };
 
   document.getElementById('winAgain').addEventListener('click', startPuzzle);
 
   els.diffButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      els.diffButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      difficulty = btn.dataset.d;
-      startPuzzle();
-    });
+    btn.addEventListener('click', () => chooseDifficulty(btn.dataset.d));
+  });
+  // Nothing is generated (and no timer runs) until the player picks a difficulty.
+  els.picker.querySelectorAll('[data-pick]').forEach(card => {
+    card.addEventListener('click', () => chooseDifficulty(card.dataset.pick));
   });
 
   document.getElementById('newBtn').addEventListener('click', startPuzzle);
@@ -65,7 +66,22 @@ export function initSolo() {
   });
 
   buildPad(els.pad, place);
+  renderPickerBests();
+}
+
+function chooseDifficulty(d) {
+  difficulty = d;
+  els.diffButtons.forEach(b => b.classList.toggle('active', b.dataset.d === d));
+  els.picker.hidden = true;
+  els.game.hidden = false;
   startPuzzle();
+}
+
+function renderPickerBests() {
+  els.picker.querySelectorAll('[data-best]').forEach(el => {
+    const s = bestSeconds(el.dataset.best);
+    el.textContent = s !== null ? 'Best ' + formatTime(s) : '';
+  });
 }
 
 // Re-render after a theme change (only once a puzzle exists).
@@ -212,6 +228,7 @@ function checkWin() {
 // Also called when stats change (sign-in, sign-out, progress loaded).
 export function renderBest() {
   if (!els) return;
+  renderPickerBests();
   const s = bestSeconds(difficulty);
   els.best.textContent = s !== null
     ? 'Best on ' + difficulty + ': ' + formatTime(s)
