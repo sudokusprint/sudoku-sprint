@@ -2,7 +2,7 @@
 import { generatePuzzleByDifficulty, DIFFICULTY_TIER, MIN_CLUES } from '../core/generator.js';
 import { TIER_NAME } from '../core/techniques.js';
 import { formatTime, createCell, highlightBoard, buildPad, updatePadState, isComplete } from './board.js';
-import { incrementCounter, addLifetimeMistakes, readBestSeconds, saveBestSeconds } from './storage.js';
+import { recordSolo, bestSeconds } from '../services/progress.js';
 import { launchConfetti } from './confetti.js';
 
 let els;
@@ -202,24 +202,20 @@ function checkWin() {
   if (!isComplete(puzzle, solution)) return;
   solved = true;
   clearInterval(ticking);
-  saveBestSeconds(difficulty, elapsed);
+  recordSolo({ difficulty, seconds: elapsed, mistakes });
   renderBest();
-  incrementCounter('sudoku-completed-' + difficulty);
-  addLifetimeMistakes(mistakes);
   els.winDetail.textContent = 'Time: ' + els.timer.textContent + ' · ' + mistakes + (mistakes === 1 ? ' mistake' : ' mistakes');
   els.winOverlay.classList.add('show');
   launchConfetti();
 }
 
-function renderBest() {
-  try {
-    const s = readBestSeconds(difficulty);
-    els.best.textContent = s !== null
-      ? 'Best on ' + difficulty + ': ' + formatTime(s)
-      : 'No best time yet on ' + difficulty;
-  } catch (e) {
-    els.best.textContent = '';
-  }
+// Also called when stats change (sign-in, sign-out, progress loaded).
+export function renderBest() {
+  if (!els) return;
+  const s = bestSeconds(difficulty);
+  els.best.textContent = s !== null
+    ? 'Best on ' + difficulty + ': ' + formatTime(s)
+    : 'No best time yet on ' + difficulty;
 }
 
 export function pauseGame() {

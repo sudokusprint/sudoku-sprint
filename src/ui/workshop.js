@@ -2,7 +2,7 @@
 import { generatePuzzleForTechnique, generatePuzzleByDifficulty } from '../core/generator.js';
 import { TECHNIQUES_INFO, TIER_LABEL, MASTERY_TARGET, masteryStatus } from '../core/techniques.js';
 import { createCell, highlightBoard, buildPad, isComplete } from './board.js';
-import { incrementCounter, getMasteryCount } from './storage.js';
+import { recordWorkshop, masteryCount } from '../services/progress.js';
 import { buildTechniqueDiagram } from './techniqueDiagram.js';
 import { launchConfetti } from './confetti.js';
 
@@ -32,6 +32,11 @@ export function isPracticeOpen() {
   return els.practice.style.display !== 'none';
 }
 
+// Re-render mastery bars after stats change (sign-in, sign-out, progress loaded).
+export function refreshTechniqueList() {
+  if (els && !isPracticeOpen()) renderTechniqueList();
+}
+
 function renderTechniqueList() {
   const el = els.list;
   el.innerHTML = '';
@@ -51,7 +56,7 @@ function renderTechniqueList() {
         actionHtml = '<div class="raceNote" style="margin-top: 0;">This pattern is too rare to build practice puzzles around on demand, so it\'s shown as a worked example instead.</div>';
       } else {
         actionHtml = '<button>Practice this</button>';
-        const count = getMasteryCount(t.name);
+        const count = masteryCount(t.name);
         const pct = Math.min(100, Math.round((count / MASTERY_TARGET) * 100));
         masteryHtml =
           '<div class="techMastery">' +
@@ -139,8 +144,8 @@ export function workErase() {
 function checkWorkWin() {
   if (!isComplete(workPuzzle, workSolution)) return;
   if (workGenuineMatch) {
-    incrementCounter('sudoku-mastery-' + workTechnique);
-    const count = getMasteryCount(workTechnique);
+    recordWorkshop({ technique: workTechnique });
+    const count = masteryCount(workTechnique);
     els.genNote.textContent = '🎉 Solved! This puzzle required: ' + workTechnique + '. (' + count + '/' + MASTERY_TARGET + ' toward mastery)';
   } else {
     els.genNote.textContent = '🎉 Solved! (This one was a fallback puzzle, so it doesn\'t count toward ' + workTechnique + ' mastery.)';

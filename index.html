@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="src/styles/race.css">
 <link rel="stylesheet" href="src/styles/workshop.css">
 <link rel="stylesheet" href="src/styles/overlays.css">
+<link rel="stylesheet" href="src/styles/account.css">
 <script type="module" src="src/main.js"></script>
 </head>
 <body>
@@ -24,6 +25,7 @@
 
     <div class="bestGridTitle">Your progress</div>
     <div class="bestGrid" id="homeStatsGrid"></div>
+    <div class="homeAccountNote" id="homeAccountNote"></div>
 
     <div class="bestGridTitle" style="margin-top: 26px;">Play</div>
     <div class="lobbyCard" data-goto="soloView">
@@ -160,6 +162,8 @@
       <p class="tag">Your best times, solves, and race record</p>
     </div>
 
+    <div class="accountCard" id="accountCard"></div>
+
     <div class="bestGridTitle">Best times</div>
     <div class="bestGrid" id="bestGrid"></div>
 
@@ -170,6 +174,13 @@
 
     <div class="bestGridTitle" style="margin-top: 30px;">Race record</div>
     <div class="profileTotals" id="raceRecordTotals"></div>
+
+    <section id="recentSection" hidden>
+      <div class="bestGridTitle" style="margin-top: 30px;">Recent games</div>
+      <div class="recentList" id="recentList"></div>
+    </section>
+
+    <p class="privacyLink"><a href="privacy.html">Privacy</a></p>
   </div>
 </div>
 
@@ -256,6 +267,53 @@
     </div>
     <div id="themeList"></div>
   </div>
+</div>
+
+<div class="winOverlay" id="authOverlay" role="dialog" aria-modal="true" aria-label="Sign in">
+  <div class="winCard authCard">
+    <button type="button" class="authClose" id="authClose" aria-label="Close">✕</button>
+
+    <form id="authEmailStep" novalidate>
+      <div class="winTitle">Sign in</div>
+      <p class="authText">We'll email you a sign-in code. New here? This creates your account.</p>
+      <input class="authInput" id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+      <p class="authError" id="authEmailError" role="alert"></p>
+      <button type="submit" id="authSendBtn">Email me a code</button>
+      <p class="authFine">Your email is never shown to other players. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></p>
+    </form>
+
+    <form id="authCodeStep" novalidate hidden>
+      <div class="winTitle">Check your email</div>
+      <p class="authText">We sent a code to <strong id="authEmailShown"></strong>. Enter it below, or tap the link in the email.</p>
+      <input class="authInput authCodeInput" id="authCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="Code">
+      <p class="authError" id="authCodeError" role="alert"></p>
+      <button type="submit" id="authVerifyBtn">Sign in</button>
+      <div class="authLinks">
+        <button type="button" class="linkBtn" id="authResend">Send a new code</button>
+        <button type="button" class="linkBtn" id="authChangeEmail">Use a different email</button>
+      </div>
+    </form>
+
+    <form id="authUsernameStep" novalidate hidden>
+      <div class="winTitle">Choose a username</div>
+      <p class="authText">This is public — it's how other players will see you. Use 3–20 letters, numbers, or underscores. Skip your real name if you'd rather stay anonymous.</p>
+      <input class="authInput" id="authUsername" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="20" placeholder="username">
+      <p class="authError" id="authUsernameError" role="alert"></p>
+      <button type="submit" id="authUsernameBtn">Save username</button>
+    </form>
+  </div>
+</div>
+
+<div class="winOverlay" id="deleteOverlay" role="dialog" aria-modal="true" aria-label="Delete account">
+  <form class="winCard authCard" id="deleteForm" novalidate>
+    <div class="winTitle">Delete account?</div>
+    <p class="authText">This permanently deletes your account, username, and all saved progress. It can't be undone.</p>
+    <label class="authLabel" for="deleteConfirm">Type <strong id="deleteWordShown"></strong> to confirm</label>
+    <input class="authInput" id="deleteConfirm" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <p class="authError" id="deleteError" role="alert"></p>
+    <button type="submit" class="dangerBtn" id="deleteBtn" disabled>Delete my account</button>
+    <button type="button" class="linkBtn" id="deleteCancel">Cancel</button>
+  </form>
 </div>
 </body>
 </html>

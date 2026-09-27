@@ -4,6 +4,7 @@ import { emptyGrid, valid } from '../src/core/grid.js';
 import { countSolutions, solveLogical, computeCandidates } from '../src/core/solver.js';
 import { fill, generatePuzzle, generatePuzzleByDifficulty, generatePuzzleForTechnique, CLUES, DIFFICULTY_TIER, MIN_CLUES } from '../src/core/generator.js';
 import { EXAMPLE_DATA, TECHNIQUES_INFO } from '../src/core/techniques.js';
+import { emptyStats, statsFromSolves, hasAnyProgress } from '../src/core/stats.js';
 
 export const tests = [];
 const test = (name, fn) => tests.push({ name, fn });
@@ -111,6 +112,48 @@ test('generatePuzzleForTechnique() returns a puzzle that needs the technique', (
   const res = solveLogical(g.p);
   assert(res.solved && res.techniques.includes('Naked Pair'), res.techniques.join(','));
   assertEqual(countSolutions(g.p, 2), 1, 'not unique');
+});
+
+test('statsFromSolves() totals each mode like the guest counters do', () => {
+  const s = statsFromSolves([
+    { mode: 'solo', difficulty: 'easy', seconds: 300, mistakes: 2 },
+    { mode: 'solo', difficulty: 'easy', seconds: 240, mistakes: 0 },
+    { mode: 'solo', difficulty: 'hard', seconds: 900, mistakes: 1 },
+    { mode: 'race', difficulty: 'easy', seconds: 400, won: true },
+    { mode: 'race', difficulty: 'hard', seconds: 50, won: false },
+    { mode: 'workshop', technique: 'X-Wing' },
+    { mode: 'workshop', technique: 'X-Wing' }
+  ], null);
+  assertEqual(s.completed, { easy: 2, medium: 0, hard: 1 });
+  assertEqual(s.best, { easy: 240, medium: null, hard: 900 });
+  assertEqual([s.raceWins, s.raceLosses, s.lifetimeMistakes], [1, 1, 3]);
+  assertEqual(s.mastery, { 'X-Wing': 2 });
+});
+
+test('statsFromSolves() adds imported guest stats and keeps the faster best time', () => {
+  const imported = emptyStats();
+  imported.completed.easy = 10;
+  imported.best.easy = 200;
+  imported.best.medium = 500;
+  imported.raceWins = 3;
+  imported.mastery['Naked Pair'] = 4;
+  const s = statsFromSolves([
+    { mode: 'solo', difficulty: 'easy', seconds: 250, mistakes: 0 },
+    { mode: 'solo', difficulty: 'medium', seconds: 450, mistakes: 0 },
+    { mode: 'workshop', technique: 'Naked Pair' }
+  ], imported);
+  assertEqual(s.completed.easy, 11);
+  assertEqual(s.best, { easy: 200, medium: 450, hard: null });
+  assertEqual(s.raceWins, 3);
+  assertEqual(s.mastery['Naked Pair'], 5);
+  assertEqual(imported.completed.easy, 10, 'input not mutated');
+});
+
+test('hasAnyProgress() is false only for untouched stats', () => {
+  assert(!hasAnyProgress(emptyStats()));
+  const s = emptyStats();
+  s.raceLosses = 1;
+  assert(hasAnyProgress(s));
 });
 
 test('every non-practiceable technique has a worked example', () => {

@@ -1,5 +1,5 @@
 // Board colour themes and the settings side panel that picks them.
-import { loadThemeId, saveThemeId } from './storage.js';
+import { loadThemeId, saveThemeId } from '../services/storage.js';
 
 export const THEMES = [
   { id: 'classic', name: 'Classic', boardA: '#FAF8F3', boardB: '#F0EDE2', line: '#21262B', accent: '#1B5FD6', accentSoft: '#E7EEFB' },

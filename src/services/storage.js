@@ -1,5 +1,6 @@
 // localStorage-backed stats. Keys are unchanged from the prototype.
 // Every access is wrapped: storage can be unavailable (private mode, blocked site data).
+import { emptyStats, DIFFICULTIES } from '../core/stats.js';
 
 export function readInt(key) {
   try { return parseInt(localStorage.getItem(key) || '0', 10); } catch (e) { return 0; }
@@ -40,6 +41,35 @@ export function saveBestSeconds(difficulty, elapsed) {
     if (!prev || elapsed < parseInt(prev, 10)) {
       localStorage.setItem(key, String(elapsed));
     }
+  } catch (e) {}
+}
+
+// Everything a guest has earned on this device, in the shape of core/stats.js.
+export function readGuestStats(techniqueNames) {
+  const stats = emptyStats();
+  for (const d of DIFFICULTIES) {
+    stats.completed[d] = readInt('sudoku-completed-' + d);
+    try { stats.best[d] = readBestSeconds(d); } catch (e) {}
+  }
+  stats.raceWins = readInt('sudoku-race-wins');
+  stats.raceLosses = readInt('sudoku-race-losses');
+  stats.lifetimeMistakes = readInt('sudoku-lifetime-mistakes');
+  for (const name of techniqueNames) {
+    const n = getMasteryCount(name);
+    if (n > 0) stats.mastery[name] = n;
+  }
+  return stats;
+}
+
+// Remove guest progress (after it has been moved into an account). Keeps the board theme.
+export function clearGuestStats() {
+  try {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('sudoku-') && k !== 'sudoku-board-theme' && !k.startsWith('sudoku-pending-')) keys.push(k);
+    }
+    keys.forEach(k => localStorage.removeItem(k));
   } catch (e) {}
 }
 

@@ -1,0 +1,101 @@
+/* Account card (Profile), Home note, sign-in and delete dialogs, recent games. */
+
+.accountCard {
+  margin-top: 4px;
+  padding: 16px;
+  border: 1px solid var(--paper-line);
+  border-radius: 12px;
+}
+.accountTitle { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+.accountText { font-size: 13px; color: var(--ink-soft); margin: 4px 0 0; line-height: 1.45; overflow-wrap: anywhere; }
+.accountWarn { font-size: 13px; color: var(--bad); margin: 8px 0 0; }
+.accountGood { font-size: 13px; color: var(--good); margin: 8px 0 0; }
+.accountActions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.accountActions button {
+  flex: 1 1 auto;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.accountPrimary { border: none; background: var(--accent); color: #fff; }
+.accountGhost { border: 1px solid var(--paper-line); background: transparent; color: var(--ink); }
+
+.linkBtn {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--accent);
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.linkBtn:disabled { color: var(--ink-soft); cursor: default; text-decoration: none; }
+.accountCard > .linkBtn { margin-top: 12px; }
+.dangerLink { color: var(--bad); }
+
+.homeAccountNote {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  text-align: center;
+  min-height: 18px;
+}
+
+.privacyLink { margin-top: 28px; text-align: center; font-size: 12px; }
+.privacyLink a, .authFine a { color: var(--ink-soft); }
+
+/* Dialogs reuse .winOverlay / .winCard; these override .winCard's full-width button style. */
+.authCard { position: relative; text-align: left; }
+.authCard .winTitle { font-size: 22px; padding-right: 28px; }
+.authText { font-size: 14px; color: var(--ink-soft); line-height: 1.45; margin: 0 0 16px; overflow-wrap: anywhere; }
+.authText strong { color: var(--ink); font-weight: 600; }
+.authLabel { display: block; font-size: 13px; color: var(--ink-soft); margin-bottom: 6px; }
+.authLabel strong { color: var(--ink); overflow-wrap: anywhere; }
+.authInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--paper-line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 16px; /* 16px stops iOS zooming into the field */
+}
+.authInput:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+.authCodeInput { letter-spacing: 0.3em; font-variant-numeric: tabular-nums; text-align: center; }
+.authError { color: var(--bad); font-size: 13px; min-height: 18px; margin: 8px 0; }
+.authFine { font-size: 12px; color: var(--ink-soft); margin: 14px 0 0; text-align: center; }
+.authLinks { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+
+.winCard .authClose {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  padding: 4px 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 18px;
+}
+.winCard .linkBtn { width: auto; padding: 0; background: none; color: var(--accent); font-size: 13px; }
+.winCard .linkBtn:disabled { color: var(--ink-soft); }
+.winCard #deleteCancel { display: block; margin: 14px auto 0; color: var(--ink-soft); }
+.winCard .dangerBtn { background: var(--bad); }
+.winCard button:disabled { opacity: 0.55; cursor: default; }
+
+/* Recent games */
+.recentList { margin-top: 10px; }
+.recentRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--paper-line);
+}
+.recentRow:last-child { border-bottom: none; }
+.recentTitle { font-size: 14px; font-weight: 500; }
+.recentDetail { font-size: 12px; color: var(--ink-soft); margin-top: 1px; font-variant-numeric: tabular-nums; }
+.recentDate { font-size: 12px; color: var(--ink-soft); flex-shrink: 0; }
+.recentEmpty { font-size: 13px; color: var(--ink-soft); }

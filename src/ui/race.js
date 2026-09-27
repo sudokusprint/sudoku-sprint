@@ -1,7 +1,7 @@
 // Race mode: the player vs a simulated ghost that fills cells at a set pace.
 import { generatePuzzle, CLUES } from '../core/generator.js';
 import { formatTime, createCell, highlightBoard, buildPad, updatePadState, isComplete } from './board.js';
-import { incrementCounter } from './storage.js';
+import { recordRace } from '../services/progress.js';
 
 const GHOST_PACE_MS = { easy: 2800, medium: 3400, hard: 4000 };
 
@@ -83,10 +83,13 @@ function startRace() {
   scheduleGhostStep();
 }
 
+function raceElapsed() {
+  return Math.floor((Date.now() - raceStartTime) / 1000);
+}
+
 function raceTick() {
   if (raceOver) return;
-  const elapsed = Math.floor((Date.now() - raceStartTime) / 1000);
-  els.timer.textContent = formatTime(elapsed);
+  els.timer.textContent = formatTime(raceElapsed());
 }
 
 function scheduleGhostStep() {
@@ -174,12 +177,11 @@ function endRace(winner) {
   raceOver = true;
   clearInterval(raceTicking);
   clearTimeout(raceGhostTimeout);
+  recordRace({ difficulty: raceDifficulty, seconds: raceElapsed(), won: winner === 'you' });
   if (winner === 'you') {
-    incrementCounter('sudoku-race-wins');
     els.resultTitle.textContent = '🎉 You won the race!';
     els.resultDetail.textContent = 'You finished in ' + els.timer.textContent + ', ahead of the ghost.';
   } else {
-    incrementCounter('sudoku-race-losses');
     els.resultTitle.textContent = '👻 Ghost won this one';
     els.resultDetail.textContent = 'The ghost finished first at ' + els.timer.textContent + '. Try again?';
   }
@@ -188,7 +190,7 @@ function endRace(winner) {
 
 function quitRace() {
   if (!raceOver) {
-    incrementCounter('sudoku-race-losses');
+    recordRace({ difficulty: raceDifficulty, seconds: raceElapsed(), won: false });
   }
   raceOver = true;
   clearInterval(raceTicking);

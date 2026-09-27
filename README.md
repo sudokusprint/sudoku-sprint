@@ -1,7 +1,11 @@
 # Sudoku Sprint
 
 Solo play with verified difficulty grading, a race mode against a ghost, and a technique
-workshop. Plain JavaScript ES modules with no build step and no dependencies.
+workshop, with optional player accounts. Plain JavaScript ES modules with no build step.
+The only runtime dependency is `supabase-js`, loaded from a CDN for accounts; if it can't
+load, the game still works in guest mode.
+
+Live at https://sudokusprint.github.io/sudoku-sprint/
 
 ## Running it
 
@@ -19,15 +23,24 @@ If Node is available, `npx serve .` or `npx vite` work too.
 ## Layout
 
 ```
-index.html                  markup for every view (Home, Solo, Race, Workshop, Profile)
+index.html                  markup for every view (Home, Solo, Race, Workshop, Profile) and dialogs
+privacy.html                privacy policy (linked from sign-in and Profile)
 src/
   main.js                   entry point: tab navigation, keyboard shortcuts, startup
+  config.js                 Supabase project URL + publishable key
   core/                     pure logic, no DOM, safe to reuse or test in isolation
     grid.js                 emptyGrid, cloneGrid, shuffled, valid
     solver.js               countSolutions (brute force) + solveLogical (human techniques)
     generator.js            generatePuzzle, generatePuzzleByDifficulty, generatePuzzleForTechnique
     techniques.js           technique catalogue, mastery rules, worked-example data
+    stats.js                player stats model shared by guest and signed-in play
+  services/                 data and network; no DOM rendering
+    supabase.js             lazy Supabase client (null if it can't load)
+    account.js              sign-in state, email code / link sign-in, username, account deletion
+    progress.js             records finished games; guest → localStorage, signed in → Supabase
+    storage.js              localStorage helpers (same keys as the prototype)
   ui/
+    accountView.js          account card, sign-in and delete dialogs
     board.js                shared board/pad rendering and highlighting
     solo.js                 Solo mode
     race.js                 Race mode
@@ -36,14 +49,26 @@ src/
     stats.js                Home tiles and Profile page
     themes.js               board themes + settings panel
     confetti.js             win animation
-    storage.js              localStorage stats (same keys as the prototype)
   styles/                   CSS split by area; load order in index.html matters
+supabase/schema.sql         database tables, security rules and functions (run in Supabase SQL Editor)
 tests/                      browser test runner for src/core
 legacy/prototype.html       the original single-file prototype, kept for reference
 serve.ps1                   zero-dependency static server
 ```
 
-Dependencies only point downward: `main` → `ui/*` → `core/*`. Nothing in `core/` touches the DOM.
+Dependencies only point downward: `main` → `ui/*` → `services/*` → `core/*`. Nothing in
+`core/` touches the DOM or the network.
+
+## Accounts
+
+Players can play as guests (stats in `localStorage`) or sign in with an emailed code or link.
+Signed-in games are stored one row per finished game in `solves`, queued locally until the
+server confirms them. On a player's first sign-in on a device, that device's guest stats are
+imported once into `imported_stats` and cleared locally.
+
+The browser only ever uses the **publishable** key. Every table has Row Level Security:
+players read and write only their own rows, and only usernames are public. Changes to the
+database go in `supabase/schema.sql`, which is safe to re-run.
 
 ## Changes from the prototype
 
