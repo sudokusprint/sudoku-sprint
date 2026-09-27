@@ -5,6 +5,7 @@ import {
   chooseUsername, deleteAccount, retryProfile
 } from '../services/account.js';
 import { progressStatus, onProgressChange, retryProgress, takeImportNotice } from '../services/progress.js';
+import { SIGN_IN_EMAIL_HAS_CODE } from '../config.js';
 
 const RESEND_SECONDS = 30;
 
@@ -23,7 +24,7 @@ export function initAccountView() {
     overlay: $('authOverlay'),
     emailStep: $('authEmailStep'), email: $('authEmail'), emailError: $('authEmailError'), sendBtn: $('authSendBtn'),
     codeStep: $('authCodeStep'), code: $('authCode'), codeError: $('authCodeError'), verifyBtn: $('authVerifyBtn'),
-    emailShown: $('authEmailShown'), resend: $('authResend'), changeEmail: $('authChangeEmail'),
+    codeText: $('authCodeText'), resend: $('authResend'), changeEmail: $('authChangeEmail'),
     usernameStep: $('authUsernameStep'), username: $('authUsername'), usernameError: $('authUsernameError'), usernameBtn: $('authUsernameBtn'),
     deleteOverlay: $('deleteOverlay'), deleteForm: $('deleteForm'), deleteConfirm: $('deleteConfirm'),
     deleteWord: $('deleteWordShown'), deleteError: $('deleteError'), deleteBtn: $('deleteBtn')
@@ -215,10 +216,26 @@ async function onSendCode(e) {
     return;
   }
   pendingEmail = email;
-  els.emailShown.textContent = email;
   els.code.value = '';
   showStep('code');
+  renderCodeStepText();
   startResendCooldown();
+}
+
+// With a link-only email there's nothing to type: just tell the player to tap the link.
+function renderCodeStepText() {
+  const text = els.codeText;
+  text.textContent = '';
+  const strong = document.createElement('strong');
+  strong.textContent = pendingEmail;
+  if (SIGN_IN_EMAIL_HAS_CODE) {
+    text.append('We sent a code to ', strong, '. Enter it below, or tap the link in the email.');
+  } else {
+    text.append('We sent a sign-in link to ', strong, '. Tap it to sign in — you can close this window. It may take a minute to arrive; check your spam folder too.');
+  }
+  els.code.hidden = !SIGN_IN_EMAIL_HAS_CODE;
+  els.verifyBtn.hidden = !SIGN_IN_EMAIL_HAS_CODE;
+  els.resend.textContent = SIGN_IN_EMAIL_HAS_CODE ? 'Send a new code' : 'Send a new link';
 }
 
 async function onVerifyCode(e) {
@@ -251,9 +268,10 @@ async function onResend() {
 function startResendCooldown() {
   clearInterval(resendTimer);
   let left = RESEND_SECONDS;
+  const label = SIGN_IN_EMAIL_HAS_CODE ? 'Send a new code' : 'Send a new link';
   const tick = () => {
     els.resend.disabled = left > 0;
-    els.resend.textContent = left > 0 ? 'Send a new code (' + left + ')' : 'Send a new code';
+    els.resend.textContent = left > 0 ? label + ' (' + left + ')' : label;
     if (left-- <= 0) clearInterval(resendTimer);
   };
   tick();

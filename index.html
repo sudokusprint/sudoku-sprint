@@ -284,7 +284,7 @@
 
     <form id="authCodeStep" novalidate hidden>
       <div class="winTitle">Check your email</div>
-      <p class="authText">We sent a code to <strong id="authEmailShown"></strong>. Enter it below, or tap the link in the email.</p>
+      <p class="authText" id="authCodeText">We sent a code to <strong id="authEmailShown"></strong>. Enter it below, or tap the link in the email.</p>
       <input class="authInput authCodeInput" id="authCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="Code">
       <p class="authError" id="authCodeError" role="alert"></p>
       <button type="submit" id="authVerifyBtn">Sign in</button>
