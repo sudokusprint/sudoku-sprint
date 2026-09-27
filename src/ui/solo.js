@@ -21,6 +21,7 @@ let mistakes = 0;
 let moveHistory = [];
 let notes = [];
 let notesMode = false;
+let genSeq = 0;
 
 export function initSolo() {
   els = {
@@ -41,7 +42,7 @@ export function initSolo() {
     game: document.getElementById('soloGame')
   };
 
-  document.getElementById('winAgain').addEventListener('click', startPuzzle);
+  document.getElementById('winAgain').addEventListener('click', showPicker);
 
   els.diffButtons.forEach(btn => {
     btn.addEventListener('click', () => chooseDifficulty(btn.dataset.d));
@@ -51,7 +52,7 @@ export function initSolo() {
     card.addEventListener('click', () => chooseDifficulty(card.dataset.pick));
   });
 
-  document.getElementById('newBtn').addEventListener('click', startPuzzle);
+  document.getElementById('newBtn').addEventListener('click', showPicker);
   els.undoBtn.addEventListener('click', undo);
   els.pauseBtn.addEventListener('click', () => {
     if (paused) resumeGame(); else pauseGame();
@@ -77,10 +78,46 @@ function chooseDifficulty(d) {
   startPuzzle();
 }
 
+// "New puzzle": drop the current puzzle (timer stopped) and go back to the difficulty picker.
+function showPicker() {
+  genSeq++;                  // ignore a puzzle that's still being generated
+  clearInterval(ticking);
+  solved = false;
+  paused = false;
+  puzzle = [];
+  solution = [];
+  given = [];
+  selected = null;
+  mistakes = 0;
+  moveHistory = [];
+  elapsed = 0;
+  els.board.classList.remove('paused');
+  els.board.innerHTML = '';
+  els.pauseOverlay.classList.remove('show');
+  els.pauseBtn.textContent = '⏸';
+  els.winOverlay.classList.remove('show');
+  els.timer.textContent = '0:00';
+  els.genNote.textContent = '';
+  updateUndoState();
+  renderMistakes();
+  renderPickerBests();
+  els.game.hidden = true;
+  els.picker.hidden = false;
+  window.scrollTo(0, 0);
+}
+
 function renderPickerBests() {
   els.picker.querySelectorAll('[data-best]').forEach(el => {
     const s = bestSeconds(el.dataset.best);
-    el.textContent = s !== null ? 'Best ' + formatTime(s) : '';
+    el.innerHTML = '';
+    if (s === null) return;
+    const label = document.createElement('span');
+    label.className = 'diffCardBestLabel';
+    label.textContent = 'Best';
+    const time = document.createElement('span');
+    time.className = 'diffCardBestTime';
+    time.textContent = formatTime(s);
+    el.append(label, time);
   });
 }
 
@@ -102,8 +139,10 @@ function startPuzzle() {
   els.winOverlay.classList.remove('show');
   els.genNote.textContent = 'Generating a verified ' + difficulty + ' puzzle…';
   clearInterval(ticking);
+  const seq = ++genSeq;
   // Defer the heavy generation one tick so the "generating" note can actually paint first.
   setTimeout(() => {
+    if (seq !== genSeq) return;   // player went back to the picker meanwhile
     const targetTier = DIFFICULTY_TIER[difficulty];
     const gen = generatePuzzleByDifficulty(targetTier, MIN_CLUES[difficulty]);
     solution = gen.full;
