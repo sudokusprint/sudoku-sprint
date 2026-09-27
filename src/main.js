@@ -13,6 +13,7 @@ function isViewActive(id) {
 }
 
 function switchView(viewId) {
+  if (!document.getElementById(viewId)) return;
   if (isViewActive('soloView') && viewId !== 'soloView') {
     solo.pauseGame();
   }
@@ -44,7 +45,7 @@ document.addEventListener('keydown', (e) => {
 document.querySelectorAll('.tabBtn').forEach(btn => {
   btn.addEventListener('click', () => switchView(btn.dataset.view));
 });
-document.querySelectorAll('.lobbyCard').forEach(card => {
+document.querySelectorAll('.lobbyCard[data-goto]').forEach(card => {
   card.addEventListener('click', () => switchView(card.dataset.goto));
 });
 
