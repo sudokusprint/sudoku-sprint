@@ -70,6 +70,15 @@ Signed-in games are stored one row per finished game in `solves`, queued locally
 server confirms them. On a player's first sign-in on a device, that device's guest stats are
 imported once into `imported_stats` and cleared locally.
 
+Sign-in email setup (Supabase dashboard, not in this repo):
+- **Authentication → Emails → SMTP Settings:** custom SMTP through the game's own Gmail
+  (`smtp.gmail.com`, port 465, a Gmail App Password). Switch to a domain-based service such as
+  Resend if volume grows.
+- **Magic Link** and **Confirm signup** templates: subject "Your Sudoku Sprint sign-in code",
+  body containing both `{{ .Token }}` (the code) and `{{ .ConfirmationURL }}` (the link).
+- **Authentication → URL Configuration:** Site URL is the live site; redirect URLs include the
+  live site and `http://localhost:5173/**`, `http://localhost:5174/**`.
+
 The browser only ever uses the **publishable** key. Every table has Row Level Security:
 players read and write only their own rows, and only usernames are public. Changes to the
 database go in `supabase/schema.sql`, which is safe to re-run.
