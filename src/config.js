@@ -2,7 +2,7 @@
 // the live site is guest-only: no sign-in UI is shown and Supabase is never contacted.
 // Turn on once sign-in has been tested and a custom email (SMTP) service is set
 // up, since Supabase's built-in email only reaches the project's own team.
-const ACCOUNTS_LIVE = false;
+const ACCOUNTS_LIVE = true;
 const IS_LOCAL_DEV = ['localhost', '127.0.0.1'].includes(location.hostname);
 // Always on when running locally, so sign-in can be tested without affecting the live site.
 export const ACCOUNTS_ENABLED = ACCOUNTS_LIVE || IS_LOCAL_DEV;

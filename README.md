@@ -61,9 +61,8 @@ Dependencies only point downward: `main` → `ui/*` → `services/*` → `core/*
 
 ## Accounts
 
-**Currently switched off** (`ACCOUNTS_ENABLED = false` in `src/config.js`): the game is
-guest-only and never contacts Supabase. Before turning it on: test sign-in end to end, and set
-up custom SMTP in Supabase, since the built-in email only reaches the project's own team.
+Switched on with `ACCOUNTS_LIVE` in `src/config.js` (always on for localhost). Set it to
+`false` to make the live site guest-only again without removing any code.
 
 Players can play as guests (stats in `localStorage`) or sign in with an emailed code or link.
 Signed-in games are stored one row per finished game in `solves`, queued locally until the
