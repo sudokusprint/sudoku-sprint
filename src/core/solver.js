@@ -403,11 +403,14 @@ function tryXYWing(grid, cand) {
 }
 
 // Apply techniques (easiest first) until solved or stuck.
-// Returns { solved, tier, techniques } where techniques lists every technique used.
+// Returns { solved, tier, techniques, advancedSteps } where techniques lists every
+// technique used and advancedSteps counts the steps that needed more than singles
+// (a finer difficulty measure within a tier).
 export function solveLogical(inputGrid) {
   const grid = cloneGrid(inputGrid);
   const cand = computeCandidates(grid);
   let maxTier = 0;
+  let advancedSteps = 0;
   const used = new Set();
   for (let iter = 0; iter < 300; iter++) {
     let empty = false;
@@ -420,10 +423,11 @@ export function solveLogical(inputGrid) {
       trySwordfish(grid, cand) || tryXYWing(grid, cand);
     if (!step) break;
     maxTier = Math.max(maxTier, step.tier);
+    if (step.tier >= 2) advancedSteps++;
     used.add(step.name);
   }
   let remaining = 0;
   for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) if (grid[r][c] === 0) remaining++;
   const solved = remaining === 0;
-  return { solved, tier: solved ? Math.max(maxTier, 1) : 5, techniques: Array.from(used) };
+  return { solved, tier: solved ? Math.max(maxTier, 1) : 5, techniques: Array.from(used), advancedSteps };
 }

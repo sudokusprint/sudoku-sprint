@@ -1,0 +1,51 @@
+/* Daily Challenge: cards, reset countdown, leaderboard. The play screen reuses board/controls styles. */
+
+.dailyReset {
+  margin: -10px 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.dailyNote { font-size: 13px; color: var(--ink-soft); margin-top: 14px; line-height: 1.45; }
+.dailyNote .linkBtn { font-size: 13px; }
+
+.dailyCard:disabled { opacity: 0.55; cursor: default; }
+.dailyCard:disabled:hover { border-color: var(--paper-line); }
+.dailyCardSide {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.dailyCardAction {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dailyBoardTabs { margin-top: 10px; }
+
+.leaderboard { margin-top: 12px; }
+.leaderRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--paper-line);
+  font-size: 15px;
+}
+.leaderRow:last-child { border-bottom: none; }
+.leaderRow.me {
+  background: var(--accent-soft);
+  border-radius: 10px;
+  border-bottom-color: transparent;
+  font-weight: 600;
+}
+.leaderRank { width: 38px; flex-shrink: 0; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.leaderName { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.leaderTime { flex-shrink: 0; font-variant-numeric: tabular-nums; font-weight: 600; }

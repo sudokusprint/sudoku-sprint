@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="src/styles/workshop.css">
 <link rel="stylesheet" href="src/styles/overlays.css">
 <link rel="stylesheet" href="src/styles/account.css">
+<link rel="stylesheet" href="src/styles/daily.css">
 <script type="module" src="src/main.js"></script>
 </head>
 <body>
@@ -28,6 +29,13 @@
     <div class="homeAccountNote" id="homeAccountNote"></div>
 
     <div class="bestGridTitle" style="margin-top: 26px;">Play</div>
+    <div class="lobbyCard" data-goto="dailyView" id="dailyLobbyCard">
+      <span class="lobbyIcon">📅</span>
+      <div>
+        <div class="lobbyTitle">Daily Challenge</div>
+        <div class="lobbyDesc">Today's puzzles, same for everyone, with leaderboards</div>
+      </div>
+    </div>
     <div class="lobbyCard" data-goto="soloView">
       <span class="lobbyIcon">🧩</span>
       <div>
@@ -57,6 +65,45 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<div class="view" id="dailyView">
+  <div class="wrap" id="dailyHome">
+    <div>
+      <h1>Daily Challenge</h1>
+      <p class="tag" id="dailyDate">One puzzle per difficulty, the same for everyone</p>
+    </div>
+    <p class="dailyReset" id="dailyReset"></p>
+    <div id="dailyCards"></div>
+    <p class="dailyNote" id="dailyNote"></p>
+
+    <div class="bestGridTitle" style="margin-top: 30px;">Today's leaderboard</div>
+    <div class="diff dailyBoardTabs" id="dailyBoardTabs">
+      <button data-d="easy" class="active">Easy</button>
+      <button data-d="medium">Medium</button>
+      <button data-d="hard">Hard</button>
+    </div>
+    <div class="leaderboard" id="dailyLeaderboard"></div>
+  </div>
+
+  <div class="wrap" id="dailyPlay" hidden>
+    <div class="bar">
+      <div class="stats">
+        <div class="timer" id="dailyTimer">0:00</div>
+        <div class="mistakes" id="dailyTitle">Daily · Easy</div>
+      </div>
+      <button class="iconBtn" id="dailyBackBtn" aria-label="Back to Daily Challenge">←</button>
+    </div>
+    <p class="genNote" id="dailyPlayNote"></p>
+    <div class="board" id="dailyGrid"></div>
+    <div class="pad" id="dailyPad"></div>
+    <div class="actions">
+      <button id="dailyNotesBtn" class="ghost">Notes: Off</button>
+      <button id="dailyEraseBtn" class="ghost">Erase</button>
+      <button id="dailyUndoBtn" class="ghost" disabled>Undo</button>
+    </div>
+    <p class="dailyNote">The clock keeps running even if you leave, and there's no pause. Numbers that clash with their row, column, or box turn red; the rest is checked when the grid is full.</p>
   </div>
 </div>
 
@@ -295,6 +342,14 @@
       <button id="closeSettings" aria-label="Close">✕</button>
     </div>
     <div id="themeList"></div>
+  </div>
+</div>
+
+<div class="winOverlay" id="dailyResultOverlay">
+  <div class="winCard">
+    <div class="winTitle">🎉 Solved!</div>
+    <div class="winDetail" id="dailyResultDetail"></div>
+    <button id="dailyResultBtn">See the leaderboard</button>
   </div>
 </div>
 

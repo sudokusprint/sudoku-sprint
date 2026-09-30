@@ -1,8 +1,8 @@
 // Tests for the pure puzzle logic (grid, solver, generator).
 // Runs in the browser via tests/index.html; no Node or test framework needed.
-import { emptyGrid, valid } from '../src/core/grid.js';
+import { emptyGrid, valid, findConflicts, gridToString, gridFromString } from '../src/core/grid.js';
 import { countSolutions, solveLogical, computeCandidates } from '../src/core/solver.js';
-import { fill, generatePuzzle, generatePuzzleByDifficulty, generatePuzzleForTechnique, CLUES, DIFFICULTY_TIER, MIN_CLUES } from '../src/core/generator.js';
+import { fill, generatePuzzle, generatePuzzleByDifficulty, generatePuzzleForTechnique, CLUES, DIFFICULTY_TIER, MIN_CLUES, DAILY_GRADES } from '../src/core/generator.js';
 import { EXAMPLE_DATA, TECHNIQUES_INFO } from '../src/core/techniques.js';
 import { emptyStats, statsFromSolves, hasAnyProgress } from '../src/core/stats.js';
 
@@ -43,6 +43,24 @@ test('valid() rejects row, column and box clashes', () => {
   assert(!valid(EASY, 2, 0, 6), 'column clash');
   assert(!valid(EASY, 1, 1, 9), 'box clash');
   assert(valid(EASY, 0, 2, 4), 'legal move');
+});
+
+test('findConflicts() flags repeats in rows, columns and boxes only', () => {
+  const g = emptyGrid();
+  assertEqual(findConflicts(g).size, 0, 'empty grid');
+  g[0][0] = 5; g[0][8] = 5;          // row clash
+  g[3][2] = 7; g[8][2] = 7;          // column clash
+  g[4][4] = 2; g[5][5] = 2;          // box clash
+  g[1][1] = 9; g[7][7] = 9;          // no clash (different row, col, box)
+  assertEqual([...findConflicts(g)].sort(), ['0,0', '0,8', '3,2', '4,4', '5,5', '8,2']);
+  const full = emptyGrid(); fill(full);
+  assertEqual(findConflicts(full).size, 0, 'a solved grid has no conflicts');
+});
+
+test('gridToString() and gridFromString() round-trip', () => {
+  const s = gridToString(EASY);
+  assertEqual(s.length, 81);
+  assertEqual(gridFromString(s), EASY);
 });
 
 test('fill() produces a complete valid grid', () => {
@@ -154,6 +172,23 @@ test('hasAnyProgress() is false only for untouched stats', () => {
   const s = emptyStats();
   s.raceLosses = 1;
   assert(hasAnyProgress(s));
+});
+
+test('DAILY_GRADES: no puzzle can be both Medium and Hard, and Hard needs more work', () => {
+  for (let tier = 1; tier <= 5; tier++) {
+    for (let advancedSteps = 0; advancedSteps <= 12; advancedSteps++) {
+      const res = { solved: tier < 5, tier, advancedSteps };
+      const medium = DAILY_GRADES.medium(res), hard = DAILY_GRADES.hard(res);
+      assert(!(medium && hard), 'overlap at tier ' + tier + ', steps ' + advancedSteps);
+      if (medium) assert(tier === 2 && advancedSteps <= 2, 'medium too hard');
+      if (hard && tier === 2) assert(advancedSteps >= 4, 'hard too easy');
+    }
+  }
+  assert(!DAILY_GRADES.hard({ solved: false, tier: 5, advancedSteps: 9 }), 'unsolvable puzzles are never Hard');
+});
+
+test('solveLogical() reports advancedSteps (0 for a singles-only puzzle)', () => {
+  assertEqual(solveLogical(EASY).advancedSteps, 0);
 });
 
 test('every non-practiceable technique has a worked example', () => {

@@ -179,7 +179,8 @@ function onAccount(account) {
 
 function isAuthOpen() { return els.overlay.classList.contains('show'); }
 
-function openAuth(step) {
+// step: 'email' (default), 'username', or 'rename'
+export function openAuth(step) {
   showStep(typeof step === 'string' ? step : 'email');
   els.overlay.classList.add('show');
 }

@@ -16,14 +16,17 @@ export function cellClassNames(r, c) {
 }
 
 // Build one playable cell: value colouring (given / entered / wrong) and a click handler.
-export function createCell(r, c, { value, isGiven, solutionValue, onClick }) {
+// An entered value is marked wrong if it differs from solutionValue, or, when the
+// solution isn't known (Daily Challenge), if isBad is passed as true.
+export function createCell(r, c, { value, isGiven, solutionValue, isBad, onClick }) {
   const cell = document.createElement('div');
   cell.className = cellClassNames(r, c).join(' ');
   if (value !== 0) {
     cell.textContent = value;
     if (!isGiven) {
       cell.classList.add('entered');
-      if (value !== solutionValue) cell.classList.add('bad');
+      const wrong = isBad !== undefined ? isBad : value !== solutionValue;
+      if (wrong) cell.classList.add('bad');
     }
   }
   cell.dataset.r = r;

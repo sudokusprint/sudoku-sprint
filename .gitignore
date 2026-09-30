@@ -1,3 +1,6 @@
+# Generated dev-tool output. Daily puzzle files contain SOLUTIONS: never commit them.
+tools/output/
+
 # Personal Claude Code settings
 .claude/settings.local.json
 

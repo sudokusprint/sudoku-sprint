@@ -37,6 +37,8 @@
   --given: #ECEAE3;
 }
 * { box-sizing: border-box; }
+/* The hidden attribute always hides, even on elements whose class sets display. */
+[hidden] { display: none !important; }
 html, body {
   height: 100%;
   margin: 0;

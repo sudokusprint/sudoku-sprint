@@ -88,6 +88,42 @@ export function generatePuzzleByDifficulty(targetTier, minClues) {
   return best;
 }
 
+// Remove clues in random order for as long as the solution stays unique.
+// Fast (no grading along the way); grade the result afterwards.
+export function generateMinimalPuzzle() {
+  const full = emptyGrid();
+  fill(full);
+  const p = cloneGrid(full);
+  for (const idx of shuffled(Array.from({ length: 81 }, (_, i) => i))) {
+    const r = Math.floor(idx / 9), c = idx % 9;
+    const backup = p[r][c];
+    p[r][c] = 0;
+    if (countSolutions(p, 2) !== 1) p[r][c] = backup;
+  }
+  return { full, p };
+}
+
+// Daily Challenge grades, applied to solveLogical() results. Medium and Hard
+// are separated by a gap in "advanced steps" (steps needing more than singles),
+// so every Hard puzzle takes clearly more work than any Medium one.
+export const DAILY_GRADES = {
+  medium: res => res.solved && res.tier === 2 && res.advancedSteps <= 2,
+  hard: res => res.solved && (res.tier === 3 || res.tier === 4 || (res.tier === 2 && res.advancedSteps >= 4))
+};
+
+// Generate minimal puzzles until one passes `accept`. Returns null after maxTries.
+export function generateGradedPuzzle(accept, maxTries) {
+  for (let i = 0; i < maxTries; i++) {
+    const { full, p } = generateMinimalPuzzle();
+    const res = solveLogical(p);
+    if (accept(res)) {
+      const clueCount = p.flat().filter(v => v !== 0).length;
+      return { full, p, tier: res.tier, techniques: res.techniques, advancedSteps: res.advancedSteps, clueCount };
+    }
+  }
+  return null;
+}
+
 // Dig holes until the logical solver needs `techName` to finish. Returns null
 // if no attempt produced such a puzzle.
 export function generatePuzzleForTechnique(techName) {

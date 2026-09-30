@@ -17,6 +17,45 @@ export function shuffled(arr) {
   return a;
 }
 
+// Cells whose value repeats in their row, column, or box, as a Set of "r,c" keys.
+// Used where the solution isn't known (Daily Challenge) to flag rule clashes.
+export function findConflicts(grid) {
+  const bad = new Set();
+  const groups = [];
+  for (let i = 0; i < 9; i++) {
+    const row = [], col = [], box = [];
+    for (let j = 0; j < 9; j++) {
+      row.push([i, j]);
+      col.push([j, i]);
+      box.push([Math.floor(i / 3) * 3 + Math.floor(j / 3), (i % 3) * 3 + (j % 3)]);
+    }
+    groups.push(row, col, box);
+  }
+  for (const cells of groups) {
+    const seen = new Map();
+    for (const [r, c] of cells) {
+      const v = grid[r][c];
+      if (!v) continue;
+      if (seen.has(v)) {
+        bad.add(r + ',' + c);
+        bad.add(seen.get(v));
+      } else {
+        seen.set(v, r + ',' + c);
+      }
+    }
+  }
+  return bad;
+}
+
+// Grid <-> 81-character string, row by row, 0 = blank (the Daily Challenge format).
+export function gridToString(grid) {
+  return grid.map(row => row.join('')).join('');
+}
+
+export function gridFromString(s) {
+  return Array.from({ length: 9 }, (_, r) => Array.from({ length: 9 }, (_, c) => +s[r * 9 + c]));
+}
+
 // Can digit v go at (r, c) without clashing with its row, column, or box?
 export function valid(grid, r, c, v) {
   for (let i = 0; i < 9; i++) {

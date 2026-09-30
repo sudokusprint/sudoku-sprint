@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Generate daily puzzles</title>
+<style>
+  body { font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 24px; max-width: 720px; }
+  label { display: inline-block; margin-right: 16px; }
+  input { font: inherit; padding: 4px 6px; }
+  button { font: inherit; padding: 6px 14px; }
+  #log { white-space: pre-wrap; font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: #f4f4f4; padding: 10px; margin-top: 14px; }
+  .warn { color: #b3261e; }
+</style>
+</head>
+<body>
+<h1>Daily puzzle generator</h1>
+<p>Generates Daily Challenge puzzles (Easy, Medium, Hard for each day) and writes SQL insert
+files to <code>tools/output/</code>. Needs the dev server started with <code>-AllowSave</code>.
+Each file gets its own worker, so more files run more in parallel.</p>
+<p class="warn">The output contains solutions. Paste it into the Supabase SQL Editor, then delete it.
+Never commit it: the repository is public.</p>
+<label>First day <input id="start" type="date"></label>
+<label>Days <input id="days" type="number" value="365" min="1" max="1000" style="width:5em"></label>
+<label>Days per file <input id="perFile" type="number" value="46" min="1" max="1000" style="width:5em"></label>
+<label><input id="useWorkers" type="checkbox" checked> Parallel workers (faster, but only while this tab is visible)</label>
+<button id="go">Generate</button>
+<div id="log"></div>
+<script type="module">
+  const logEl = document.getElementById('log');
+  const log = msg => { logEl.textContent += msg + '\n'; };
+
+  // Today's date in the game's time zone (matches daily_today() in supabase/daily.sql).
+  const easternToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());
+  document.getElementById('start').value = easternToday;
+
+  function addDays(iso, n) {
+    const d = new Date(iso + 'T12:00:00Z');
+    d.setUTCDate(d.getUTCDate() + n);
+    return d.toISOString().slice(0, 10);
+  }
+
+  const sqlText = s => "'" + s.replace(/'/g, "''") + "'";
+
+  function rowSql(day, p) {
+    const techniques = 'array[' + p.techniques.map(sqlText).join(', ') + ']::text[]';
+    return '(' + [sqlText(day), sqlText(p.difficulty), sqlText(p.puzzle), sqlText(p.solution),
+      p.tier, p.clueCount, techniques].join(', ') + ')';
+  }
+
+  // Yield to the event loop without setTimeout, which hidden tabs throttle heavily.
+  const yieldNow = () => new Promise(r => { const ch = new MessageChannel(); ch.port1.onmessage = r; ch.port2.postMessage(0); });
+
+  // Generate on the page itself: steady speed even when the tab is hidden.
+  async function generateDaysHere(days, onDay) {
+    const { generateDailyPuzzle } = await import('./daily-puzzle.js');
+    const result = {};
+    for (const day of days) {
+      result[day] = [];
+      for (const difficulty of ['easy', 'medium', 'hard']) {
+        result[day].push(generateDailyPuzzle(difficulty));
+        await yieldNow();
+      }
+      onDay();
+    }
+    return result;
+  }
+
+  // Generate the given days in a worker; resolves to { day: [puzzle, puzzle, puzzle] }.
+  // Faster in a visible tab (runs in parallel); browsers slow workers down in hidden tabs.
+  function generateDays(days, onDay) {
+    return new Promise((resolve, reject) => {
+      const worker = new Worker('generate-daily-worker.js', { type: 'module' });
+      const result = {};
+      worker.onmessage = ({ data }) => {
+        if (data.type === 'day') { result[data.day] = data.puzzles; onDay(); }
+        else if (data.type === 'done') { worker.terminate(); resolve(result); }
+        else if (data.type === 'error') { worker.terminate(); reject(new Error(data.message)); }
+      };
+      worker.onerror = e => { worker.terminate(); reject(new Error(e.message || 'Worker failed')); };
+      worker.postMessage({ days });
+    });
+  }
+
+  async function save(name, text) {
+    const res = await fetch('/__save/' + name, { method: 'POST', body: text });
+    if (!res.ok) throw new Error('Save failed (' + res.status + '): is the server running with -AllowSave?');
+  }
+
+  window.__daily = { done: false };
+
+  document.getElementById('go').addEventListener('click', async () => {
+    const start = document.getElementById('start').value;
+    const days = +document.getElementById('days').value;
+    const perFile = +document.getElementById('perFile').value;
+    logEl.textContent = '';
+    window.__daily = { done: false, progress: 0 };
+    const t0 = performance.now();
+    const files = [];
+    try {
+      let doneDays = 0;
+      const onDay = () => {
+        doneDays++;
+        window.__daily.progress = doneDays;
+        if (doneDays % 10 === 0 || doneDays === days) {
+          log('Generated ' + doneDays + '/' + days + ' days (' + Math.round((performance.now() - t0) / 1000) + 's)');
+        }
+      };
+      // One worker per output file, all running in parallel.
+      const chunks = [];
+      for (let fileStart = 0; fileStart < days; fileStart += perFile) {
+        const count = Math.min(perFile, days - fileStart);
+        chunks.push(Array.from({ length: count }, (_, i) => addDays(start, fileStart + i)));
+      }
+      let results;
+      if (document.getElementById('useWorkers').checked) {
+        results = await Promise.all(chunks.map(dayList => generateDays(dayList, onDay)));
+      } else {
+        results = [];
+        for (const dayList of chunks) results.push(await generateDaysHere(dayList, onDay));
+      }
+      for (let c = 0; c < chunks.length; c++) {
+        const dayList = chunks[c], generated = results[c];
+        const rows = dayList.flatMap(day => generated[day].map(p => rowSql(day, p)));
+        const first = dayList[0], last = dayList[dayList.length - 1];
+        const name = 'daily-puzzles-' + first + '-to-' + last + '.sql';
+        const sql =
+          '-- Sudoku Sprint daily puzzles ' + first + ' to ' + last + '. CONTAINS SOLUTIONS: do not commit.\n' +
+          '-- Paste into Supabase -> SQL Editor and Run. Days that already exist are skipped.\n' +
+          'insert into public.daily_puzzles (day, difficulty, puzzle, solution, tier, clue_count, techniques) values\n' +
+          rows.join(',\n') + '\non conflict (day, difficulty) do nothing;\n';
+        await save(name, sql);
+        files.push(name);
+        log('Saved tools/output/' + name);
+      }
+      log('Done in ' + Math.round((performance.now() - t0) / 1000) + 's.');
+      window.__daily = { done: true, files };
+    } catch (err) {
+      log('ERROR: ' + err.message);
+      window.__daily = { done: true, error: err.message };
+    }
+  });
+</script>
+</body>
+</html>
