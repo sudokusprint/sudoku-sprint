@@ -42,7 +42,7 @@
   text-align: center;
   min-height: 22px;
 }
-.homeAccountNote strong { color: var(--accent); font-weight: 700; }
+.homeAccountNote strong { color: inherit; font-weight: 700; }
 .homeAccountNote .linkBtn { font-size: 16px; font-weight: 600; }
 
 .privacyLink { margin-top: 28px; text-align: center; font-size: 12px; }
