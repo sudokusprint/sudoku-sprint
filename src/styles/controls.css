@@ -67,7 +67,7 @@
   margin-top: 16px;
   padding: 14px;
   border-radius: 8px;
-  background: var(--accent-soft);
+  background: var(--tile);
   color: var(--ink);
   font-size: 14px;
   display: none;

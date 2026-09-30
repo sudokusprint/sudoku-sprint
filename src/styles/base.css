@@ -11,6 +11,9 @@
   --board-a: #FAF8F3;
   --board-b: #F0EDE2;
   --line: #21262B;
+  /* Stat tiles outside the board. Board themes override --accent-soft with a
+     light colour even in dark mode, so tiles use their own token. */
+  --tile: var(--accent-soft);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -23,6 +26,7 @@
     --good: #6FCF97;
     --bad: #F2897C;
     --given: #ECEAE3;
+    --tile: color-mix(in srgb, var(--accent) 16%, var(--paper));
   }
 }
 :root[data-theme="dark"] {
@@ -35,6 +39,7 @@
   --good: #6FCF97;
   --bad: #F2897C;
   --given: #ECEAE3;
+  --tile: color-mix(in srgb, var(--accent) 16%, var(--paper));
 }
 * { box-sizing: border-box; }
 /* The hidden attribute always hides, even on elements whose class sets display. */

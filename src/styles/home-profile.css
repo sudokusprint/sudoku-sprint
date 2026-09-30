@@ -33,7 +33,7 @@
   margin-top: 10px;
 }
 .bestStat {
-  background: var(--accent-soft);
+  background: var(--tile);
   border-radius: 14px;
   padding: 18px 6px 16px;
   text-align: center;

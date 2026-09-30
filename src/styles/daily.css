@@ -40,12 +40,16 @@
   font-size: 15px;
 }
 .leaderRow:last-child { border-bottom: none; }
+/* Outline rather than a fill: board themes set --accent-soft to a light colour
+   even in dark mode, which made light text unreadable on it. */
 .leaderRow.me {
-  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 2px var(--accent);
   border-radius: 10px;
   border-bottom-color: transparent;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--ink);
 }
+.leaderRow.me .leaderRank { color: var(--ink); }
 .leaderRank { width: 38px; flex-shrink: 0; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
 .leaderName { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .leaderTime { flex-shrink: 0; font-variant-numeric: tabular-nums; font-weight: 600; }
