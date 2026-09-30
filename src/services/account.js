@@ -123,14 +123,37 @@ export async function chooseUsername(username) {
       // Unique violation: either the name is taken, or this account already has a profile.
       const existing = await fetchProfile(sb, state.user.id);
       if (existing.profileStatus === 'ok') { setState(existing); return null; }
-      return 'That username is taken. Try another.';
     }
-    if (/username_not_allowed/.test(error.message)) return 'That username isn\'t allowed. Try another.';
-    if (error.code === '23514') return 'Use 3–20 letters, numbers, or underscores.';
-    return error.message || 'Couldn\'t save your username. Please try again.';
+    return usernameErrorMessage(error);
   }
   setState({ profile: { id: state.user.id, username }, profileStatus: 'ok' });
   return null;
+}
+
+// Returns null on success, or a message to show.
+export async function renameUsername(username) {
+  if (!USERNAME_PATTERN.test(username)) {
+    return 'Use 3–20 letters, numbers, or underscores.';
+  }
+  const sb = await getSupabase();
+  if (!sb || !state.user || !state.profile) return 'You need to be signed in.';
+  if (username === state.profile.username) return null;
+  const { data, error } = await sb.from('profiles')
+    .update({ username })
+    .eq('id', state.user.id)
+    .select('id, username')
+    .maybeSingle();
+  if (error) return usernameErrorMessage(error);
+  if (!data) return 'Couldn\'t change your username. Please try again.';
+  setState({ profile: data, profileStatus: 'ok' });
+  return null;
+}
+
+function usernameErrorMessage(error) {
+  if (error.code === '23505') return 'That username is taken. Try another.';
+  if (/username_not_allowed/.test(error.message)) return 'That username isn\'t allowed. Try another.';
+  if (error.code === '23514') return 'Use 3–20 letters, numbers, or underscores.';
+  return error.message || 'Couldn\'t save your username. Please try again.';
 }
 
 // Permanently deletes the account and all saved progress. Returns null on success.

@@ -6,8 +6,8 @@
   border: 1px solid var(--paper-line);
   border-radius: 12px;
 }
-.accountTitle { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
-.accountText { font-size: 13px; color: var(--ink-soft); margin: 4px 0 0; line-height: 1.45; overflow-wrap: anywhere; }
+.accountTitle { font-size: 21px; font-weight: 700; overflow-wrap: anywhere; }
+.accountText { font-size: 15px; color: var(--ink-soft); margin: 6px 0 0; line-height: 1.45; overflow-wrap: anywhere; }
 .accountWarn { font-size: 13px; color: var(--bad); margin: 8px 0 0; }
 .accountGood { font-size: 13px; color: var(--good); margin: 8px 0 0; }
 .accountActions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
@@ -36,12 +36,14 @@
 .dangerLink { color: var(--bad); }
 
 .homeAccountNote {
-  margin-top: 10px;
-  font-size: 13px;
+  margin-top: 14px;
+  font-size: 16px;
   color: var(--ink-soft);
   text-align: center;
-  min-height: 18px;
+  min-height: 22px;
 }
+.homeAccountNote strong { color: var(--accent); font-weight: 700; }
+.homeAccountNote .linkBtn { font-size: 16px; font-weight: 600; }
 
 .privacyLink { margin-top: 28px; text-align: center; font-size: 12px; }
 .privacyLink a, .authFine a { color: var(--ink-soft); }

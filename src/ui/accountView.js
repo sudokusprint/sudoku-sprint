@@ -2,7 +2,7 @@
 // (email → code → username) and the delete-account dialog.
 import {
   getAccount, onAccountChange, sendSignInCode, verifySignInCode, signOut,
-  chooseUsername, deleteAccount, retryProfile
+  chooseUsername, renameUsername, deleteAccount, retryProfile
 } from '../services/account.js';
 import { progressStatus, onProgressChange, retryProgress, takeImportNotice } from '../services/progress.js';
 import { SIGN_IN_EMAIL_HAS_CODE } from '../config.js';
@@ -14,6 +14,8 @@ let pendingEmail = '';
 let resendTimer = null;
 let promptedUsernameFor = null;
 let importNotice = null;
+let usernameMode = 'username';
+let lastStatus = null;
 
 const $ = id => document.getElementById(id);
 
@@ -26,6 +28,7 @@ export function initAccountView() {
     codeStep: $('authCodeStep'), code: $('authCode'), codeError: $('authCodeError'), verifyBtn: $('authVerifyBtn'),
     codeText: $('authCodeText'), resend: $('authResend'), changeEmail: $('authChangeEmail'),
     usernameStep: $('authUsernameStep'), username: $('authUsername'), usernameError: $('authUsernameError'), usernameBtn: $('authUsernameBtn'),
+    usernameTitle: $('authUsernameTitle'),
     deleteOverlay: $('deleteOverlay'), deleteForm: $('deleteForm'), deleteConfirm: $('deleteConfirm'),
     deleteWord: $('deleteWordShown'), deleteError: $('deleteError'), deleteBtn: $('deleteBtn')
   };
@@ -91,7 +94,9 @@ function renderHomeNote(account) {
   if (account.status === 'guest') {
     note.appendChild(button('Sign in to save your progress on any device', 'linkBtn', openAuth));
   } else if (account.status === 'signedIn' && account.profile) {
-    note.textContent = 'Signed in as @' + account.profile.username;
+    const name = document.createElement('strong');
+    name.textContent = '@' + account.profile.username;
+    note.append('Signed in as ', name);
   }
 }
 
@@ -141,6 +146,7 @@ function renderCard(account) {
   if (account.profileStatus === 'missing') actions.appendChild(button('Choose a username', 'accountPrimary', () => openAuth('username')));
   if (account.profileStatus === 'error') actions.appendChild(button('Try again', 'accountPrimary', retryProfile));
   if (ps === 'error') actions.appendChild(button('Retry loading progress', 'accountPrimary', retryProgress));
+  if (account.profileStatus === 'ok') actions.appendChild(button('Change username', 'accountGhost', () => openAuth('rename')));
   actions.appendChild(button('Sign out', 'accountGhost', onSignOut));
   card.appendChild(actions);
   card.appendChild(button('Delete account', 'linkBtn dangerLink', openDelete));
@@ -149,6 +155,8 @@ function renderCard(account) {
 // ---------- account state ----------
 
 function onAccount(account) {
+  const justSignedIn = account.status === 'signedIn' && lastStatus !== 'signedIn';
+  lastStatus = account.status;
   if (account.status !== 'signedIn') {
     importNotice = null;
     promptedUsernameFor = null;
@@ -160,8 +168,8 @@ function onAccount(account) {
         promptedUsernameFor = account.user.id;
         openAuth('username');
       }
-    } else if (isAuthOpen()) {
-      closeAuth();
+    } else if (justSignedIn && isAuthOpen()) {
+      closeAuth();   // signed in from the code step (or another tab)
     }
   }
   render();
@@ -180,15 +188,24 @@ function closeAuth() {
   els.overlay.classList.remove('show');
 }
 
+// step: 'email' | 'code' | 'username' (first-time pick) | 'rename'
 function showStep(step) {
+  const isName = step === 'username' || step === 'rename';
   els.emailStep.hidden = step !== 'email';
   els.codeStep.hidden = step !== 'code';
-  els.usernameStep.hidden = step !== 'username';
+  els.usernameStep.hidden = !isName;
   els.emailError.textContent = '';
   els.codeError.textContent = '';
   els.usernameError.textContent = '';
-  const focus = { email: els.email, code: els.code, username: els.username }[step];
-  setTimeout(() => focus.focus(), 50);
+  if (isName) {
+    usernameMode = step;
+    const current = getAccount().profile;
+    els.usernameTitle.textContent = step === 'rename' ? 'Change your username' : 'Choose a username';
+    els.usernameBtn.textContent = step === 'rename' ? 'Save new username' : 'Save username';
+    els.username.value = step === 'rename' && current ? current.username : '';
+  }
+  const focus = isName ? els.username : { email: els.email, code: els.code }[step];
+  setTimeout(() => { focus.focus(); if (step === 'rename') focus.select(); }, 50);
 }
 
 function setBusy(btn, busy, busyLabel) {
@@ -282,7 +299,7 @@ async function onChooseUsername(e) {
   e.preventDefault();
   const name = els.username.value.trim();
   setBusy(els.usernameBtn, true, 'Saving…');
-  const error = await chooseUsername(name);
+  const error = usernameMode === 'rename' ? await renameUsername(name) : await chooseUsername(name);
   setBusy(els.usernameBtn, false);
   if (error) {
     els.usernameError.textContent = error;
