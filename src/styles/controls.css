@@ -91,6 +91,15 @@
   flex-shrink: 0;
 }
 
+/* Larger gear button in the Home and Profile headers */
+.iconBtn.settingsGear {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 24px;
+  line-height: 1;
+}
+
 /* Solo difficulty picker: .lobbyCard styling on a <button> */
 .diffCard {
   width: 100%;
