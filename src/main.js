@@ -22,7 +22,11 @@ function switchView(viewId) {
   document.querySelectorAll('.tabBtn').forEach(b => b.classList.toggle('active', b.dataset.view === viewId));
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === viewId));
   if (viewId === 'homeView') { renderHomeStats(); }
-  if (viewId === 'profileView') { renderProfile(); renderLobbyBest(); }
+  if (viewId === 'profileView') {
+    renderProfile();
+    renderLobbyBest();
+    if (ACCOUNTS_ENABLED) daily.refreshProfileDaily();
+  }
   if (viewId === 'dailyView') { daily.onShow(); }
 }
 

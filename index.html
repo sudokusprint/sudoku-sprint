@@ -75,6 +75,7 @@
       <p class="tag" id="dailyDate">One puzzle per difficulty, the same for everyone</p>
     </div>
     <p class="dailyReset" id="dailyReset"></p>
+    <div class="streakBanner" id="dailyStreak" hidden></div>
     <div id="dailyCards"></div>
     <p class="dailyNote" id="dailyNote"></p>
 
@@ -85,6 +86,15 @@
       <button data-d="hard">Hard</button>
     </div>
     <div class="leaderboard" id="dailyLeaderboard"></div>
+
+    <div class="bestGridTitle" style="margin-top: 30px;">All-time leaderboard</div>
+    <div class="diff dailyBoardTabs" id="alltimeTabs">
+      <button data-k="streak" class="active">🔥 Streak</button>
+      <button data-k="best_streak">🏆 Best streak</button>
+      <button data-k="solves">✅ Solved</button>
+    </div>
+    <p class="dailyNote" id="alltimeHint"></p>
+    <div class="leaderboard" id="alltimeLeaderboard"></div>
   </div>
 
   <div class="wrap" id="dailyPlay" hidden>
@@ -250,6 +260,11 @@
 
     <div class="bestGridTitle" style="margin-top: 30px;">Race record</div>
     <div class="profileTotals" id="raceRecordTotals"></div>
+
+    <section id="profileDailySection" hidden>
+      <div class="bestGridTitle" style="margin-top: 30px;">Daily Challenge</div>
+      <div class="bestGrid" id="profileDailyGrid"></div>
+    </section>
 
     <section id="recentSection" hidden>
       <div class="bestGridTitle" style="margin-top: 30px;">Recent games</div>

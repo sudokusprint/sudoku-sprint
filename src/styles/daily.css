@@ -6,7 +6,17 @@
   font-weight: 600;
   color: var(--accent);
 }
-.dailyNote { font-size: 13px; color: var(--ink-soft); margin-top: 14px; line-height: 1.45; }
+.streakBanner {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--tile);
+}
+.streakBanner.atRisk { box-shadow: inset 0 0 0 2px var(--accent); }
+.streakMain { font-size: 17px; font-weight: 700; color: var(--ink); }
+.streakSub { font-size: 13px; color: var(--ink-soft); margin-top: 3px; line-height: 1.4; }
+
+.dailyNote {font-size: 13px; color: var(--ink-soft); margin-top: 14px; line-height: 1.45; }
 .dailyNote .linkBtn { font-size: 13px; }
 
 .dailyCard:disabled { opacity: 0.55; cursor: default; }

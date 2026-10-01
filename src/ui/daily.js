@@ -5,7 +5,10 @@
 // and a full clash-free grid is sent to the server to check. The server keeps
 // the time (the clock runs from the first time the puzzle is opened).
 import { findConflicts, gridToString, gridFromString } from '../core/grid.js';
-import { fetchDailyStatus, startDaily, submitDaily, fetchLeaderboard, msUntilReset } from '../services/daily.js';
+import {
+  fetchDailyStatus, startDaily, submitDaily, fetchLeaderboard, msUntilReset,
+  fetchAlltimeLeaderboard, fetchMyDailyStats
+} from '../services/daily.js';
 import { getAccount, onAccountChange } from '../services/account.js';
 import { createCell, highlightBoard, buildPad, formatTime } from './board.js';
 import { openAuth } from './accountView.js';
@@ -19,6 +22,8 @@ let els;
 let status = null;          // rows from daily_status, or null while loading
 let statusError = null;
 let boardDifficulty = 'easy';
+let alltimeKind = 'streak';
+let myStats = null;         // { current_streak, best_streak, total_solves, solved_today } when signed in
 let resetTimer = null;
 let loadSeq = 0;
 
@@ -36,6 +41,9 @@ export function initDaily() {
     home: $('dailyHome'), play: $('dailyPlay'),
     date: $('dailyDate'), reset: $('dailyReset'), cards: $('dailyCards'), note: $('dailyNote'),
     boardTabs: $('dailyBoardTabs'), leaderboard: $('dailyLeaderboard'),
+    streak: $('dailyStreak'),
+    alltimeTabs: $('alltimeTabs'), alltimeHint: $('alltimeHint'), alltime: $('alltimeLeaderboard'),
+    profileSection: $('profileDailySection'), profileGrid: $('profileDailyGrid'),
     timer: $('dailyTimer'), title: $('dailyTitle'), playNote: $('dailyPlayNote'),
     grid: $('dailyGrid'), pad: $('dailyPad'),
     notesBtn: $('dailyNotesBtn'), eraseBtn: $('dailyEraseBtn'), undoBtn: $('dailyUndoBtn'),
@@ -44,6 +52,9 @@ export function initDaily() {
 
   els.boardTabs.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => showLeaderboard(btn.dataset.d));
+  });
+  els.alltimeTabs.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => showAlltime(btn.dataset.k));
   });
   $('dailyBackBtn').addEventListener('click', showHome);
   els.notesBtn.addEventListener('click', () => {
@@ -70,8 +81,123 @@ export function initDaily() {
     if (key === lastUser) return;
     lastUser = key;
     if (game && (!userId || game.userId !== userId)) showHome();
+    myStats = null;
+    renderStreak();
+    renderProfileDaily();
     if (isVisible()) refresh();
+    else loadMyStats();
   });
+}
+
+function canPlay() {
+  const account = getAccount();
+  return account.status === 'signedIn' && account.profileStatus === 'ok';
+}
+
+// Fetch the signed-in player's streak and totals, then update the banner and Profile.
+async function loadMyStats() {
+  if (!canPlay()) { myStats = null; renderStreak(); renderProfileDaily(); return; }
+  try {
+    myStats = await fetchMyDailyStats();
+  } catch (err) {
+    myStats = null;   // banner and Profile section just stay hidden
+  }
+  renderStreak();
+  renderProfileDaily();
+}
+
+// Called when the Profile view is opened.
+export function refreshProfileDaily() {
+  loadMyStats();
+}
+
+const days = n => n + (n === 1 ? ' day' : ' days');
+
+function renderStreak() {
+  const el = els.streak;
+  el.hidden = !myStats;
+  if (!myStats) return;
+  el.innerHTML = '';
+  const main = document.createElement('div');
+  main.className = 'streakMain';
+  const s = myStats.current_streak;
+  main.textContent = s > 0 ? '🔥 ' + days(s) + ' streak' : '🔥 No streak yet';
+  const sub = document.createElement('div');
+  sub.className = 'streakSub';
+  if (s > 0 && !myStats.solved_today) {
+    sub.textContent = 'Solve any of today\'s puzzles to keep it going.';
+    el.classList.add('atRisk');
+  } else {
+    el.classList.remove('atRisk');
+    sub.textContent = s === 0
+      ? 'Solve any of today\'s puzzles to start one.'
+      : 'Done for today. Come back tomorrow to keep it going.';
+  }
+  if (myStats.best_streak > 0) sub.textContent += ' Best: ' + days(myStats.best_streak) + '.';
+  el.append(main, sub);
+}
+
+function renderProfileDaily() {
+  els.profileSection.hidden = !myStats;
+  if (!myStats) return;
+  const tile = (label, value) =>
+    '<div class="bestStat"><div class="bestStatLabel">' + label + '</div>' +
+    '<div class="bestStatValue' + (value ? '' : ' empty') + '">' + value + '</div></div>';
+  els.profileGrid.innerHTML =
+    tile('Streak', myStats.current_streak) +
+    tile('Best streak', myStats.best_streak) +
+    tile('Solved', myStats.total_solves);
+}
+
+const ALLTIME_HINTS = {
+  streak: 'Days in a row with at least one Daily puzzle solved.',
+  best_streak: 'Longest run of days in a row, ever.',
+  solves: 'Every Daily puzzle solved, all difficulties.'
+};
+
+async function showAlltime(kind) {
+  alltimeKind = kind;
+  els.alltimeTabs.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.k === kind));
+  els.alltimeHint.textContent = ALLTIME_HINTS[kind];
+  const list = els.alltime;
+  list.innerHTML = '<p class="recentEmpty">Loading…</p>';
+  let rows;
+  try {
+    rows = await fetchAlltimeLeaderboard(kind);
+  } catch (err) {
+    if (alltimeKind === kind) list.innerHTML = '<p class="recentEmpty">Couldn\'t load the leaderboard.</p>';
+    return;
+  }
+  if (alltimeKind !== kind) return;   // switched tabs meanwhile
+  renderRows(list, rows, r => kind === 'solves' ? String(r.value) : days(r.value),
+    kind === 'streak' ? 'No active streaks yet. Solve today\'s puzzle to start one!' : 'No one has solved a Daily puzzle yet.');
+}
+
+// Shared row rendering for both leaderboards.
+function renderRows(list, rows, formatValue, emptyText) {
+  list.innerHTML = '';
+  if (!rows.length) {
+    const p = document.createElement('p');
+    p.className = 'recentEmpty';
+    p.textContent = emptyText;
+    list.appendChild(p);
+    return;
+  }
+  for (const r of rows) {
+    const row = document.createElement('div');
+    row.className = 'leaderRow' + (r.is_me ? ' me' : '');
+    const rank = document.createElement('span');
+    rank.className = 'leaderRank';
+    rank.textContent = r.rank <= 3 ? ['🥇', '🥈', '🥉'][r.rank - 1] : '#' + r.rank;
+    const name = document.createElement('span');
+    name.className = 'leaderName';
+    name.textContent = '@' + r.username + (r.is_me ? ' (you)' : '');
+    const value = document.createElement('span');
+    value.className = 'leaderTime';
+    value.textContent = formatValue(r);
+    row.append(rank, name, value);
+    list.appendChild(row);
+  }
 }
 
 function isVisible() {
@@ -105,6 +231,8 @@ async function refresh() {
   }
   renderCards();
   showLeaderboard(boardDifficulty);
+  showAlltime(alltimeKind);
+  loadMyStats();
 }
 
 function renderCards() {
@@ -212,29 +340,7 @@ async function showLeaderboard(difficulty, scrollIntoView) {
     return;
   }
   if (boardDifficulty !== difficulty) return;   // switched tabs meanwhile
-  list.innerHTML = '';
-  if (!rows.length) {
-    const p = document.createElement('p');
-    p.className = 'recentEmpty';
-    p.textContent = 'No one has solved today\'s ' + cap(difficulty) + ' puzzle yet.';
-    list.appendChild(p);
-    return;
-  }
-  for (const r of rows) {
-    const row = document.createElement('div');
-    row.className = 'leaderRow' + (r.is_me ? ' me' : '');
-    const rank = document.createElement('span');
-    rank.className = 'leaderRank';
-    rank.textContent = r.rank <= 3 ? ['🥇', '🥈', '🥉'][r.rank - 1] : '#' + r.rank;
-    const name = document.createElement('span');
-    name.className = 'leaderName';
-    name.textContent = '@' + r.username + (r.is_me ? ' (you)' : '');
-    const time = document.createElement('span');
-    time.className = 'leaderTime';
-    time.textContent = formatTime(r.seconds);
-    row.append(rank, name, time);
-    list.appendChild(row);
-  }
+  renderRows(list, rows, r => formatTime(r.seconds), 'No one has solved today\'s ' + cap(difficulty) + ' puzzle yet.');
 }
 
 // ---------- Playing ----------
@@ -452,4 +558,10 @@ async function maybeSubmit() {
   els.resultOverlay.classList.add('show');
   launchConfetti();
   status = null;   // refresh the cards next time home is shown
+  // Add the (server-computed) streak once it's in.
+  const detail = els.resultDetail.textContent;
+  await loadMyStats();
+  if (myStats && myStats.current_streak > 0 && els.resultOverlay.classList.contains('show')) {
+    els.resultDetail.textContent = detail + ' 🔥 Streak: ' + days(myStats.current_streak) + '.';
+  }
 }

@@ -57,6 +57,18 @@ export function fetchLeaderboard(day, difficulty, limit = 50) {
   return rpc('daily_leaderboard', { p_day: day, p_difficulty: difficulty, p_limit: limit });
 }
 
+// All-time board. kind: 'streak' (current), 'best_streak', or 'solves'.
+// Returns [{ rank, username, value, is_me }]
+export function fetchAlltimeLeaderboard(kind, limit = 50) {
+  return rpc('alltime_leaderboard', { p_kind: kind, p_limit: limit });
+}
+
+// Signed-in player's { current_streak, best_streak, total_solves, solved_today }
+export async function fetchMyDailyStats() {
+  const rows = await rpc('my_daily_stats');
+  return rows[0];
+}
+
 // Milliseconds until the next daily reset (midnight in DAILY_TIME_ZONE).
 export function msUntilReset(now = new Date()) {
   const parts = Object.fromEntries(
