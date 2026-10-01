@@ -269,12 +269,9 @@ export function place(v) {
       if (notes[pr][pc].delete(v)) clearedPeers.push([pr, pc]);
     }
   }
-  let mistakeDelta = 0;
-  if (v !== solution[r][c]) {
-    mistakes++;
-    mistakeDelta = 1;
-  }
-  moveHistory.push({ r, c, v, prevValue, prevNotes, clearedPeers, mistakeDelta });
+  // A mistake counts once it's made; undoing it doesn't take it back.
+  if (v !== solution[r][c]) mistakes++;
+  moveHistory.push({ r, c, v, prevValue, prevNotes, clearedPeers });
   updateUndoState();
   renderBoard();
   checkWin();
@@ -286,9 +283,6 @@ export function undo() {
   puzzle[last.r][last.c] = last.prevValue;
   notes[last.r][last.c] = last.prevNotes;
   for (const [pr, pc] of last.clearedPeers) notes[pr][pc].add(last.v);
-  if (last.mistakeDelta) {
-    mistakes = Math.max(0, mistakes - last.mistakeDelta);
-  }
   updateUndoState();
   renderBoard();
 }
