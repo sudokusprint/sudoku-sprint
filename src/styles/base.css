@@ -14,6 +14,9 @@
   /* Stat tiles outside the board. Board themes override --accent-soft with a
      light colour even in dark mode, so tiles use their own token. */
   --tile: var(--accent-soft);
+  /* Accent-coloured text (stat numbers, best times). Lightened in dark mode,
+     because some board themes have a dark accent. */
+  --accent-text: var(--accent);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -27,6 +30,7 @@
     --bad: #F2897C;
     --given: #ECEAE3;
     --tile: color-mix(in srgb, var(--accent) 16%, var(--paper));
+    --accent-text: color-mix(in srgb, var(--accent) 45%, var(--ink));
   }
 }
 :root[data-theme="dark"] {
@@ -40,6 +44,7 @@
   --bad: #F2897C;
   --given: #ECEAE3;
   --tile: color-mix(in srgb, var(--accent) 16%, var(--paper));
+  --accent-text: color-mix(in srgb, var(--accent) 45%, var(--ink));
 }
 * { box-sizing: border-box; }
 /* The hidden attribute always hides, even on elements whose class sets display. */
@@ -85,7 +90,7 @@ html, body {
   font-weight: 500;
   cursor: pointer;
 }
-.tabBtn.active { color: var(--accent); }
+.tabBtn.active { color: var(--accent-text); }
 .tabBtn[data-view="homeView"].active { color: var(--ink-soft); }
 .tabIcon { font-size: 30px; }
 .tabIcon svg { color: var(--ink); }

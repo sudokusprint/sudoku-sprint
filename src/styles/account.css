@@ -25,7 +25,7 @@
   border: none;
   background: none;
   padding: 0;
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 13px;
   cursor: pointer;
   text-decoration: underline;
@@ -80,7 +80,7 @@
   color: var(--ink-soft);
   font-size: 18px;
 }
-.winCard .linkBtn { width: auto; padding: 0; background: none; color: var(--accent); font-size: 13px; }
+.winCard .linkBtn { width: auto; padding: 0; background: none; color: var(--accent-text); font-size: 13px; }
 .winCard .linkBtn:disabled { color: var(--ink-soft); }
 .winCard #deleteCancel { display: block; margin: 14px auto 0; color: var(--ink-soft); }
 .winCard .dangerBtn { background: var(--bad); }

@@ -119,7 +119,7 @@
 .diffCardBestTime {
   font-size: 22px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-text);
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
 }
