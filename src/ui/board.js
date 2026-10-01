@@ -1,4 +1,5 @@
 // DOM helpers shared by every board (Solo, Race, Workshop practice, technique diagrams).
+import { getSettings } from '../services/settings.js';
 
 export function formatTime(seconds) {
   const m = Math.floor(seconds / 60), s = seconds % 60;
@@ -35,8 +36,10 @@ export function createCell(r, c, { value, isGiven, solutionValue, isBad, onClick
   return cell;
 }
 
-// Selected cell, its row/column peers, and every other cell holding the same digit.
+// Selected cell, plus (per settings) its row/column peers and every other cell
+// holding the same digit.
 export function highlightBoard(boardEl, selected, puzzle) {
+  const { highlightLines, highlightMatches } = getSettings();
   const selectedValue = selected ? puzzle[selected[0]][selected[1]] : 0;
   boardEl.querySelectorAll('.cell').forEach(el => {
     el.classList.remove('selected', 'peer', 'match');
@@ -44,9 +47,9 @@ export function highlightBoard(boardEl, selected, puzzle) {
     if (selected) {
       const [sr, sc] = selected;
       if (r === sr && c === sc) el.classList.add('selected');
-      else if (r === sr || c === sc) el.classList.add('peer');
+      else if (highlightLines && (r === sr || c === sc)) el.classList.add('peer');
     }
-    if (selectedValue !== 0 && puzzle[r][c] === selectedValue && !(selected && r === selected[0] && c === selected[1])) {
+    if (highlightMatches && selectedValue !== 0 && puzzle[r][c] === selectedValue && !(selected && r === selected[0] && c === selected[1])) {
       el.classList.add('match');
     }
   });

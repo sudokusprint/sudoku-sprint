@@ -4,6 +4,8 @@ import { TIER_NAME } from '../core/techniques.js';
 import { formatTime, createCell, highlightBoard, buildPad, updatePadState, isComplete } from './board.js';
 import { recordSolo, bestSeconds } from '../services/progress.js';
 import { launchConfetti } from './confetti.js';
+import { getSettings } from '../services/settings.js';
+import { findConflicts, peersOf } from '../core/grid.js';
 
 let els;
 
@@ -22,6 +24,7 @@ let moveHistory = [];
 let notes = [];
 let notesMode = false;
 let genSeq = 0;
+let genNoteText = '';       // the puzzle info line shown above the board
 
 export function initSolo() {
   els = {
@@ -97,6 +100,7 @@ function showPicker() {
   els.pauseBtn.textContent = '⏸';
   els.winOverlay.classList.remove('show');
   els.timer.textContent = '0:00';
+  genNoteText = '';
   els.genNote.textContent = '';
   updateUndoState();
   renderMistakes();
@@ -137,7 +141,8 @@ function startPuzzle() {
   updateUndoState();
   renderMistakes();
   els.winOverlay.classList.remove('show');
-  els.genNote.textContent = 'Generating a verified ' + difficulty + ' puzzle…';
+  genNoteText = 'Generating a verified ' + difficulty + ' puzzle…';
+  els.genNote.textContent = genNoteText;
   clearInterval(ticking);
   const seq = ++genSeq;
   // Defer the heavy generation one tick so the "generating" note can actually paint first.
@@ -158,14 +163,17 @@ function startPuzzle() {
     renderBest();
     tick();
     const base = 'Verified ' + TIER_NAME[gen.tier] + ' · ' + gen.clueCount + ' clues · needs: ' + (gen.techniques.join(', ') || 'Singles only');
-    els.genNote.textContent = gen.tier < targetTier
+    genNoteText = gen.tier < targetTier
       ? base + '  (couldn\'t find a genuine ' + TIER_NAME[targetTier] + ' this time — try New Puzzle again)'
       : base;
+    els.genNote.textContent = genNoteText;
   }, 20);
 }
 
 function renderMistakes() {
-  els.mistakes.textContent = mistakes + (mistakes === 1 ? ' mistake' : ' mistakes');
+  els.mistakes.textContent = !getSettings().showMistakes && !solved
+    ? 'Mistakes hidden'
+    : mistakes + (mistakes === 1 ? ' mistake' : ' mistakes');
 }
 
 function tick() {
@@ -175,6 +183,9 @@ function tick() {
 }
 
 function renderBoard() {
+  const { showMistakes } = getSettings();
+  // With mistakes hidden, only rule clashes are marked (like the Daily Challenge).
+  const conflicts = showMistakes ? null : findConflicts(puzzle);
   els.board.innerHTML = '';
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
@@ -182,6 +193,7 @@ function renderBoard() {
         value: puzzle[r][c],
         isGiven: given[r][c],
         solutionValue: solution[r][c],
+        isBad: conflicts ? conflicts.has(r + ',' + c) : undefined,
         onClick: () => selectCell(r, c)
       });
       if (puzzle[r][c] === 0 && notes[r][c] && notes[r][c].size > 0) {
@@ -198,7 +210,31 @@ function renderBoard() {
     }
   }
   highlight();
-  updatePadState(els.pad, puzzle, solution);
+  if (showMistakes) {
+    updatePadState(els.pad, puzzle, solution);
+  } else {
+    // Don't reveal wrong digits through the pad: strike a digit once all nine are placed without clashes.
+    for (let v = 1; v <= 9; v++) {
+      let count = 0, clash = false;
+      for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
+        if (puzzle[r][c] === v) { count++; if (conflicts.has(r + ',' + c)) clash = true; }
+      }
+      const btn = els.pad.querySelector('button[data-v="' + v + '"]');
+      if (btn) btn.classList.toggle('done', count === 9 && !clash);
+    }
+  }
+  renderMistakes();
+  renderFullGridHint();
+}
+
+// With mistakes hidden, say so when the grid is full but not right.
+function renderFullGridHint() {
+  if (getSettings().showMistakes || solved || !puzzle.length) {
+    if (els.genNote.textContent !== genNoteText) els.genNote.textContent = genNoteText;
+    return;
+  }
+  const full = puzzle.every(row => !row.includes(0));
+  els.genNote.textContent = full ? 'Every cell is filled, but some numbers are wrong. Keep looking!' : genNoteText;
 }
 
 function highlight() {
@@ -223,15 +259,22 @@ export function place(v) {
   }
   if (puzzle[r][c] === v) return;
   const prevValue = puzzle[r][c];
+  const prevNotes = notes[r][c];
   puzzle[r][c] = v;
   notes[r][c] = new Set();
+  // Auto-clear: remove v from notes in the same row, column, and box (remembered for undo).
+  const clearedPeers = [];
+  if (getSettings().autoClearNotes) {
+    for (const [pr, pc] of peersOf(r, c)) {
+      if (notes[pr][pc].delete(v)) clearedPeers.push([pr, pc]);
+    }
+  }
   let mistakeDelta = 0;
   if (v !== solution[r][c]) {
     mistakes++;
     mistakeDelta = 1;
-    renderMistakes();
   }
-  moveHistory.push({ r, c, prevValue, mistakeDelta });
+  moveHistory.push({ r, c, v, prevValue, prevNotes, clearedPeers, mistakeDelta });
   updateUndoState();
   renderBoard();
   checkWin();
@@ -241,9 +284,10 @@ export function undo() {
   if (moveHistory.length === 0 || paused || solved) return;
   const last = moveHistory.pop();
   puzzle[last.r][last.c] = last.prevValue;
+  notes[last.r][last.c] = last.prevNotes;
+  for (const [pr, pc] of last.clearedPeers) notes[pr][pc].add(last.v);
   if (last.mistakeDelta) {
     mistakes = Math.max(0, mistakes - last.mistakeDelta);
-    renderMistakes();
   }
   updateUndoState();
   renderBoard();
@@ -259,6 +303,8 @@ function checkWin() {
   clearInterval(ticking);
   recordSolo({ difficulty, seconds: elapsed, mistakes });
   renderBest();
+  renderMistakes();
+  renderFullGridHint();
   els.winDetail.textContent = 'Time: ' + els.timer.textContent + ' · ' + mistakes + (mistakes === 1 ? ' mistake' : ' mistakes');
   els.winOverlay.classList.add('show');
   launchConfetti();

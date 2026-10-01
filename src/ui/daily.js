@@ -4,7 +4,8 @@
 // typed. Instead, numbers that clash with their row, column, or box are marked,
 // and a full clash-free grid is sent to the server to check. The server keeps
 // the time (the clock runs from the first time the puzzle is opened).
-import { findConflicts, gridToString, gridFromString } from '../core/grid.js';
+import { findConflicts, gridToString, gridFromString, peersOf } from '../core/grid.js';
+import { getSettings } from '../services/settings.js';
 import {
   fetchDailyStatus, startDaily, submitDaily, fetchLeaderboard, msUntilReset,
   fetchAlltimeLeaderboard, fetchMyDailyStats
@@ -482,6 +483,11 @@ function render() {
   }
 }
 
+// Redraw after a settings change.
+export function refreshBoard() {
+  if (game) render();
+}
+
 function editable() {
   if (!game || game.finished || !selected) return false;
   const [r, c] = selected;
@@ -498,7 +504,14 @@ export function place(v) {
     if (set.has(v)) set.delete(v); else set.add(v);
   } else {
     if (game.grid[r][c] === v) return;
-    game.history.push({ r, c, value: game.grid[r][c], notes: new Set(game.notes[r][c]) });
+    // Auto-clear: remove v from notes in the same row, column, and box (remembered for undo).
+    const clearedPeers = [];
+    if (getSettings().autoClearNotes) {
+      for (const [pr, pc] of peersOf(r, c)) {
+        if (game.notes[pr][pc].delete(v)) clearedPeers.push([pr, pc]);
+      }
+    }
+    game.history.push({ r, c, value: game.grid[r][c], notes: new Set(game.notes[r][c]), placed: v, clearedPeers });
     game.grid[r][c] = v;
     game.notes[r][c] = new Set();
   }
@@ -520,6 +533,7 @@ function undo() {
   const last = game.history.pop();
   game.grid[last.r][last.c] = last.value;
   game.notes[last.r][last.c] = last.notes;
+  for (const [pr, pc] of last.clearedPeers || []) game.notes[pr][pc].add(last.placed);
   afterChange();
 }
 

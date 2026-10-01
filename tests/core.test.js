@@ -1,6 +1,6 @@
 // Tests for the pure puzzle logic (grid, solver, generator).
 // Runs in the browser via tests/index.html; no Node or test framework needed.
-import { emptyGrid, valid, findConflicts, gridToString, gridFromString } from '../src/core/grid.js';
+import { emptyGrid, valid, findConflicts, gridToString, gridFromString, peersOf } from '../src/core/grid.js';
 import { countSolutions, solveLogical, computeCandidates } from '../src/core/solver.js';
 import { fill, generatePuzzle, generatePuzzleByDifficulty, generatePuzzleForTechnique, CLUES, DIFFICULTY_TIER, MIN_CLUES, DAILY_GRADES } from '../src/core/generator.js';
 import { EXAMPLE_DATA, TECHNIQUES_INFO } from '../src/core/techniques.js';
@@ -55,6 +55,16 @@ test('findConflicts() flags repeats in rows, columns and boxes only', () => {
   assertEqual([...findConflicts(g)].sort(), ['0,0', '0,8', '3,2', '4,4', '5,5', '8,2']);
   const full = emptyGrid(); fill(full);
   assertEqual(findConflicts(full).size, 0, 'a solved grid has no conflicts');
+});
+
+test('peersOf() returns the 20 cells sharing a row, column, or box', () => {
+  const peers = peersOf(4, 4);
+  assertEqual(peers.length, 20);
+  const keys = new Set(peers.map(([r, c]) => r + ',' + c));
+  assert(!keys.has('4,4'), 'excludes the cell itself');
+  assert(keys.has('4,0') && keys.has('0,4') && keys.has('3,3') && keys.has('5,5'), 'row, column and box');
+  assert(!keys.has('0,0') && !keys.has('3,6'), 'nothing else');
+  assertEqual(peersOf(0, 0).length, 20);
 });
 
 test('gridToString() and gridFromString() round-trip', () => {

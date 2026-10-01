@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sudoku Sprint</title>
+<script>
+  // Apply the saved Light/Dark choice before first paint (see src/ui/settingsPanel.js).
+  try {
+    var a = (JSON.parse(localStorage.getItem('sudoku-settings') || '{}') || {}).appearance;
+    if (a === 'light' || a === 'dark') document.documentElement.dataset.theme = a;
+  } catch (e) {}
+</script>
 <link rel="stylesheet" href="src/styles/base.css">
 <link rel="stylesheet" href="src/styles/controls.css">
 <link rel="stylesheet" href="src/styles/board.css">
@@ -359,12 +366,40 @@
 </div>
 
 <div class="settingsOverlay" id="settingsOverlay">
-  <div class="settingsPanel">
+  <div class="settingsPanel" role="dialog" aria-label="Settings">
     <div class="settingsHeader">
-      <span>Board style</span>
+      <span>Settings</span>
       <button id="closeSettings" aria-label="Close">✕</button>
     </div>
+
+    <div class="settingsSection">Appearance</div>
+    <div class="segmented" id="appearanceChoice" role="radiogroup" aria-label="Appearance">
+      <button type="button" data-appearance="auto" role="radio">Auto</button>
+      <button type="button" data-appearance="light" role="radio">Light</button>
+      <button type="button" data-appearance="dark" role="radio">Dark</button>
+    </div>
+    <p class="settingHint">Auto follows your device's light or dark mode.</p>
+
+    <div class="settingsSubhead">Board style</div>
     <div id="themeList"></div>
+
+    <div class="settingsSection">Gameplay</div>
+    <label class="toggleRow">
+      <span><span class="toggleTitle">Auto-clear notes</span><span class="settingHint">Placing a number removes it from notes in the same row, column, and box.</span></span>
+      <input type="checkbox" class="toggle" data-setting="autoClearNotes">
+    </label>
+    <label class="toggleRow">
+      <span><span class="toggleTitle">Show mistakes</span><span class="settingHint">Solo: wrong numbers turn red as soon as you place them. When off, only clashes are shown.</span></span>
+      <input type="checkbox" class="toggle" data-setting="showMistakes">
+    </label>
+    <label class="toggleRow">
+      <span><span class="toggleTitle">Highlight matching numbers</span><span class="settingHint">Shade every cell with the same number as the one you selected.</span></span>
+      <input type="checkbox" class="toggle" data-setting="highlightMatches">
+    </label>
+    <label class="toggleRow">
+      <span><span class="toggleTitle">Highlight row and column</span><span class="settingHint">Shade the row and column of the cell you selected.</span></span>
+      <input type="checkbox" class="toggle" data-setting="highlightLines">
+    </label>
   </div>
 </div>
 

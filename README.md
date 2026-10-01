@@ -108,6 +108,7 @@ Also dropped: `raceErase()`, which nothing called.
 
 ## Known quirks kept as-is
 
-- Undo in Solo doesn't restore notes cleared by a placement. Notes changes aren't undoable.
+- Toggling a single note in Solo isn't undoable (placing and erasing numbers are, including the
+  notes a placement auto-clears).
 - localStorage is per-origin, so stats saved while opening the prototype as a file won't
   appear at `http://localhost:5173`.

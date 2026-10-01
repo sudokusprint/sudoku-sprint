@@ -67,7 +67,7 @@ export function clearGuestStats() {
     const keys = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k && k.startsWith('sudoku-') && k !== 'sudoku-board-theme' &&
+      if (k && k.startsWith('sudoku-') && k !== 'sudoku-board-theme' && k !== 'sudoku-settings' &&
           !k.startsWith('sudoku-pending-') && !k.startsWith('sudoku-daily-')) keys.push(k);
     }
     keys.forEach(k => localStorage.removeItem(k));

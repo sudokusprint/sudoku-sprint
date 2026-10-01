@@ -47,6 +47,20 @@ export function findConflicts(grid) {
   return bad;
 }
 
+// Every other cell in the same row, column, or box as (r, c), as [row, col] pairs.
+export function peersOf(r, c) {
+  const peers = [];
+  const br = r - (r % 3), bc = c - (c % 3);
+  for (let rr = 0; rr < 9; rr++) {
+    for (let cc = 0; cc < 9; cc++) {
+      if (rr === r && cc === c) continue;
+      const inBox = rr >= br && rr < br + 3 && cc >= bc && cc < bc + 3;
+      if (rr === r || cc === c || inBox) peers.push([rr, cc]);
+    }
+  }
+  return peers;
+}
+
 // Grid <-> 81-character string, row by row, 0 = blank (the Daily Challenge format).
 export function gridToString(grid) {
   return grid.map(row => row.join('')).join('');

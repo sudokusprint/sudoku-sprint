@@ -120,6 +120,11 @@ function renderWorkBoard() {
   workHighlight();
 }
 
+// Redraw highlights after a settings change.
+export function refreshHighlight() {
+  if (els && workPuzzle.length) workHighlight();
+}
+
 function workHighlight() {
   highlightBoard(els.board, workSelected, workPuzzle);
 }

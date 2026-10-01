@@ -124,6 +124,11 @@ function renderRaceBoard() {
   updatePadState(els.pad, racePuzzle, raceSolution);
 }
 
+// Redraw highlights after a settings change.
+export function refreshHighlight() {
+  if (els && racePuzzle.length) raceHighlight();
+}
+
 function raceHighlight() {
   highlightBoard(els.board, raceSelected, racePuzzle);
 }

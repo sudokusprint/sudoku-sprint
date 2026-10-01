@@ -9,6 +9,8 @@ import { initAccountView } from './ui/accountView.js';
 import { initAccount } from './services/account.js';
 import { initProgress, onProgressChange } from './services/progress.js';
 import { ACCOUNTS_ENABLED } from './config.js';
+import { initSettingsPanel } from './ui/settingsPanel.js';
+import { onSettingsChange } from './services/settings.js';
 
 // Home tiles, including the Daily streak when accounts are on.
 function homeStats() {
@@ -73,6 +75,15 @@ onProgressChange(() => {
   workshop.refreshTechniqueList();
 });
 
+// Gameplay settings change how boards are drawn: redraw whatever is on screen.
+onSettingsChange(() => {
+  solo.refreshBoard();
+  race.refreshHighlight();
+  workshop.refreshHighlight();
+  if (ACCOUNTS_ENABLED) daily.refreshBoard();
+});
+
+initSettingsPanel();
 initProgress();
 race.initRace();
 workshop.initWorkshop();
