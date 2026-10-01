@@ -19,9 +19,12 @@
 <canvas id="confettiCanvas" style="position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 200;"></canvas>
 <div class="view active" id="homeView">
   <div class="wrap">
-    <div>
-      <h1>Sudoku sprint</h1>
-      <p class="tag">Your lobby — jump into a puzzle, a race, or a lesson</p>
+    <div class="header">
+      <div>
+        <h1>Sudoku sprint</h1>
+        <p class="tag">Your lobby — jump into a puzzle, a race, or a lesson</p>
+      </div>
+      <button class="iconBtn" data-open-settings aria-label="Board style settings">⚙️</button>
     </div>
 
     <div class="bestGridTitle">Your progress</div>
@@ -165,7 +168,7 @@
         <button data-d="hard">Hard</button>
       </div>
       <button class="iconBtn" id="pauseBtn" aria-label="Pause">⏸</button>
-      <button class="iconBtn" id="settingsBtn" aria-label="Settings">⚙️</button>
+      <button class="iconBtn" id="settingsBtn" data-open-settings aria-label="Board style settings">⚙️</button>
     </div>
   </div>
 
@@ -243,9 +246,12 @@
 
 <div class="view" id="profileView">
   <div class="wrap">
-    <div>
-      <h1>Profile</h1>
-      <p class="tag">Your best times, solves, and race record</p>
+    <div class="header">
+      <div>
+        <h1>Profile</h1>
+        <p class="tag">Your best times, solves, and race record</p>
+      </div>
+      <button class="iconBtn" data-open-settings aria-label="Board style settings">⚙️</button>
     </div>
 
     <div class="accountCard" id="accountCard"></div>

@@ -21,8 +21,9 @@ export function initThemes({ onChange }) {
   themeList = document.getElementById('themeList');
   const settingsOverlay = document.getElementById('settingsOverlay');
 
-  document.getElementById('settingsBtn').addEventListener('click', () => {
-    settingsOverlay.classList.add('show');
+  // The gear buttons on Home, Solo and Profile all open the same panel.
+  document.querySelectorAll('[data-open-settings]').forEach(btn => {
+    btn.addEventListener('click', () => settingsOverlay.classList.add('show'));
   });
   document.getElementById('closeSettings').addEventListener('click', () => {
     settingsOverlay.classList.remove('show');
