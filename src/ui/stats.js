@@ -1,25 +1,24 @@
 // Home progress tiles and the Profile page (best times, completions, race record, recent games).
-import { TECHNIQUES_INFO, MASTERY_TARGET } from '../core/techniques.js';
 import { DIFFICULTIES } from '../core/stats.js';
 import { currentStats, recentSolves, progressStatus } from '../services/progress.js';
 import { formatTime } from './board.js';
 
 const RECENT_LIMIT = 15;
 
-export function renderHomeStats() {
+// dailyStreak: the signed-in player's current Daily streak, or null if unknown / signed out.
+export function renderHomeStats(dailyStreak = null) {
   const stats = currentStats();
   const grid = document.getElementById('homeStatsGrid');
   const totalSolved = DIFFICULTIES.reduce((sum, d) => sum + stats.completed[d], 0);
   const wins = stats.raceWins;
   const losses = stats.raceLosses;
   const racedAny = (wins + losses) > 0;
-  const practiceable = TECHNIQUES_INFO.filter(t => t.practiceable !== false);
-  const masteredCount = practiceable.filter(t => (stats.mastery[t.name] || 0) >= MASTERY_TARGET).length;
+  const hasStreak = dailyStreak !== null && dailyStreak > 0;
 
   grid.innerHTML =
     '<div class="bestStat"><div class="bestStatLabel">Solved</div><div class="bestStatValue' + (totalSolved === 0 ? ' empty' : '') + '">' + (totalSolved || '—') + '</div></div>' +
     '<div class="bestStat"><div class="bestStatLabel">Race record</div><div class="bestStatValue' + (racedAny ? '' : ' empty') + '">' + (racedAny ? (wins + '-' + losses) : '—') + '</div></div>' +
-    '<div class="bestStat"><div class="bestStatLabel">Mastered</div><div class="bestStatValue' + (masteredCount === 0 ? ' empty' : '') + '">' + masteredCount + '/' + practiceable.length + '</div></div>';
+    '<div class="bestStat"><div class="bestStatLabel">Daily streak</div><div class="bestStatValue' + (hasStreak ? '' : ' empty') + '">' + (hasStreak ? '🔥 ' + dailyStreak : (dailyStreak === 0 ? '0' : '—')) + '</div></div>';
 }
 
 export function renderProfile() {

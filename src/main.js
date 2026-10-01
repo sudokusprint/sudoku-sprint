@@ -10,6 +10,11 @@ import { initAccount } from './services/account.js';
 import { initProgress, onProgressChange } from './services/progress.js';
 import { ACCOUNTS_ENABLED } from './config.js';
 
+// Home tiles, including the Daily streak when accounts are on.
+function homeStats() {
+  renderHomeStats(ACCOUNTS_ENABLED ? daily.currentStreak() : null);
+}
+
 function isViewActive(id) {
   return document.getElementById(id).classList.contains('active');
 }
@@ -21,7 +26,7 @@ function switchView(viewId) {
   }
   document.querySelectorAll('.tabBtn').forEach(b => b.classList.toggle('active', b.dataset.view === viewId));
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === viewId));
-  if (viewId === 'homeView') { renderHomeStats(); }
+  if (viewId === 'homeView') { homeStats(); }
   if (viewId === 'profileView') {
     renderProfile();
     renderLobbyBest();
@@ -61,7 +66,7 @@ document.querySelectorAll('.lobbyCard[data-goto]').forEach(card => {
 
 // Stats change on sign-in, sign-out, when saved progress loads, and after each game.
 onProgressChange(() => {
-  renderHomeStats();
+  homeStats();
   renderProfile();
   renderLobbyBest();
   solo.renderBest();
@@ -75,10 +80,11 @@ initThemes({ onChange: solo.refreshBoard });
 loadTheme();
 solo.initSolo();
 renderLobbyBest();
-renderHomeStats();
+homeStats();
 if (ACCOUNTS_ENABLED) {
   initAccountView();
   daily.initDaily();
+  daily.onMyStatsChange(homeStats);
   initAccount();
 } else {
   // The Daily Challenge needs accounts (the server times and ranks each attempt).

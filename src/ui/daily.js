@@ -96,20 +96,32 @@ function canPlay() {
 
 // Fetch the signed-in player's streak and totals, then update the banner and Profile.
 async function loadMyStats() {
-  if (!canPlay()) { myStats = null; renderStreak(); renderProfileDaily(); return; }
-  try {
-    myStats = await fetchMyDailyStats();
-  } catch (err) {
-    myStats = null;   // banner and Profile section just stay hidden
+  if (canPlay()) {
+    try {
+      myStats = await fetchMyDailyStats();
+    } catch (err) {
+      myStats = null;   // banner and Profile section just stay hidden
+    }
+  } else {
+    myStats = null;
   }
   renderStreak();
   renderProfileDaily();
+  statsListeners.forEach(fn => fn());
 }
 
 // Called when the Profile view is opened.
 export function refreshProfileDaily() {
   loadMyStats();
 }
+
+// The signed-in player's current streak, or null (signed out / not loaded).
+export function currentStreak() {
+  return myStats ? myStats.current_streak : null;
+}
+
+const statsListeners = new Set();
+export function onMyStatsChange(fn) { statsListeners.add(fn); }
 
 const days = n => n + (n === 1 ? ' day' : ' days');
 
