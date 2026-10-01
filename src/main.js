@@ -85,4 +85,5 @@ if (ACCOUNTS_ENABLED) {
   document.getElementById('accountCard').hidden = true;
   document.getElementById('homeAccountNote').hidden = true;
   document.getElementById('dailyLobbyCard').hidden = true;
+  document.getElementById('dailyTab').hidden = true;
 }
