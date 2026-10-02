@@ -61,6 +61,16 @@ export function initSolo() {
     if (paused) resumeGame(); else pauseGame();
   });
   document.getElementById('resumeBtn').addEventListener('click', resumeGame);
+  // Quit from the pause screen: first tap asks for confirmation, second tap quits.
+  els.quitBtn = document.getElementById('quitBtn');
+  els.quitBtn.addEventListener('click', () => {
+    if (els.quitBtn.classList.contains('confirm')) {
+      showPicker();
+    } else {
+      els.quitBtn.classList.add('confirm');
+      els.quitBtn.textContent = 'Tap again to quit';
+    }
+  });
 
   els.notesBtn.addEventListener('click', (e) => {
     notesMode = !notesMode;
@@ -319,6 +329,8 @@ export function pauseGame() {
   paused = true;
   clearInterval(ticking);
   els.board.classList.add('paused');
+  els.quitBtn.classList.remove('confirm');
+  els.quitBtn.textContent = 'Quit puzzle';
   els.pauseOverlay.classList.add('show');
   els.pauseBtn.textContent = '▶';
 }
