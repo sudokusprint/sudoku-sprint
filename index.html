@@ -20,6 +20,7 @@
 <link rel="stylesheet" href="src/styles/overlays.css">
 <link rel="stylesheet" href="src/styles/account.css">
 <link rel="stylesheet" href="src/styles/daily.css">
+<link rel="stylesheet" href="src/styles/friends.css">
 <script type="module" src="src/main.js"></script>
 </head>
 <body>
@@ -318,6 +319,14 @@
   </div>
 </div>
 
+<div class="inviteToast" id="inviteToast" role="alert" hidden>
+  <div class="inviteToastText" id="inviteToastText"></div>
+  <div class="inviteToastActions">
+    <button id="inviteJoinBtn">Join</button>
+    <button id="inviteDeclineBtn" class="ghostBtn">Decline</button>
+  </div>
+</div>
+
 <div class="winOverlay" id="liveResultOverlay">
   <div class="winCard">
     <div class="winTitle" id="liveResultTitle">🏁 Results</div>
@@ -345,6 +354,16 @@
     </div>
 
     <div class="accountCard" id="accountCard"></div>
+
+    <section id="friendsSection" hidden>
+      <div class="bestGridTitle" style="margin-top: 26px;">Friends</div>
+      <form class="liveJoinRow" id="addFriendForm" novalidate>
+        <input class="authInput" id="addFriendInput" placeholder="Add a friend by username" maxlength="21" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button type="submit" class="liveJoinBtn">Add</button>
+      </form>
+      <p class="friendsMessage" id="friendsMessage" role="status"></p>
+      <div class="friendsList" id="friendsList"></div>
+    </section>
 
     <div class="bestGridTitle">Best times</div>
     <div class="bestGrid" id="bestGrid"></div>
@@ -482,6 +501,12 @@
     <label class="toggleRow">
       <span><span class="toggleTitle">Highlight row and column</span><span class="settingHint">Shade the row and column of the cell you selected.</span></span>
       <input type="checkbox" class="toggle" data-setting="highlightLines">
+    </label>
+
+    <div class="settingsSection">Friends</div>
+    <label class="toggleRow">
+      <span><span class="toggleTitle">Show me as online</span><span class="settingHint">Friends can see when you have the game open, so they can invite you to race. Only friends, never other players.</span></span>
+      <input type="checkbox" class="toggle" data-setting="showOnline">
     </label>
   </div>
 </div>

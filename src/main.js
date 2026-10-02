@@ -4,6 +4,8 @@ import * as race from './ui/race.js';
 import * as workshop from './ui/workshop.js';
 import * as daily from './ui/daily.js';
 import * as liveRace from './ui/liveRace.js';
+import { initFriendsView, onProfileShown } from './ui/friendsView.js';
+import { initFriends } from './services/friends.js';
 import { initThemes, loadTheme } from './ui/themes.js';
 import { renderHomeStats, renderProfile, renderLobbyBest } from './ui/stats.js';
 import { initAccountView } from './ui/accountView.js';
@@ -33,7 +35,7 @@ function switchView(viewId) {
   if (viewId === 'profileView') {
     renderProfile();
     renderLobbyBest();
-    if (ACCOUNTS_ENABLED) daily.refreshProfileDaily();
+    if (ACCOUNTS_ENABLED) { daily.refreshProfileDaily(); onProfileShown(); }
   }
   if (viewId === 'dailyView') { daily.onShow(); }
 }
@@ -100,6 +102,8 @@ if (ACCOUNTS_ENABLED) {
   initAccountView();
   daily.initDaily();
   daily.onMyStatsChange(homeStats);
+  initFriends();
+  initFriendsView({ goTo: switchView });
   initAccount();
 } else {
   // The Daily Challenge needs accounts (the server times and ranks each attempt).

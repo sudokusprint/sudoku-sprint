@@ -97,6 +97,18 @@ async function createRace() {
   await enterRoom(makeCode(), true, d);
 }
 
+// Open a new hosted lobby (used by friend invites). Returns the code, or null on failure.
+export async function hostRace(difficulty) {
+  const c = makeCode();
+  await enterRoom(c, true, difficulty);
+  return room && code === c ? c : null;
+}
+
+// The open lobby's code and difficulty if we're hosting one, else null.
+export function hostedLobby() {
+  return room && me && me.host && phase === 'lobby' ? { code, difficulty: lobbyDifficulty } : null;
+}
+
 // Called for "?race=CODE" links and the code box.
 export async function joinRace(text) {
   const c = normalizeCode(text);

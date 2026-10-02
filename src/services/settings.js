@@ -6,7 +6,8 @@ const DEFAULTS = {
   autoClearNotes: true,      // placing a digit removes it from notes in the same row, column, and box
   showMistakes: true,        // Solo: wrong digits turn red as soon as they're placed
   highlightMatches: true,    // shade every cell holding the selected digit
-  highlightLines: true       // shade the selected cell's row and column
+  highlightLines: true,      // shade the selected cell's row and column
+  showOnline: true           // friends can see when you have the game open
 };
 
 let settings = load();

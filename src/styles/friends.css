@@ -1,0 +1,91 @@
+/* Profile → Friends, and the race-invite pop-up. */
+
+.friendsMessage { font-size: 13px; color: var(--good); min-height: 18px; margin: 8px 0 4px; }
+.friendsMessage.error { color: var(--bad); }
+
+.friendsGroup {
+  margin: 14px 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.friendRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid var(--paper-line);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+.friendMain { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.friendName { font-size: 15px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.friendStatus { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+.friendStatus.online { color: var(--good); font-weight: 600; }
+.friendStatus.online::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: var(--good);
+  vertical-align: 1px;
+}
+.friendActions { display: flex; gap: 6px; flex-shrink: 0; }
+.friendBtn {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--paper-line);
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  cursor: pointer;
+}
+.friendBtn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+.invitePicker {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--paper-line);
+}
+.invitePickerLabel { flex-basis: 100%; font-size: 13px; color: var(--ink-soft); margin-bottom: 2px; }
+.invitePicker .inviteRemove { margin-left: auto; font-size: 12px; }
+
+/* Invite pop-up */
+.inviteToast {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  width: min(420px, calc(100% - 24px));
+  transform: translate(-50%, -140%);
+  transition: transform 0.25s ease;
+  z-index: 80;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+.inviteToast.show { transform: translate(-50%, 0); }
+.inviteToastText { font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.4; }
+.inviteToastActions { display: flex; gap: 8px; margin-top: 10px; }
+.inviteToastActions button {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.inviteToastActions .ghostBtn { background: transparent; border: 1px solid var(--paper-line); color: var(--ink); font-weight: 500; }
