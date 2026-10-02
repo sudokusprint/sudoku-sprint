@@ -7,6 +7,7 @@ const DEFAULTS = {
   showMistakes: true,        // Solo: wrong digits turn red as soon as they're placed
   highlightMatches: true,    // shade every cell holding the selected digit
   highlightLines: true,      // shade the selected cell's row and column
+  oneRowPad: false,          // number pad as one row of 1-9 instead of two rows
   showOnline: true           // friends can see when you have the game open
 };
 

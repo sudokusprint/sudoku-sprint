@@ -40,7 +40,7 @@ function switchView(viewId) {
   if (viewId === 'dailyView') { daily.onShow(); }
 }
 
-// Digits place a value; Backspace / Delete / 0 undo (Solo, Race) or erase (Workshop, Daily).
+// Digits place a value; Backspace / Delete / 0 erase (Solo, Workshop, Daily) or undo (races).
 document.addEventListener('keydown', (e) => {
   if (e.target.closest && e.target.closest('input, textarea')) return;  // typing in a form field
   const soloIsActive = isViewActive('soloView');
@@ -56,7 +56,7 @@ document.addEventListener('keydown', (e) => {
     else if (dailyIsActive) daily.place(v);
   }
   if (e.key === 'Backspace' || e.key === '0' || e.key === 'Delete') {
-    if (soloIsActive) solo.undo();
+    if (soloIsActive) solo.erase();
     else if (raceIsActive && liveRace.isRacing()) liveRace.undo();
     else if (raceIsActive) race.raceUndo();
     else if (workIsActive) workshop.workErase();

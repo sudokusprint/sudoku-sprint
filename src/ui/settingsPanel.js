@@ -9,6 +9,11 @@ function applyAppearance(appearance) {
   else delete root.dataset.theme;
 }
 
+// Every number pad in the game (Solo, races, Daily, Workshop) follows the setting.
+function applyPadLayout(oneRow) {
+  document.querySelectorAll('.pad').forEach(pad => pad.classList.toggle('oneRow', oneRow));
+}
+
 function render() {
   const s = getSettings();
   document.querySelectorAll('#appearanceChoice [data-appearance]').forEach(btn => {
@@ -23,6 +28,7 @@ function render() {
 
 export function initSettingsPanel() {
   applyAppearance(getSettings().appearance);
+  applyPadLayout(getSettings().oneRowPad);
   document.querySelectorAll('#appearanceChoice [data-appearance]').forEach(btn => {
     btn.addEventListener('click', () => updateSettings({ appearance: btn.dataset.appearance }));
   });
@@ -31,6 +37,7 @@ export function initSettingsPanel() {
   });
   onSettingsChange(s => {
     applyAppearance(s.appearance);
+    applyPadLayout(s.oneRowPad);
     render();
   });
   render();

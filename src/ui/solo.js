@@ -55,8 +55,23 @@ export function initSolo() {
     card.addEventListener('click', () => chooseDifficulty(card.dataset.pick));
   });
 
-  document.getElementById('newBtn').addEventListener('click', showPicker);
+  // New puzzle sits next to Erase, so mid-game it asks for a second tap before
+  // throwing the current puzzle away.
+  els.newBtn = document.getElementById('newBtn');
+  els.newBtn.addEventListener('click', () => {
+    const inProgress = puzzle.length && !solved;
+    if (!inProgress || els.newBtn.classList.contains('confirm')) {
+      resetNewBtn();
+      showPicker();
+      return;
+    }
+    els.newBtn.classList.add('confirm');
+    els.newBtn.textContent = 'Tap again for new';
+    clearTimeout(newConfirmTimer);
+    newConfirmTimer = setTimeout(resetNewBtn, 3000);
+  });
   els.undoBtn.addEventListener('click', undo);
+  document.getElementById('eraseBtn').addEventListener('click', erase);
   els.pauseBtn.addEventListener('click', () => {
     if (paused) resumeGame(); else pauseGame();
   });
@@ -88,6 +103,7 @@ function chooseDifficulty(d) {
   els.diffButtons.forEach(b => b.classList.toggle('active', b.dataset.d === d));
   els.picker.hidden = true;
   els.game.hidden = false;
+  document.getElementById('soloView').classList.add('playing');   // phones trim the header
   startPuzzle();
 }
 
@@ -117,6 +133,7 @@ function showPicker() {
   renderPickerBests();
   els.game.hidden = true;
   els.picker.hidden = false;
+  document.getElementById('soloView').classList.remove('playing');
   window.scrollTo(0, 0);
 }
 
@@ -301,6 +318,26 @@ export function place(v) {
   updateUndoState();
   renderBoard();
   checkWin();
+}
+
+let newConfirmTimer = null;
+function resetNewBtn() {
+  clearTimeout(newConfirmTimer);
+  els.newBtn.classList.remove('confirm');
+  els.newBtn.textContent = 'New puzzle';
+}
+
+// Clear the selected cell's number (or its notes). Locked and given cells can't be erased.
+export function erase() {
+  if (!selected || solved || paused) return;
+  const [r, c] = selected;
+  if (isLocked(r, c)) return;
+  if (puzzle[r][c] === 0 && notes[r][c].size === 0) return;
+  moveHistory.push({ r, c, v: puzzle[r][c], prevValue: puzzle[r][c], prevNotes: notes[r][c], clearedPeers: [] });
+  puzzle[r][c] = 0;
+  notes[r][c] = new Set();
+  updateUndoState();
+  renderBoard();
 }
 
 export function undo() {

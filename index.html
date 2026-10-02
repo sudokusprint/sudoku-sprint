@@ -118,12 +118,12 @@
     </div>
     <p class="genNote" id="dailyPlayNote"></p>
     <div class="board" id="dailyGrid"></div>
-    <div class="pad" id="dailyPad"></div>
-    <div class="actions">
+    <div class="actions gameTools">
       <button id="dailyNotesBtn" class="ghost">Notes: Off</button>
       <button id="dailyEraseBtn" class="ghost">Erase</button>
       <button id="dailyUndoBtn" class="ghost" disabled>Undo</button>
     </div>
+    <div class="pad" id="dailyPad"></div>
     <p class="dailyNote">The clock keeps running even if you leave, and there's no pause. Each number is checked as you place it: wrong ones turn red, right ones lock in place.</p>
   </div>
 </div>
@@ -191,13 +191,15 @@
     </div>
   </div>
 
-  <div class="pad" id="pad"></div>
-
-  <div class="actions">
-    <button id="newBtn">New puzzle</button>
+  <div class="actions gameTools">
     <button id="notesBtn" class="ghost">Notes: Off</button>
-    <button id="undoBtn" class="ghost" disabled>Undo</button>
+    <button id="eraseBtn" class="ghost">Erase</button>
+    <button id="newBtn">New puzzle</button>
+    <!-- Undo is hidden for now (Erase covers fixing mistakes); remove `hidden` to bring it back. -->
+    <button id="undoBtn" class="ghost" disabled hidden>Undo</button>
   </div>
+
+  <div class="pad" id="pad"></div>
   </div>
 </div>
 </div>
@@ -254,11 +256,11 @@
       <div class="timer" id="raceTimer" style="margin: 10px 0 14px;">0:00</div>
 
       <div class="board" id="raceBoard"></div>
-      <div class="pad" id="racePad"></div>
-      <div class="actions">
+      <div class="actions gameTools">
         <button id="raceUndoBtn" class="ghost" disabled>Undo</button>
         <button id="raceQuitBtn" class="ghost">Quit race</button>
       </div>
+      <div class="pad" id="racePad"></div>
     </div>
 
     <div id="liveLobby" hidden>
@@ -309,11 +311,11 @@
         <div class="board" id="liveBoard"></div>
         <div class="liveCountdown" id="liveCountdown" hidden></div>
       </div>
-      <div class="pad" id="livePad"></div>
-      <div class="actions">
+      <div class="actions gameTools">
         <button id="liveUndoBtn" class="ghost" disabled>Undo</button>
         <button id="liveQuitBtn" class="ghost">Leave race</button>
       </div>
+      <div class="pad" id="livePad"></div>
       <p class="dailyNote" id="liveStatus"></p>
     </div>
   </div>
@@ -408,11 +410,11 @@
     </div>
     <p class="genNote" id="workGenNote"></p>
     <div class="board" id="workBoard"></div>
-    <div class="pad" id="workPad"></div>
-    <div class="actions">
+    <div class="actions gameTools">
       <button id="workNewBtn">New practice puzzle</button>
       <button id="workEraseBtn" class="ghost">Erase</button>
     </div>
+    <div class="pad" id="workPad"></div>
   </div>
 </div>
 
@@ -501,6 +503,11 @@
     <label class="toggleRow">
       <span><span class="toggleTitle">Highlight row and column</span><span class="settingHint">Shade the row and column of the cell you selected.</span></span>
       <input type="checkbox" class="toggle" data-setting="highlightLines">
+    </label>
+
+    <label class="toggleRow">
+      <span><span class="toggleTitle">Single-row number pad</span><span class="settingHint">Puts 1–9 in one row so the whole game fits on small screens. The buttons are narrower.</span></span>
+      <input type="checkbox" class="toggle" data-setting="oneRowPad">
     </label>
 
     <div class="settingsSection">Friends</div>

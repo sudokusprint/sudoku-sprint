@@ -103,6 +103,30 @@
   #soloView .mistakes { font-size: 14px; }
 }
 
+/* ---------- Game screens on phones: everything above the fold ----------
+   Order is board, tools (Undo etc.), then the number pad. Phones drop the
+   tagline while playing and use a slimmer tab bar. .pad.oneRow puts 1-9 in a
+   single row (preview option). */
+.actions.gameTools { margin-top: 12px; }
+#newBtn.confirm { background: var(--bad); }
+.actions.gameTools + .pad { margin-top: 10px; }
+.pad.oneRow { grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; }
+.pad.oneRow button { padding: 14px 0; font-size: 19px; }
+
+@media (max-width: 480px) {
+  #soloView.playing .tag { display: none; }
+  #soloView.playing h1 { font-size: 19px; }
+  #soloView.playing .wrap { padding-top: 16px; }
+  #soloView .best { margin-top: 2px; font-size: 13px; }
+  #soloView .bar { margin-bottom: 8px; }
+  #soloView .genNote { margin-top: 0; margin-bottom: 6px; font-size: 11px; min-height: 0; }
+  .actions.gameTools { margin-top: 10px; }
+  .actions.gameTools button { padding: 10px 0; }
+  .tabBtn { padding: 8px 0 7px; gap: 2px; font-size: 12px; }
+  .tabIcon { font-size: 22px; }
+  .tabIcon svg { width: 22px; height: 22px; }
+}
+
 /* Larger gear button in the Home and Profile headers */
 .iconBtn.settingsGear {
   width: 48px;
