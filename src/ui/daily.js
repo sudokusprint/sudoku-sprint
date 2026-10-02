@@ -1,14 +1,15 @@
 // Daily Challenge screen: today's three puzzles, the leaderboard, and the play screen.
 //
-// The browser never has the solution, so wrong numbers can't be shown as they're
-// typed. Instead, numbers that clash with their row, column, or box are marked,
-// and a full clash-free grid is sent to the server to check. The server keeps
-// the time (the clock runs from the first time the puzzle is opened).
+// The browser never has the solution. Each placed number is checked by the server
+// (check_daily_cell): right ones lock in place, wrong ones turn red. Clashes with
+// the row, column, or box are also marked straight away. A full grid is sent to
+// the server to finish; the server keeps the time (the clock runs from the first
+// time the puzzle is opened).
 import { findConflicts, gridToString, gridFromString, peersOf } from '../core/grid.js';
 import { getSettings } from '../services/settings.js';
 import {
   fetchDailyStatus, startDaily, submitDaily, fetchLeaderboard, msUntilReset,
-  fetchAlltimeLeaderboard, fetchMyDailyStats
+  fetchAlltimeLeaderboard, fetchMyDailyStats, checkDailyCell
 } from '../services/daily.js';
 import { getAccount, onAccountChange } from '../services/account.js';
 import { createCell, highlightBoard, buildPad, formatTime } from './board.js';
@@ -365,7 +366,13 @@ function draftKey(g) {
 function saveDraft() {
   if (!game || game.finished) return;
   try {
-    localStorage.setItem(draftKey(game), JSON.stringify({ grid: gridToString(game.grid), notes: game.notes.map(row => row.map(set => [...set])) }));
+    localStorage.setItem(draftKey(game), JSON.stringify({
+      grid: gridToString(game.grid),
+      notes: game.notes.map(row => row.map(set => [...set])),
+      locked: game.locked.map(row => row.map(x => (x ? 1 : 0)).join('')).join(''),
+      wrong: [...game.wrong],
+      mistakes: game.mistakes
+    }));
   } catch (e) {}
 }
 
@@ -377,6 +384,11 @@ function loadDraft(g) {
     // Never let a draft overwrite a given.
     for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) if (!g.given[r][c]) g.grid[r][c] = grid[r][c];
     if (Array.isArray(d.notes)) g.notes = d.notes.map(row => row.map(list => new Set(list)));
+    if (typeof d.locked === 'string' && d.locked.length === 81) {
+      g.locked = Array.from({ length: 9 }, (_, r) => Array.from({ length: 9 }, (_, c) => d.locked[r * 9 + c] === '1' && g.grid[r][c] !== 0));
+    }
+    if (Array.isArray(d.wrong)) g.wrong = new Map(d.wrong);
+    if (Number.isInteger(d.mistakes)) g.mistakes = d.mistakes;
   } catch (e) {}
 }
 
@@ -409,13 +421,16 @@ async function play(difficulty) {
     notes: Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set())),
     startedAtMs: new Date(attempt.started_at).getTime(),
     history: [],
+    locked: Array.from({ length: 9 }, () => Array(9).fill(false)),   // checked correct by the server
+    wrong: new Map(),           // "r,c" -> the value the server said is wrong there
+    mistakes: 0,
     finished: false
   };
   loadDraft(game);
   selected = null;
   lastSubmitted = null;
   els.note.textContent = '';
-  els.title.textContent = 'Daily · ' + cap(difficulty);
+  renderTitle();
   els.playNote.textContent = attempt.techniques && attempt.techniques.length
     ? 'Needs: ' + attempt.techniques.join(', ')
     : '';
@@ -427,6 +442,11 @@ async function play(difficulty) {
   clearInterval(ticking);
   ticking = setInterval(tick, 1000);
   tick();
+  // Numbers from an earlier visit that were never checked (e.g. offline): check them now.
+  for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
+    const v = game.grid[r][c];
+    if (v && !game.given[r][c] && !game.locked[r][c] && game.wrong.get(r + ',' + c) !== v) checkCell(r, c, v);
+  }
   maybeSubmit();
 }
 
@@ -446,6 +466,17 @@ function tick() {
   els.timer.textContent = formatTime(seconds);
 }
 
+function renderTitle() {
+  const m = game.mistakes;
+  els.title.textContent = 'Daily · ' + cap(game.difficulty) + ' · ' + m + (m === 1 ? ' mistake' : ' mistakes');
+}
+
+// A number is wrong if the server said so, or if it clashes with its row, column, or box.
+function isWrong(r, c, conflicts) {
+  const v = game.grid[r][c];
+  return v !== 0 && (game.wrong.get(r + ',' + c) === v || conflicts.has(r + ',' + c));
+}
+
 function render() {
   const conflicts = findConflicts(game.grid);
   els.grid.innerHTML = '';
@@ -455,7 +486,7 @@ function render() {
       const cell = createCell(r, c, {
         value,
         isGiven: game.given[r][c],
-        isBad: conflicts.has(r + ',' + c),
+        isBad: isWrong(r, c, conflicts),
         onClick: () => { selected = [r, c]; highlightBoard(els.grid, selected, game.grid); }
       });
       if (value === 0 && game.notes[r][c].size) {
@@ -472,11 +503,11 @@ function render() {
     }
   }
   highlightBoard(els.grid, selected, game.grid);
-  // Strike a digit out on the pad once all nine are placed without clashes.
+  // Strike a digit out on the pad once all nine are placed and none are wrong.
   for (let v = 1; v <= 9; v++) {
     let count = 0, clash = false;
     for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
-      if (game.grid[r][c] === v) { count++; if (conflicts.has(r + ',' + c)) clash = true; }
+      if (game.grid[r][c] === v) { count++; if (isWrong(r, c, conflicts)) clash = true; }
     }
     const btn = els.pad.querySelector('button[data-v="' + v + '"]');
     if (btn) btn.classList.toggle('done', count === 9 && !clash);
@@ -488,14 +519,19 @@ export function refreshBoard() {
   if (game) render();
 }
 
+// Givens and numbers the server confirmed are locked in place.
 function editable() {
   if (!game || game.finished || !selected) return false;
   const [r, c] = selected;
-  return !game.given[r][c];
+  return !game.given[r][c] && !game.locked[r][c];
 }
 
 export function place(v) {
-  if (!editable()) return;
+  if (!game || game.finished || !selected) return;
+  if (!editable()) {
+    highlightBoard(els.grid, selected, game.grid, v);   // locked: show where that number is
+    return;
+  }
   const [r, c] = selected;
   if (notesMode) {
     if (game.grid[r][c] !== 0) return;
@@ -514,6 +550,34 @@ export function place(v) {
     game.history.push({ r, c, value: game.grid[r][c], notes: new Set(game.notes[r][c]), placed: v, clearedPeers });
     game.grid[r][c] = v;
     game.notes[r][c] = new Set();
+    afterChange();
+    checkCell(r, c, v);
+    return;
+  }
+  afterChange();
+}
+
+// Ask the server whether v is right at (r, c): right locks it, wrong turns it red.
+async function checkCell(r, c, v) {
+  const current = game;
+  const key = r + ',' + c;
+  if (current.wrong.get(key) === v) return;   // already known to be wrong
+  let correct;
+  try {
+    correct = await checkDailyCell(current.day, current.difficulty, r, c, v);
+  } catch (err) {
+    return;   // can't check right now; the full grid is still checked on submit
+  }
+  if (game !== current || current.finished || current.grid[r][c] !== v) return;   // changed meanwhile
+  if (correct) {
+    current.locked[r][c] = true;
+    current.wrong.delete(key);
+    // Locked: no longer undoable, and earlier moves in this cell can't undo it.
+    current.history = current.history.filter(m => !(m.r === r && m.c === c));
+  } else {
+    current.wrong.set(key, v);
+    current.mistakes++;
+    renderTitle();
   }
   afterChange();
 }
@@ -552,7 +616,9 @@ function afterChange() {
 async function maybeSubmit() {
   if (!game || game.finished || submitting) return;
   if (game.grid.some(row => row.includes(0))) return;
-  if (findConflicts(game.grid).size) return;
+  const conflicts = findConflicts(game.grid);
+  if (conflicts.size) return;
+  if (game.grid.some((row, r) => row.some((v, c) => isWrong(r, c, conflicts)))) return;
   const grid = gridToString(game.grid);
   if (grid === lastSubmitted) return;
   lastSubmitted = grid;

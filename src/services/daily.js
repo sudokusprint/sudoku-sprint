@@ -46,6 +46,11 @@ export async function startDaily(difficulty) {
   return rows[0];
 }
 
+// Is `value` right for cell (r, c)? Asks the server; the solution never leaves it.
+export function checkDailyCell(day, difficulty, r, c, value) {
+  return rpc('check_daily_cell', { p_day: day, p_difficulty: difficulty, p_index: r * 9 + c, p_value: value });
+}
+
 // Returns { correct, seconds, rank, total }.
 export async function submitDaily(day, difficulty, gridString) {
   const rows = await rpc('submit_daily', { p_day: day, p_difficulty: difficulty, p_grid: gridString });
