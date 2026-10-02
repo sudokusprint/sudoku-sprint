@@ -1,5 +1,5 @@
 // Home progress tiles and the Profile page (best times, completions, race record, recent games).
-import { DIFFICULTIES } from '../core/stats.js';
+import { DIFFICULTIES, raceRecords } from '../core/stats.js';
 import { currentStats, recentSolves, progressStatus } from '../services/progress.js';
 import { formatTime } from './board.js';
 
@@ -10,8 +10,7 @@ export function renderHomeStats(dailyStreak = null) {
   const stats = currentStats();
   const grid = document.getElementById('homeStatsGrid');
   const totalSolved = DIFFICULTIES.reduce((sum, d) => sum + stats.completed[d], 0);
-  const wins = stats.raceWins;
-  const losses = stats.raceLosses;
+  const { wins, losses } = raceRecords(stats).overall;
   const racedAny = (wins + losses) > 0;
   const hasStreak = dailyStreak !== null && dailyStreak > 0;
 
@@ -41,15 +40,20 @@ export function renderProfile() {
   totalsEl.innerHTML =
     '<div class="profileTotal"><div class="profileTotalValue">' + total + '</div><div class="profileTotalLabel">Total solved</div></div>';
 
-  const raceTotalsEl = document.getElementById('raceRecordTotals');
-  const wins = stats.raceWins;
-  const losses = stats.raceLosses;
-  const played = wins + losses;
-  const winRate = played > 0 ? Math.round((wins / played) * 100) + '%' : '—';
-  raceTotalsEl.innerHTML =
-    '<div class="profileTotal"><div class="profileTotalValue">' + wins + '</div><div class="profileTotalLabel">Wins</div></div>' +
-    '<div class="profileTotal"><div class="profileTotalValue">' + losses + '</div><div class="profileTotalLabel">Losses</div></div>' +
-    '<div class="profileTotal"><div class="profileTotalValue">' + winRate + '</div><div class="profileTotalLabel">Win rate</div></div>';
+  // Race record: friends, ghost, and overall.
+  const records = raceRecords(stats);
+  const rate = r => (r.wins + r.losses) > 0 ? Math.round((r.wins / (r.wins + r.losses)) * 100) + '%' : '—';
+  const row = (label, r, cls) =>
+    '<tr' + (cls ? ' class="' + cls + '"' : '') + '><th scope="row">' + label + '</th>' +
+    '<td>' + r.wins + '</td><td>' + r.losses + '</td><td>' + rate(r) + '</td></tr>';
+  document.getElementById('raceRecordTotals').innerHTML =
+    '<table class="raceRecordTable">' +
+    '<thead><tr><th></th><th scope="col">Wins</th><th scope="col">Losses</th><th scope="col">Win rate</th></tr></thead>' +
+    '<tbody>' +
+    row('vs. friends', records.friends) +
+    row('vs. ghost', records.ghost) +
+    row('Overall', records.overall, 'overall') +
+    '</tbody></table>';
 
   renderRecent();
 }
@@ -91,7 +95,11 @@ function describeSolve(solve) {
   }
   if (solve.mode === 'race') {
     const d = solve.difficulty ? ' · ' + cap(solve.difficulty) : '';
-    return { title: 'Race' + d, detail: (solve.won ? 'Won in ' : 'Lost at ') + formatTime(solve.seconds || 0) };
+    return { title: 'Ghost race' + d, detail: (solve.won ? 'Won in ' : 'Lost at ') + formatTime(solve.seconds || 0) };
+  }
+  if (solve.mode === 'friend_race') {
+    const d = solve.difficulty ? ' · ' + cap(solve.difficulty) : '';
+    return { title: 'Friend race' + d, detail: solve.won ? 'Won in ' + formatTime(solve.seconds || 0) : 'Lost' };
   }
   return { title: 'Workshop', detail: solve.technique + ' practice solved' };
 }

@@ -53,6 +53,8 @@ export function readGuestStats(techniqueNames) {
   }
   stats.raceWins = readInt('sudoku-race-wins');
   stats.raceLosses = readInt('sudoku-race-losses');
+  stats.friendRaceWins = readInt('sudoku-friend-race-wins');
+  stats.friendRaceLosses = readInt('sudoku-friend-race-losses');
   stats.lifetimeMistakes = readInt('sudoku-lifetime-mistakes');
   for (const name of techniqueNames) {
     const n = getMasteryCount(name);

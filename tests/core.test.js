@@ -4,7 +4,7 @@ import { emptyGrid, valid, findConflicts, gridToString, gridFromString, peersOf 
 import { countSolutions, solveLogical, computeCandidates } from '../src/core/solver.js';
 import { fill, generatePuzzle, generatePuzzleByDifficulty, generatePuzzleForTechnique, CLUES, DIFFICULTY_TIER, MIN_CLUES, DAILY_GRADES } from '../src/core/generator.js';
 import { EXAMPLE_DATA, TECHNIQUES_INFO } from '../src/core/techniques.js';
-import { emptyStats, statsFromSolves, hasAnyProgress } from '../src/core/stats.js';
+import { emptyStats, statsFromSolves, hasAnyProgress, raceRecords, mergeStats } from '../src/core/stats.js';
 
 export const tests = [];
 const test = (name, fn) => tests.push({ name, fn });
@@ -175,6 +175,20 @@ test('statsFromSolves() adds imported guest stats and keeps the faster best time
   assertEqual(s.raceWins, 3);
   assertEqual(s.mastery['Naked Pair'], 5);
   assertEqual(imported.completed.easy, 10, 'input not mutated');
+});
+
+test('raceRecords() splits friend and ghost races and sums the overall', () => {
+  const s = statsFromSolves([
+    { mode: 'race', won: true }, { mode: 'race', won: false }, { mode: 'race', won: true },
+    { mode: 'friend_race', won: true }, { mode: 'friend_race', won: false }, { mode: 'friend_race', won: false }
+  ], null);
+  const r = raceRecords(s);
+  assertEqual(r.ghost, { wins: 2, losses: 1 });
+  assertEqual(r.friends, { wins: 1, losses: 2 });
+  assertEqual(r.overall, { wins: 3, losses: 3 });
+  const imported = emptyStats();
+  imported.friendRaceWins = 4;
+  assertEqual(raceRecords(mergeStats(imported, s)).friends, { wins: 5, losses: 2 });
 });
 
 test('hasAnyProgress() is false only for untouched stats', () => {

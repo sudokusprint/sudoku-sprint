@@ -94,6 +94,16 @@ export function recordRace({ difficulty, seconds, won }) {
   saveCloud({ mode: 'race', difficulty, seconds, won });
 }
 
+// Real-time race against friends: won = finished first.
+export function recordFriendRace({ difficulty, seconds, won }) {
+  if (!cloud) {
+    incrementCounter(won ? 'sudoku-friend-race-wins' : 'sudoku-friend-race-losses');
+    emit();
+    return;
+  }
+  saveCloud({ mode: 'friend_race', difficulty, seconds, won });
+}
+
 // Only for puzzles confirmed to require the technique.
 export function recordWorkshop({ technique }) {
   if (!cloud) {

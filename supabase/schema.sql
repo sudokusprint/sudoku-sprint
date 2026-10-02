@@ -26,7 +26,7 @@ create table if not exists public.solves (
   id bigint generated always as identity primary key,
   user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   client_id uuid not null,              -- generated in the browser so retries can't double-save
-  mode text not null check (mode in ('solo', 'race', 'workshop')),
+  mode text not null check (mode in ('solo', 'race', 'workshop', 'friend_race')),
   difficulty text check (difficulty in ('easy', 'medium', 'hard')),
   technique text,                       -- workshop only
   seconds integer check (seconds >= 0),

@@ -6,6 +6,7 @@ import { makeCode, normalizeCode, isValidCode, joinRoom, MAX_PLAYERS } from '../
 import { getAccount } from '../services/account.js';
 import { createCell, highlightBoard, buildPad, updatePadState, isComplete, formatTime } from './board.js';
 import { launchConfetti } from './confetti.js';
+import { recordFriendRace } from '../services/progress.js';
 
 const $ = id => document.getElementById(id);
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -141,8 +142,21 @@ async function enterRoom(roomCode, host, difficulty) {
   showLobby();
 }
 
+// Count the race in the player's race record, once: won = finished first.
+function recordResult(won) {
+  if (!race || race.recorded) return;
+  race.recorded = true;
+  recordFriendRace({
+    difficulty: race.difficulty,
+    seconds: phase === 'racing' ? elapsedSeconds() : null,
+    won
+  });
+}
+
 async function leaveRoom() {
   clearInterval(ticking);
+  // Leaving mid-race before anyone finished counts as a loss (like quitting a ghost race).
+  if (phase === 'racing' || phase === 'countdown') recordResult(false);
   const r = room;
   room = null;
   phase = 'idle';
@@ -188,6 +202,7 @@ function onMessage(event, payload) {
   } else if (event === 'finish') {
     progress[payload.id] = race.totalBlanks;
     finishes[payload.id] = { seconds: payload.seconds, mistakes: payload.mistakes, order: Object.keys(finishes).length + 1 };
+    if (!finishedMe) recordResult(false);   // someone beat us to it
     renderBars();
     if (els.resultOverlay.classList.contains('show')) renderResults();
     if (!finishedMe) els.status.textContent = playerName(payload.id) + ' finished in ' + formatTime(payload.seconds) + '!';
@@ -436,6 +451,7 @@ function finishMine() {
   const seconds = elapsedSeconds();
   els.timer.textContent = formatTime(seconds);
   finishes[me.id] = { seconds, mistakes, order: Object.keys(finishes).length + 1 };
+  recordResult(finishes[me.id].order === 1);   // no-op if a loss was already recorded
   room.send('finish', { raceId: race.raceId, id: me.id, seconds, mistakes });
   updateUndo();
   renderBars();

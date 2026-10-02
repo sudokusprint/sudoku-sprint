@@ -58,6 +58,29 @@
   opacity: 0.5;
   font-weight: 500;
 }
+.raceRecordTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--paper-line);
+  border-radius: 10px;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+.raceRecordTable th,
+.raceRecordTable td { padding: 10px 12px; text-align: center; font-size: 15px; }
+.raceRecordTable thead th {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--paper-line);
+}
+.raceRecordTable tbody th { text-align: left; font-weight: 500; color: var(--ink-soft); font-size: 14px; }
+.raceRecordTable td { font-weight: 600; color: var(--ink); }
+.raceRecordTable tr.overall th,
+.raceRecordTable tr.overall td { border-top: 1px solid var(--paper-line); background: var(--tile); color: var(--ink); font-weight: 700; }
 .bestEmptyNote {
   grid-column: 1 / -1;
   font-size: 13px;
