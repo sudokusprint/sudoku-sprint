@@ -247,7 +247,7 @@ function renderCodeStepText() {
   const strong = document.createElement('strong');
   strong.textContent = pendingEmail;
   if (SIGN_IN_EMAIL_HAS_CODE) {
-    text.append('We sent a code to ', strong, '. Enter it below, or tap the link in the email.');
+    text.append('We sent a code to ', strong, '. Enter it below, or tap the link in the email. Not there after a minute? Check your junk or spam folder.');
   } else {
     text.append('We sent a sign-in link to ', strong, '. Tap it to sign in — you can close this window. It may take a minute to arrive; check your spam folder too.');
   }
