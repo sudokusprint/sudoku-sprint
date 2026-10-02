@@ -412,10 +412,20 @@ function countCorrect() {
 export function place(v) {
   if (!isRacing() || !selected) return;
   const [r, c] = selected;
-  if (race.given[r][c] || race.puzzle[r][c] === v) return;
-  moves.push({ r, c, prev: race.puzzle[r][c] });
+  const locked = race.given[r][c] || (race.puzzle[r][c] !== 0 && race.puzzle[r][c] === race.solution[r][c]);
+  if (locked) {
+    highlightBoard(els.board, selected, race.puzzle, v);   // show where that number is
+    return;
+  }
+  if (race.puzzle[r][c] === v) return;
+  if (v === race.solution[r][c]) {
+    // Correct: locks, so it's not undoable (and earlier moves here can't undo it).
+    moves = moves.filter(m => !(m.r === r && m.c === c));
+  } else {
+    moves.push({ r, c, prev: race.puzzle[r][c] });
+    mistakes++;   // stays counted even if undone
+  }
   race.puzzle[r][c] = v;
-  if (v !== race.solution[r][c]) mistakes++;   // stays counted even if undone
   afterMove();
 }
 

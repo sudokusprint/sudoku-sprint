@@ -129,10 +129,18 @@ function workHighlight() {
   highlightBoard(els.board, workSelected, workPuzzle);
 }
 
+// Givens and correct numbers are locked in place.
+function workLocked(r, c) {
+  return workGiven[r][c] || (workPuzzle[r][c] !== 0 && workPuzzle[r][c] === workSolution[r][c]);
+}
+
 export function workPlace(v) {
   if (!workSelected) return;
   const [r, c] = workSelected;
-  if (workGiven[r][c]) return;
+  if (workLocked(r, c)) {
+    highlightBoard(els.board, workSelected, workPuzzle, v);   // show where that number is
+    return;
+  }
   workPuzzle[r][c] = v;
   renderWorkBoard();
   checkWorkWin();
@@ -141,7 +149,7 @@ export function workPlace(v) {
 export function workErase() {
   if (!workSelected) return;
   const [r, c] = workSelected;
-  if (workGiven[r][c]) return;
+  if (workLocked(r, c)) return;
   workPuzzle[r][c] = 0;
   renderWorkBoard();
 }

@@ -133,12 +133,25 @@ function raceHighlight() {
   highlightBoard(els.board, raceSelected, racePuzzle);
 }
 
+// Givens and correct numbers are locked in place.
+function raceLocked(r, c) {
+  return raceGiven[r][c] || (racePuzzle[r][c] !== 0 && racePuzzle[r][c] === raceSolution[r][c]);
+}
+
 export function racePlace(v) {
   if (!raceSelected || raceOver) return;
   const [r, c] = raceSelected;
-  if (raceGiven[r][c]) return;
+  if (raceLocked(r, c)) {
+    highlightBoard(els.board, raceSelected, racePuzzle, v);   // show where that number is
+    return;
+  }
   if (racePuzzle[r][c] === v) return;
-  raceMoveHistory.push({ r, c, prevValue: racePuzzle[r][c] });
+  if (v === raceSolution[r][c]) {
+    // Correct: locks, so it's not undoable (and earlier moves here can't undo it).
+    raceMoveHistory = raceMoveHistory.filter(m => !(m.r === r && m.c === c));
+  } else {
+    raceMoveHistory.push({ r, c, prevValue: racePuzzle[r][c] });
+  }
   updateRaceUndoState();
   racePuzzle[r][c] = v;
   renderRaceBoard();

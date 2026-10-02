@@ -37,10 +37,12 @@ export function createCell(r, c, { value, isGiven, solutionValue, isBad, onClick
 }
 
 // Selected cell, plus (per settings) its row/column peers and every other cell
-// holding the same digit.
-export function highlightBoard(boardEl, selected, puzzle) {
+// holding the same digit. Pass `digit` to highlight that digit instead of the
+// selected cell's value (used when a pad number is tapped on a locked cell).
+export function highlightBoard(boardEl, selected, puzzle, digit) {
   const { highlightLines, highlightMatches } = getSettings();
-  const selectedValue = selected ? puzzle[selected[0]][selected[1]] : 0;
+  const selectedValue = digit || (selected ? puzzle[selected[0]][selected[1]] : 0);
+  const forceMatches = !!digit;
   boardEl.querySelectorAll('.cell').forEach(el => {
     el.classList.remove('selected', 'peer', 'match');
     const r = +el.dataset.r, c = +el.dataset.c;
@@ -49,7 +51,7 @@ export function highlightBoard(boardEl, selected, puzzle) {
       if (r === sr && c === sc) el.classList.add('selected');
       else if (highlightLines && (r === sr || c === sc)) el.classList.add('peer');
     }
-    if (highlightMatches && selectedValue !== 0 && puzzle[r][c] === selectedValue && !(selected && r === selected[0] && c === selected[1])) {
+    if ((highlightMatches || forceMatches) && selectedValue !== 0 && puzzle[r][c] === selectedValue && !(selected && r === selected[0] && c === selected[1])) {
       el.classList.add('match');
     }
   });

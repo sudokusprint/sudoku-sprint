@@ -256,10 +256,21 @@ function selectCell(r, c) {
   highlight();
 }
 
+// A correct number locks in place (unless mistakes are hidden, where locking
+// would give the answer away). Givens are always locked.
+function isLocked(r, c) {
+  if (given[r][c]) return true;
+  return getSettings().showMistakes && puzzle[r][c] !== 0 && puzzle[r][c] === solution[r][c];
+}
+
 export function place(v) {
   if (!selected || solved || paused) return;
   const [r, c] = selected;
-  if (given[r][c] === true) return;
+  if (isLocked(r, c)) {
+    // Tapping a number on a locked cell shows where that number is instead.
+    highlightBoard(els.board, selected, puzzle, v);
+    return;
+  }
   if (notesMode) {
     if (puzzle[r][c] !== 0) return;
     if (notes[r][c].has(v)) notes[r][c].delete(v);
@@ -281,7 +292,12 @@ export function place(v) {
   }
   // A mistake counts once it's made; undoing it doesn't take it back.
   if (v !== solution[r][c]) mistakes++;
-  moveHistory.push({ r, c, v, prevValue, prevNotes, clearedPeers });
+  if (isLocked(r, c)) {
+    // Correct and now locked: not undoable, and earlier moves in this cell can't undo it either.
+    moveHistory = moveHistory.filter(m => !(m.r === r && m.c === c));
+  } else {
+    moveHistory.push({ r, c, v, prevValue, prevNotes, clearedPeers });
+  }
   updateUndoState();
   renderBoard();
   checkWin();
