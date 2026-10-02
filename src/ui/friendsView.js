@@ -30,13 +30,30 @@ export function initFriendsView({ goTo }) {
   els.joinBtn.addEventListener('click', () => answerToast(true));
   els.declineBtn.addEventListener('click', () => answerToast(false));
 
+  let lastUserId = null;
   onAccountChange(account => {
-    const usable = account.status === 'signedIn' && account.profileStatus === 'ok';
+    const usable = canUseFriends();
+    const userId = usable ? account.user.id : null;
     els.section.hidden = !usable;
-    if (!usable) { friends = []; loaded = false; render(); }
-    else if (isProfileVisible()) refresh();
+    if (userId !== lastUserId) {
+      // Signed in, out, or as someone else: start from a clean slate.
+      lastUserId = userId;
+      friends = [];
+      loaded = false;
+      inviting = null;
+      setMessage('');
+      els.input.value = '';
+      if (!usable) clearInterval(refreshTimer);
+      render();
+    }
+    if (usable && isProfileVisible()) onProfileShown();
   });
   onRaceInvite(invite => { toastQueue.push(invite); showNextToast(); });
+}
+
+function canUseFriends() {
+  const account = getAccount();
+  return account.status === 'signedIn' && account.profileStatus === 'ok';
 }
 
 function isProfileVisible() {
@@ -45,21 +62,29 @@ function isProfileVisible() {
 
 // Called when Profile opens; keeps the list (and online dots) fresh while it's open.
 export function onProfileShown() {
-  if (els.section.hidden) return;
+  if (!canUseFriends()) return;
   refresh();
   clearInterval(refreshTimer);
   refreshTimer = setInterval(() => {
-    if (!isProfileVisible()) { clearInterval(refreshTimer); return; }
+    if (!isProfileVisible() || !canUseFriends()) { clearInterval(refreshTimer); return; }
     if (document.visibilityState === 'visible') refresh();
   }, REFRESH_MS);
 }
 
+// Background refresh: failures stay quiet (it retries in 30 seconds). Only
+// errors from something the player did are shown.
 async function refresh() {
+  if (!canUseFriends()) return;
   try {
-    friends = await fetchFriends();
+    const list = await fetchFriends();
+    if (!canUseFriends()) return;   // signed out while it was loading
+    friends = list;
     loaded = true;
   } catch (err) {
-    setMessage(err.message, true);
+    if (!loaded) {
+      els.list.innerHTML = '<p class="recentEmpty">Couldn\'t load your friends. Retrying shortly…</p>';
+    }
+    return;
   }
   render();
 }

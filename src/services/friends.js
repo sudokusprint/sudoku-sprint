@@ -30,6 +30,7 @@ async function rpc(name, args) {
     const code = Object.keys(MESSAGES).find(k => (error.message || '').includes(k));
     throw new Error(code ? MESSAGES[code]
       : error.code === 'PGRST202' ? 'Friends aren\'t set up yet. Please check back soon.'
+      : error.code === '42501' ? 'Please sign in again to use friends.'   // "permission denied": not signed in
       : (error.message || 'Something went wrong. Please try again.'));
   }
   return data;

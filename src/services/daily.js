@@ -20,6 +20,7 @@ function fail(error) {
   const code = Object.keys(MESSAGES).find(k => (error.message || '').includes(k));
   const err = new Error(code ? MESSAGES[code]
     : error.code === 'PGRST202' ? 'The Daily Challenge isn\'t set up yet. Please check back soon.'
+    : error.code === '42501' ? 'Please sign in again to play the Daily Challenge.'   // "permission denied"
     : /fetch|network/i.test(error.message || '') ? 'Couldn\'t reach the server. Check your connection.'
     : (error.message || 'Something went wrong. Please try again.'));
   err.code = code || null;
