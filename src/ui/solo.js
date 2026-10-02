@@ -182,7 +182,7 @@ function startPuzzle() {
 
 function renderMistakes() {
   els.mistakes.textContent = !getSettings().showMistakes && !solved
-    ? 'Mistakes hidden'
+    ? '? mistakes'     // count hidden until the puzzle is solved
     : mistakes + (mistakes === 1 ? ' mistake' : ' mistakes');
 }
 

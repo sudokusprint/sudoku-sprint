@@ -91,6 +91,17 @@
   flex-shrink: 0;
 }
 
+/* Solo's top bar on narrow phones: tighten spacing so "12 mistakes" fits on one line. */
+.stats { flex-shrink: 0; }
+.mistakes { white-space: nowrap; }
+@media (max-width: 420px) {
+  .bar { gap: 8px; }
+  .barRight { gap: 6px; }
+  .diff { gap: 4px; }
+  .diff button { padding: 6px 8px; }
+  #soloView .mistakes { font-size: 14px; }
+}
+
 /* Larger gear button in the Home and Profile headers */
 .iconBtn.settingsGear {
   width: 48px;
