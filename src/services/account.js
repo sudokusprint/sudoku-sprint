@@ -130,6 +130,16 @@ export async function chooseUsername(username) {
   return null;
 }
 
+// Live check while typing: 'invalid' | 'not_allowed' | 'taken' | 'yours' | 'available',
+// or null if it couldn't be checked (saving still checks for real).
+export async function usernameStatus(username) {
+  if (!USERNAME_PATTERN.test(username)) return 'invalid';
+  const sb = await getSupabase();
+  if (!sb) return null;
+  const { data, error } = await sb.rpc('username_status', { p_username: username });
+  return error ? null : data;
+}
+
 // Returns null on success, or a message to show.
 export async function renameUsername(username) {
   if (!USERNAME_PATTERN.test(username)) {

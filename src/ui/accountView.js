@@ -2,7 +2,7 @@
 // (email → code → username) and the delete-account dialog.
 import {
   getAccount, onAccountChange, sendSignInCode, verifySignInCode, signOut,
-  chooseUsername, renameUsername, deleteAccount, retryProfile
+  chooseUsername, renameUsername, deleteAccount, retryProfile, usernameStatus, USERNAME_PATTERN
 } from '../services/account.js';
 import { progressStatus, onProgressChange, retryProgress, takeImportNotice } from '../services/progress.js';
 import { SIGN_IN_EMAIL_HAS_CODE } from '../config.js';
@@ -28,7 +28,7 @@ export function initAccountView() {
     codeStep: $('authCodeStep'), code: $('authCode'), codeError: $('authCodeError'), verifyBtn: $('authVerifyBtn'),
     codeText: $('authCodeText'), resend: $('authResend'), changeEmail: $('authChangeEmail'),
     usernameStep: $('authUsernameStep'), username: $('authUsername'), usernameError: $('authUsernameError'), usernameBtn: $('authUsernameBtn'),
-    usernameTitle: $('authUsernameTitle'),
+    usernameTitle: $('authUsernameTitle'), usernameStatus: $('authUsernameStatus'),
     deleteOverlay: $('deleteOverlay'), deleteForm: $('deleteForm'), deleteConfirm: $('deleteConfirm'),
     deleteWord: $('deleteWordShown'), deleteError: $('deleteError'), deleteBtn: $('deleteBtn')
   };
@@ -41,6 +41,7 @@ export function initAccountView() {
   els.resend.addEventListener('click', onResend);
   els.changeEmail.addEventListener('click', () => showStep('email'));
   els.usernameStep.addEventListener('submit', onChooseUsername);
+  els.username.addEventListener('input', scheduleUsernameCheck);
 
   els.deleteForm.addEventListener('submit', onDelete);
   els.deleteConfirm.addEventListener('input', () => {
@@ -204,6 +205,7 @@ function showStep(step) {
     els.usernameTitle.textContent = step === 'rename' ? 'Change your username' : 'Choose a username';
     els.usernameBtn.textContent = step === 'rename' ? 'Save new username' : 'Save username';
     els.username.value = step === 'rename' && current ? current.username : '';
+    checkUsernameNow();
   }
   const focus = isName ? els.username : { email: els.email, code: els.code }[step];
   setTimeout(() => { focus.focus(); if (step === 'rename') focus.select(); }, 50);
@@ -294,6 +296,52 @@ function startResendCooldown() {
   };
   tick();
   resendTimer = setInterval(tick, 1000);
+}
+
+// ---------- live username availability ----------
+
+const USERNAME_CHECK_DELAY = 350;
+let usernameTimer = null;
+let usernameSeq = 0;
+
+const USERNAME_STATUS = {
+  available: ['ok', name => '✓ @' + name + ' is available'],
+  yours: ['', () => 'That\'s your current username'],
+  taken: ['bad', name => '✗ @' + name + ' is taken'],
+  not_allowed: ['bad', () => '✗ That username isn\'t allowed'],
+  invalid: ['bad', () => 'Use 3–20 letters, numbers, or underscores']
+};
+
+function showUsernameStatus(kind, name) {
+  const [cls, text] = USERNAME_STATUS[kind] || ['', () => ''];
+  els.usernameStatus.textContent = kind ? text(name) : '';
+  els.usernameStatus.className = 'usernameStatus' + (cls ? ' ' + cls : '');
+  // Save is only enabled for a name that's free (or unknown, if the check failed).
+  els.usernameBtn.disabled = kind !== 'available' && kind !== null;
+}
+
+function scheduleUsernameCheck() {
+  clearTimeout(usernameTimer);
+  els.usernameError.textContent = '';
+  usernameTimer = setTimeout(checkUsernameNow, USERNAME_CHECK_DELAY);
+}
+
+async function checkUsernameNow() {
+  clearTimeout(usernameTimer);
+  const name = els.username.value.trim();
+  const seq = ++usernameSeq;
+  if (!name) {
+    els.usernameStatus.textContent = '';
+    els.usernameStatus.className = 'usernameStatus';
+    els.usernameBtn.disabled = true;
+    return;
+  }
+  if (!USERNAME_PATTERN.test(name)) { showUsernameStatus('invalid', name); return; }
+  els.usernameStatus.textContent = 'Checking…';
+  els.usernameStatus.className = 'usernameStatus';
+  const kind = await usernameStatus(name);
+  if (seq !== usernameSeq) return;   // they kept typing
+  showUsernameStatus(kind, name);
 }
 
 async function onChooseUsername(e) {

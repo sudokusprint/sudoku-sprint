@@ -67,6 +67,10 @@
 .authInput:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
 .authCodeInput { letter-spacing: 0.3em; font-variant-numeric: tabular-nums; text-align: center; }
 .authError { color: var(--bad); font-size: 13px; min-height: 18px; margin: 8px 0; }
+.usernameStatus { font-size: 13px; font-weight: 600; min-height: 18px; margin: 8px 0 0; color: var(--ink-soft); }
+.usernameStatus.ok { color: var(--good); }
+.usernameStatus.bad { color: var(--bad); }
+.usernameStatus + .authError { margin-top: 2px; }
 .authFine { font-size: 12px; color: var(--ink-soft); margin: 14px 0 0; text-align: center; }
 .authLinks { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
 
