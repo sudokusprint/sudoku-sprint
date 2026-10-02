@@ -59,6 +59,14 @@ serve.ps1                   zero-dependency static server
 Dependencies only point downward: `main` → `ui/*` → `services/*` → `core/*`. Nothing in
 `core/` touches the DOM or the network.
 
+## Friend races
+
+Race tab → **Race a friend** creates a room with a 6-character code and an invite link
+(`?race=CODE`). Rooms are Supabase Realtime channels (`race-CODE`): presence lists the players
+(max 4) and broadcast messages carry `start` (puzzle + solution, sent by the host), `progress`
+and `finish`. No database tables and no sign-in needed (guests appear as "Guest 123"). Friend
+races are casual and unranked, so clients trust each other's results.
+
 ## Accounts
 
 Switched on with `ACCOUNTS_LIVE` in `src/config.js` (always on for localhost). Set it to

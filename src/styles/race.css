@@ -47,3 +47,103 @@
   color: var(--ink-soft);
 }
 
+/* ---------- Race a friend ---------- */
+.raceNote.liveIntro { margin-top: 6px; line-height: 1.45; }
+.liveJoinRow { display: flex; gap: 8px; margin-top: 12px; }
+.liveJoinRow .liveCodeInput {
+  flex: 1;
+  min-width: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-variant-numeric: tabular-nums;
+}
+.liveJoinRow .liveCodeInput::placeholder { letter-spacing: normal; text-transform: none; }
+.liveJoinBtn {
+  padding: 0 20px;
+  border-radius: 8px;
+  border: 1px solid var(--paper-line);
+  background: transparent;
+  color: var(--ink);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.liveCodeBox {
+  margin: 4px 0 14px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--tile);
+  text-align: center;
+}
+.liveCodeLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.liveCode {
+  margin-top: 6px;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--accent-text);
+  font-variant-numeric: tabular-nums;
+  user-select: all;
+}
+
+.livePlayers { margin-top: 10px; }
+.livePlayer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid var(--paper-line);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+.livePlayer.me { box-shadow: inset 0 0 0 2px var(--accent); border-color: transparent; font-weight: 600; }
+.liveHostBadge {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--tile);
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.liveBarRow { margin-bottom: 10px; }
+.liveBarName {
+  width: 92px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.liveBarName.me { color: var(--ink); font-weight: 700; }
+.liveDiffLabel { font-size: 14px; font-weight: 600; color: var(--ink-soft); }
+
+.liveCountdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 96px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.liveResults { margin: 4px 0 22px; text-align: left; }
+.liveResultDetail { font-weight: 500; font-size: 13px; color: var(--ink-soft); }
+.leaderRow.me .liveResultDetail { color: var(--ink); }
+

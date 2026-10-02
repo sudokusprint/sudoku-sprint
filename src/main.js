@@ -3,10 +3,11 @@ import * as solo from './ui/solo.js';
 import * as race from './ui/race.js';
 import * as workshop from './ui/workshop.js';
 import * as daily from './ui/daily.js';
+import * as liveRace from './ui/liveRace.js';
 import { initThemes, loadTheme } from './ui/themes.js';
 import { renderHomeStats, renderProfile, renderLobbyBest } from './ui/stats.js';
 import { initAccountView } from './ui/accountView.js';
-import { initAccount } from './services/account.js';
+import { initAccount, onAccountChange } from './services/account.js';
 import { initProgress, onProgressChange } from './services/progress.js';
 import { ACCOUNTS_ENABLED } from './config.js';
 import { initSettingsPanel } from './ui/settingsPanel.js';
@@ -47,12 +48,14 @@ document.addEventListener('keydown', (e) => {
   if (e.key >= '1' && e.key <= '9') {
     const v = parseInt(e.key, 10);
     if (soloIsActive) solo.place(v);
+    else if (raceIsActive && liveRace.isRacing()) liveRace.place(v);
     else if (raceIsActive) race.racePlace(v);
     else if (workIsActive) workshop.workPlace(v);
     else if (dailyIsActive) daily.place(v);
   }
   if (e.key === 'Backspace' || e.key === '0' || e.key === 'Delete') {
     if (soloIsActive) solo.undo();
+    else if (raceIsActive && liveRace.isRacing()) liveRace.undo();
     else if (raceIsActive) race.raceUndo();
     else if (workIsActive) workshop.workErase();
     else if (dailyIsActive) daily.erase();
@@ -86,6 +89,7 @@ onSettingsChange(() => {
 initSettingsPanel();
 initProgress();
 race.initRace();
+liveRace.initLiveRace();
 workshop.initWorkshop();
 initThemes({ onChange: solo.refreshBoard });
 loadTheme();
@@ -103,4 +107,19 @@ if (ACCOUNTS_ENABLED) {
   document.getElementById('homeAccountNote').hidden = true;
   document.getElementById('dailyLobbyCard').hidden = true;
   document.getElementById('dailyTab').hidden = true;
+}
+
+// Invite links (?race=CODE) open straight into that friend race's lobby. Wait
+// briefly for sign-in to resolve so signed-in players join under their username.
+const inviteCode = new URLSearchParams(location.search).get('race');
+if (inviteCode) {
+  switchView('raceView');
+  let joined = false;
+  const join = () => { if (!joined) { joined = true; liveRace.joinRace(inviteCode); } };
+  if (ACCOUNTS_ENABLED) {
+    onAccountChange(account => { if (account.status !== 'loading') join(); });
+    setTimeout(join, 4000);
+  } else {
+    join();
+  }
 }

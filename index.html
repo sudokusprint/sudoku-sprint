@@ -206,9 +206,27 @@
     <div id="racePreStart">
       <div>
         <h1>Race mode</h1>
-        <p class="tag">Race a simulated ghost to finish first</p>
+        <p class="tag">Race friends in real time, or practice against a ghost</p>
       </div>
-      <div class="diff" id="raceDiff" style="margin-top: 18px;">
+
+      <div class="bestGridTitle">Race a friend</div>
+      <p class="raceNote liveIntro">Create an invite link, send it to a friend, and start when they join. Everyone gets the same puzzle.</p>
+      <div class="diff" id="liveDiff" style="margin-top: 12px;">
+        <button data-d="easy" class="active">Easy</button>
+        <button data-d="medium">Medium</button>
+        <button data-d="hard">Hard</button>
+      </div>
+      <div class="actions" style="margin-top: 14px;">
+        <button id="liveCreateBtn">Create invite link</button>
+      </div>
+      <form class="liveJoinRow" id="liveJoinForm" novalidate>
+        <input class="authInput liveCodeInput" id="liveCodeInput" placeholder="Have a code?" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <button type="submit" class="liveJoinBtn">Join</button>
+      </form>
+      <p class="authError" id="liveError" role="alert"></p>
+
+      <div class="bestGridTitle" style="margin-top: 26px;">Practice vs. a ghost</div>
+      <div class="diff" id="raceDiff" style="margin-top: 12px;">
         <button data-d="easy" class="active">Easy</button>
         <button data-d="medium">Medium</button>
         <button data-d="hard">Hard</button>
@@ -241,6 +259,70 @@
         <button id="raceQuitBtn" class="ghost">Quit race</button>
       </div>
     </div>
+
+    <div id="liveLobby" hidden>
+      <div>
+        <h1>Race lobby</h1>
+        <p class="tag" id="liveLobbyTag">Send this to a friend</p>
+      </div>
+      <div class="liveCodeBox">
+        <div class="liveCodeLabel">Race code</div>
+        <div class="liveCode" id="liveCode">——————</div>
+      </div>
+      <div class="actions">
+        <button id="liveShareBtn">Share invite</button>
+        <button id="liveCopyBtn" class="ghost">Copy link</button>
+      </div>
+      <p class="dailyNote" id="liveCopyNote"></p>
+
+      <div class="bestGridTitle" style="margin-top: 22px;">Difficulty</div>
+      <div class="diff" id="liveLobbyDiff" style="margin-top: 10px;">
+        <button data-d="easy">Easy</button>
+        <button data-d="medium">Medium</button>
+        <button data-d="hard">Hard</button>
+      </div>
+      <p class="dailyNote" id="liveLobbyDiffText" hidden></p>
+
+      <div class="bestGridTitle" style="margin-top: 22px;">Players</div>
+      <div class="livePlayers" id="livePlayers"></div>
+      <p class="dailyNote" id="liveLobbyStatus"></p>
+
+      <div class="actions">
+        <button id="liveStartBtn" hidden>Start race</button>
+      </div>
+      <div class="actions">
+        <button id="liveLeaveBtn" class="ghost">Leave lobby</button>
+      </div>
+    </div>
+
+    <div id="liveActive" hidden>
+      <div class="raceProgressWrap" id="liveBars"></div>
+      <div class="bar" style="margin: 10px 0 14px;">
+        <div class="stats">
+          <div class="timer" id="liveTimer">0:00</div>
+          <div class="mistakes" id="liveMistakes">0 mistakes</div>
+        </div>
+        <span class="liveDiffLabel" id="liveDiffLabel"></span>
+      </div>
+      <div class="boardWrap">
+        <div class="board" id="liveBoard"></div>
+        <div class="liveCountdown" id="liveCountdown" hidden></div>
+      </div>
+      <div class="pad" id="livePad"></div>
+      <div class="actions">
+        <button id="liveUndoBtn" class="ghost" disabled>Undo</button>
+        <button id="liveQuitBtn" class="ghost">Leave race</button>
+      </div>
+      <p class="dailyNote" id="liveStatus"></p>
+    </div>
+  </div>
+</div>
+
+<div class="winOverlay" id="liveResultOverlay">
+  <div class="winCard">
+    <div class="winTitle" id="liveResultTitle">🏁 Results</div>
+    <div class="liveResults" id="liveResults"></div>
+    <button id="liveResultBtn">Back to the lobby</button>
   </div>
 </div>
 
