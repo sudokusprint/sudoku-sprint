@@ -9,6 +9,10 @@ the owner's preferences, where things live, dashboard-only settings, and decisio
   button names. Keep jargon out of chat (filenames are fine when useful).
 - **The owner runs `git push` themselves.** After committing, copy it to the
   clipboard (`'git push' | Set-Clipboard`) and say so. Never force-push.
+- **Before committing anything that changes `src/`, run `tools\stamp-version.ps1`.** It
+  stamps every stylesheet and module in index.html with ?v=, so browsers never mix cached
+  old and new files (that broke Solo for the owner once). New .js files are picked up
+  automatically; a new stylesheet must first be added inside the version markers.
 - Commit after each finished change, with a descriptive message. Don't publish
   half-tested work; say what was and wasn't tested.
 - Ask before big design choices; show options (with a recommendation) first.
