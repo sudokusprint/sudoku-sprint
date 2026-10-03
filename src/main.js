@@ -60,6 +60,9 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// iPhone Safari ignores user-scalable=no in the viewport tag; block pinch zoom directly.
+document.addEventListener('gesturestart', (e) => e.preventDefault());
+
 document.querySelectorAll('.tabBtn').forEach(btn => {
   btn.addEventListener('click', () => switchView(btn.dataset.view));
 });

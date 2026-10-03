@@ -61,6 +61,8 @@
 * { box-sizing: border-box; }
 /* The hidden attribute always hides, even on elements whose class sets display. */
 [hidden] { display: none !important; }
+/* No double-tap zoom: quick taps on the board and pad stay taps. */
+html { touch-action: manipulation; }
 html, body {
   height: 100%;
   margin: 0;
