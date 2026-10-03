@@ -29,6 +29,31 @@ h1:last-child { margin-bottom: 20px; }
   padding-top: 10px;
 }
 
+/* Daily tab: front-page dateline. "Daily Challenge" is a small kicker and the
+   date is the headline, over a heavy rule. */
+#dailyHome > div:first-child { border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 12px; }
+#dailyHome h1 {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 4px;
+}
+#dailyDate {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  min-height: 40px;
+  margin: 0;
+}
+#dailyHome .dailyReset { margin: 0 0 14px; }
+
 /* Home and pickers: quiet cards, red icons */
 .lobbyCard { border-color: var(--paper-line); }
 .lobbyCard:hover { border-color: var(--ink); }
