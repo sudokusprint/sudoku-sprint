@@ -1,24 +1,26 @@
-/* Newspaper look: warm paper, black ink, one red for small highlights.
+/* Newspaper look: warm yellowed paper, dark brown ink, one red for small highlights.
    Main buttons are solid ink; the board's colours come from the chosen board
    style (themes.js sets --tl-* for light mode and --td-* for dark mode). */
 :root {
-  --paper: #F3EEE3;
-  --paper-line: #D8D0BF;
-  --ink: #1D1B18;
-  --ink-soft: #6B655B;
-  --mark: #B3261E;
+  --paper: #F1E4CC;
+  --paper-line: #D9C7A6;
+  --ink: #2A1D14;
+  --ink-soft: #7A6650;
+  --mark: #B5421F;
   --good: #2E6B45;
-  --bad: #B3261E;
+  --bad: #B5421F;
   --btn: var(--ink);
   --btn-text: var(--paper);
   --radius: 3px;
   --font-body: 'Source Serif 4', Georgia, serif;
   --font-display: 'Fraunces', Georgia, serif;
-  --board-a: var(--tl-board-a, #F3EEE3);
-  --board-b: var(--tl-board-b, #ECE5D6);
-  --line: var(--tl-line, #1D1B18);
-  --accent: var(--tl-accent, #2B4C7E);
-  --accent-soft: var(--tl-accent-soft, #E6DECF);
+  --board-a: var(--tl-board-a, #F4E9D4);
+  --board-b: var(--tl-board-b, #EEE0C6);
+  --line: var(--tl-line, #2A1D14);
+  --accent: var(--tl-accent, #8A4B22);
+  --accent-soft: var(--tl-accent-soft, #F2D7A0);
+  /* Selected cell. Board styles may set their own; otherwise a red tint. */
+  --select: var(--tl-select, color-mix(in srgb, var(--mark) 22%, var(--board-a)));
   --given: var(--line);
   /* Tiles and "this is you" rows: a faint ink wash, readable in both modes. */
   --tile: color-mix(in srgb, var(--ink) 7%, var(--paper));
@@ -26,33 +28,35 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #1A1815;
-    --paper-line: #3A352E;
-    --ink: #ECE6D9;
-    --ink-soft: #9A9284;
-    --mark: #E2574C;
+    --paper: #1E1712;
+    --paper-line: #3D3127;
+    --ink: #EFE3CF;
+    --ink-soft: #A8957C;
+    --mark: #E0673F;
     --good: #7FC79A;
-    --bad: #E2574C;
-    --board-a: var(--td-board-a, #1A1815);
-    --board-b: var(--td-board-b, #211E1A);
-    --line: var(--td-line, #ECE6D9);
-    --accent: var(--td-accent, #9DB8E0);
-    --accent-soft: var(--td-accent-soft, #2A2622);
+    --bad: #E0673F;
+    --board-a: var(--td-board-a, #1E1712);
+    --board-b: var(--td-board-b, #261D16);
+    --line: var(--td-line, #EFE3CF);
+    --accent: var(--td-accent, #E3A774);
+    --accent-soft: var(--td-accent-soft, #3A2B1C);
+    --select: var(--td-select, color-mix(in srgb, var(--mark) 30%, var(--board-a)));
   }
 }
 :root[data-theme="dark"] {
-  --paper: #1A1815;
-  --paper-line: #3A352E;
-  --ink: #ECE6D9;
-  --ink-soft: #9A9284;
-  --mark: #E2574C;
+  --paper: #1E1712;
+  --paper-line: #3D3127;
+  --ink: #EFE3CF;
+  --ink-soft: #A8957C;
+  --mark: #E0673F;
   --good: #7FC79A;
-  --bad: #E2574C;
-  --board-a: var(--td-board-a, #1A1815);
-  --board-b: var(--td-board-b, #211E1A);
-  --line: var(--td-line, #ECE6D9);
-  --accent: var(--td-accent, #9DB8E0);
-  --accent-soft: var(--td-accent-soft, #2A2622);
+  --bad: #E0673F;
+  --board-a: var(--td-board-a, #1E1712);
+  --board-b: var(--td-board-b, #261D16);
+  --line: var(--td-line, #EFE3CF);
+  --accent: var(--td-accent, #E3A774);
+  --accent-soft: var(--td-accent-soft, #3A2B1C);
+  --select: var(--td-select, color-mix(in srgb, var(--mark) 30%, var(--board-a)));
 }
 * { box-sizing: border-box; }
 /* The hidden attribute always hides, even on elements whose class sets display. */

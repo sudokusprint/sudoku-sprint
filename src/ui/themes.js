@@ -4,8 +4,8 @@ import { loadThemeId, saveThemeId } from '../services/storage.js';
 // `dark` is optional: themes without it keep their light board in dark mode.
 // The default keeps the id 'classic' so players who never changed it get Newsprint.
 export const THEMES = [
-  { id: 'classic', name: 'Newsprint', boardA: '#F3EEE3', boardB: '#ECE5D6', line: '#1D1B18', accent: '#2B4C7E', accentSoft: '#E6DECF',
-    dark: { boardA: '#1A1815', boardB: '#211E1A', line: '#ECE6D9', accent: '#9DB8E0', accentSoft: '#2A2622' } },
+  { id: 'classic', name: 'Newsprint', boardA: '#F4E9D4', boardB: '#EEE0C6', line: '#2A1D14', accent: '#8A4B22', accentSoft: '#F2D7A0', select: '#EDC27A',
+    dark: { boardA: '#1E1712', boardB: '#261D16', line: '#EFE3CF', accent: '#E3A774', accentSoft: '#3A2B1C', select: '#6A4720' } },
   { id: 'ocean', name: 'Ocean', boardA: '#EAF4F7', boardB: '#CFE6EC', line: '#0B4B5C', accent: '#0E8FA6', accentSoft: '#DFF3F6' },
   { id: 'forest', name: 'Forest', boardA: '#F2F5EC', boardB: '#DDE7CD', line: '#33461F', accent: '#5C8A2E', accentSoft: '#E8F0DA' },
   { id: 'walnut', name: 'Walnut', boardA: '#F6EEE3', boardB: '#E7D5BD', line: '#5A3B23', accent: '#B4652F', accentSoft: '#F4E4D2' },
@@ -56,6 +56,9 @@ function applyTheme(id, skipBoardRerender) {
   root.setProperty('--td-line', dark.line);
   root.setProperty('--td-accent', dark.accent);
   root.setProperty('--td-accent-soft', dark.accentSoft);
+  // Optional selected-cell colour; without it base.css uses a red tint.
+  if (t.select) root.setProperty('--tl-select', t.select); else root.removeProperty('--tl-select');
+  if (dark.select) root.setProperty('--td-select', dark.select); else root.removeProperty('--td-select');
   saveThemeId(t.id);
   renderThemeList();
   if (!skipBoardRerender) onThemeChange();

@@ -19,7 +19,7 @@ h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.015em; line-height: 1
 .header .tag { margin-bottom: 0; }
 /* Most screens have just a title (no tagline): keep the gap below it */
 h1:last-child { margin-bottom: 20px; }
-.header h1:last-child { margin-bottom: 0; }
+.header h1:last-child, #soloView.playing h1 { margin-bottom: 0; }
 
 /* Section heads: a thin rule above, like a newspaper section */
 .bestGridTitle {
@@ -72,7 +72,7 @@ h1:last-child { margin-bottom: 20px; }
 .board { border-radius: 0; background: color-mix(in srgb, var(--line) 35%, var(--board-a)); }   /* thin lines; box lines stay full ink */
 .cell.match { background: color-mix(in srgb, var(--accent) 22%, var(--board-a)); }
 .cell.zoneB.match { background: color-mix(in srgb, var(--accent) 22%, var(--board-b)); }
-.cell.selected { background: color-mix(in srgb, var(--mark) 22%, var(--board-a)); }
+.cell.selected { background: var(--select); }
 .cell { font-size: clamp(17px, 4.6vw, 23px); font-weight: 600; }
 .cell.entered { font-weight: 400; }
 .cell .notes span { font-family: var(--font-body); }
