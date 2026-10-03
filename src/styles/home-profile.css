@@ -27,6 +27,7 @@
   letter-spacing: 0.02em;
   color: var(--ink);
 }
+.bestStat.homeStreak { grid-column: 1 / -1; }
 .bestGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

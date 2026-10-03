@@ -5,19 +5,14 @@ import { formatTime } from './board.js';
 
 const RECENT_LIMIT = 15;
 
+// Home shows just the Daily streak (solves and race record live on Profile).
 // dailyStreak: the signed-in player's current Daily streak, or null if unknown / signed out.
 export function renderHomeStats(dailyStreak = null) {
-  const stats = currentStats();
   const grid = document.getElementById('homeStatsGrid');
-  const totalSolved = DIFFICULTIES.reduce((sum, d) => sum + stats.completed[d], 0);
-  const { wins, losses } = raceRecords(stats).overall;
-  const racedAny = (wins + losses) > 0;
-  const hasStreak = dailyStreak !== null && dailyStreak > 0;
-
-  grid.innerHTML =
-    '<div class="bestStat"><div class="bestStatLabel">Solved</div><div class="bestStatValue' + (totalSolved === 0 ? ' empty' : '') + '">' + (totalSolved || '—') + '</div></div>' +
-    '<div class="bestStat"><div class="bestStatLabel">Race record</div><div class="bestStatValue' + (racedAny ? '' : ' empty') + '">' + (racedAny ? (wins + '-' + losses) : '—') + '</div></div>' +
-    '<div class="bestStat"><div class="bestStatLabel">Daily streak</div><div class="bestStatValue' + (hasStreak ? '' : ' empty') + '">' + (hasStreak ? dailyStreak : (dailyStreak === 0 ? '0' : '—')) + '</div></div>';
+  grid.hidden = dailyStreak === null;
+  grid.innerHTML = dailyStreak === null ? '' :
+    '<div class="bestStat homeStreak"><div class="bestStatLabel">Daily streak</div><div class="bestStatValue' + (dailyStreak > 0 ? '' : ' empty') + '">' +
+    dailyStreak + (dailyStreak === 1 ? ' day' : ' days') + '</div></div>';
 }
 
 export function renderProfile() {
