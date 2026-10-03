@@ -46,7 +46,6 @@ src/
     race.js                 Race mode
     stats.js                Home tiles and Profile page
     themes.js               board themes + settings panel
-    confetti.js             win animation
   styles/                   CSS split by area; load order in index.html matters
 supabase/schema.sql         database tables, security rules and functions (run in Supabase SQL Editor)
 tests/                      browser test runner for src/core

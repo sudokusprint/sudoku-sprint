@@ -7,20 +7,20 @@
   background: transparent;
   color: var(--ink-soft);
   padding: 6px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius);
   font-size: 13px;
   cursor: pointer;
 }
 .diff button.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+  background: var(--btn);
+  border-color: var(--btn);
+  color: var(--btn-text);
 }
 
 .actions button.active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+  background: var(--btn);
+  color: var(--btn-text);
+  border-color: var(--btn);
 }
 .actions {
   display: flex;
@@ -30,10 +30,10 @@
 .actions button {
   flex: 1;
   padding: 12px 0;
-  border-radius: 8px;
+  border-radius: var(--radius);
   border: none;
-  background: var(--accent);
-  color: #fff;
+  background: var(--btn);
+  color: var(--btn-text);
   font-size: 14px;
   cursor: pointer;
 }
@@ -43,9 +43,9 @@
   color: var(--ink-soft);
 }
 .actions button.ghost.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+  background: var(--btn);
+  border-color: var(--btn);
+  color: var(--btn-text);
   font-weight: 600;
 }
 .genNote {
@@ -67,7 +67,7 @@
 .win {
   margin-top: 16px;
   padding: 14px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: var(--tile);
   color: var(--ink);
   font-size: 14px;
@@ -86,7 +86,7 @@
   color: var(--ink);
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 14px;
   cursor: pointer;
   flex-shrink: 0;
@@ -137,7 +137,7 @@
 .iconBtn.settingsGear {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   font-size: 24px;
   line-height: 1;
 }

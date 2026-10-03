@@ -4,12 +4,12 @@
   gap: 14px;
   padding: 18px;
   border: 1px solid var(--paper-line);
-  border-radius: 12px;
+  border-radius: var(--radius);
   margin-top: 16px;
   cursor: pointer;
   transition: border-color 0.15s ease;
 }
-.lobbyCard:hover { border-color: var(--accent); }
+.lobbyCard:hover { border-color: var(--btn); }
 .lobbyIcon { display: flex; flex-shrink: 0; color: var(--accent-text); }
 .lobbyIcon svg { width: 28px; height: 28px; }
 .lobbyTitle { font-size: 16px; font-weight: 600; }
@@ -36,7 +36,7 @@
 }
 .bestStat {
   background: var(--tile);
-  border-radius: 14px;
+  border-radius: var(--radius);
   padding: 18px 6px 16px;
   text-align: center;
 }
@@ -65,7 +65,7 @@
   border-collapse: separate;
   border-spacing: 0;
   border: 1px solid var(--paper-line);
-  border-radius: 10px;
+  border-radius: var(--radius);
   overflow: hidden;
   font-variant-numeric: tabular-nums;
 }
@@ -100,7 +100,7 @@
   text-align: center;
   padding: 12px 6px;
   border: 1px solid var(--paper-line);
-  border-radius: 10px;
+  border-radius: var(--radius);
 }
 .profileTotalValue {
   font-size: 20px;

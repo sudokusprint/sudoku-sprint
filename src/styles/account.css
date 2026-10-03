@@ -4,7 +4,7 @@
   margin-top: 4px;
   padding: 16px;
   border: 1px solid var(--paper-line);
-  border-radius: 12px;
+  border-radius: var(--radius);
 }
 .accountTitle { font-size: 21px; font-weight: 700; overflow-wrap: anywhere; }
 .accountText { font-size: 15px; color: var(--ink-soft); margin: 6px 0 0; line-height: 1.45; overflow-wrap: anywhere; }
@@ -14,11 +14,11 @@
 .accountActions button {
   flex: 1 1 auto;
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 14px;
   cursor: pointer;
 }
-.accountPrimary { border: none; background: var(--accent); color: #fff; }
+.accountPrimary { border: none; background: var(--btn); color: var(--btn-text); }
 .accountGhost { border: 1px solid var(--paper-line); background: transparent; color: var(--ink); }
 
 .linkBtn {
@@ -59,12 +59,12 @@
   width: 100%;
   padding: 12px;
   border: 1px solid var(--paper-line);
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: var(--paper);
   color: var(--ink);
   font-size: 16px; /* 16px stops iOS zooming into the field */
 }
-.authInput:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+.authInput:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--btn); }
 .authCodeInput { letter-spacing: 0.3em; font-variant-numeric: tabular-nums; text-align: center; }
 .authError { color: var(--bad); font-size: 13px; min-height: 18px; margin: 8px 0; }
 .usernameStatus { font-size: 13px; font-weight: 600; min-height: 18px; margin: 8px 0 0; color: var(--ink-soft); }

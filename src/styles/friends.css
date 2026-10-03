@@ -18,7 +18,7 @@
   gap: 10px;
   padding: 11px 12px;
   border: 1px solid var(--paper-line);
-  border-radius: 10px;
+  border-radius: var(--radius);
   margin-bottom: 8px;
 }
 .friendMain { display: flex; flex-direction: column; min-width: 0; flex: 1; }
@@ -38,14 +38,14 @@
 .friendActions { display: flex; gap: 6px; flex-shrink: 0; }
 .friendBtn {
   padding: 7px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   border: 1px solid var(--paper-line);
   background: transparent;
   color: var(--ink);
   font-size: 13px;
   cursor: pointer;
 }
-.friendBtn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.friendBtn.primary { background: var(--btn); border-color: var(--btn); color: var(--btn-text); font-weight: 600; }
 
 .invitePicker {
   flex-basis: 100%;
@@ -69,7 +69,7 @@
   transition: transform 0.25s ease;
   z-index: 80;
   padding: 14px 16px;
-  border-radius: 14px;
+  border-radius: var(--radius);
   background: var(--paper);
   border: 1px solid var(--paper-line);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
@@ -80,10 +80,10 @@
 .inviteToastActions button {
   flex: 1;
   padding: 10px 0;
-  border-radius: 8px;
+  border-radius: var(--radius);
   border: none;
-  background: var(--accent);
-  color: #fff;
+  background: var(--btn);
+  color: var(--btn-text);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;

@@ -1,0 +1,84 @@
+/* Newspaper look: type, rules and small finishing touches across every screen.
+   Loaded last so it can refine the per-area stylesheets. Colours and fonts are
+   tokens in base.css. */
+
+button, input, select, textarea { font-family: inherit; }
+
+/* Display type: headings, timers, numbers */
+h1, .timer, .winTitle, .lobbyTitle, .bestGridTitle, .bestStatValue, .diffCardBestTime,
+.liveCode, .accountTitle, .settingsHeader span, .streakMain, .leaderTime, .leaderRank,
+.profileTotalValue, .pad button, .cell, .liveCountdown, .pauseText,
+.raceRecordTable td, .raceRecordTable tr.overall th {
+  font-family: var(--font-display);
+}
+h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.08; }
+.tag { font-style: italic; }
+
+/* Masthead rule under the Home and Profile headers */
+.header { border-bottom: 2px solid var(--ink); padding-bottom: 12px; margin-bottom: 4px; }
+.header .tag { margin-bottom: 0; }
+
+/* Section heads: a thin rule above, like a newspaper section */
+.bestGridTitle {
+  font-size: 19px;
+  letter-spacing: 0;
+  border-top: 1px solid var(--ink);
+  padding-top: 10px;
+}
+
+/* Home and pickers: quiet cards, red icons */
+.lobbyCard { border-color: var(--paper-line); }
+.lobbyCard:hover { border-color: var(--ink); }
+.lobbyIcon { color: var(--mark); }
+.lobbyTitle { font-size: 17px; font-weight: 600; }
+.bestStat { border: 1px solid var(--paper-line); }
+.bestStatValue { font-weight: 600; }
+.homeStreak .bestStatValue, .dailyReset { color: var(--mark); }
+
+/* Game header: big timer over a heavy rule */
+.bar { border-bottom: 2px solid var(--ink); padding-bottom: 8px; align-items: flex-end; }
+.timer { font-size: 28px; font-weight: 600; line-height: 1; }
+.genNote { font-style: italic; }
+
+/* Board: printed-grid feel */
+.board { border-radius: 0; background: color-mix(in srgb, var(--line) 35%, var(--board-a)); }   /* thin lines; box lines stay full ink */
+.cell.match { background: color-mix(in srgb, var(--accent) 22%, var(--board-a)); }
+.cell.zoneB.match { background: color-mix(in srgb, var(--accent) 22%, var(--board-b)); }
+.cell.selected { background: color-mix(in srgb, var(--mark) 22%, var(--board-a)); }
+.cell { font-size: clamp(17px, 4.6vw, 23px); font-weight: 600; }
+.cell.entered { font-weight: 400; }
+.cell .notes span { font-family: var(--font-body); }
+
+/* Tools and number pad: outlined in ink */
+.actions button.ghost { border-color: var(--ink); color: var(--ink); }
+.pad button { border-color: var(--ink); background: transparent; font-size: 20px; font-weight: 500; }
+.pad.oneRow button { font-size: 19px; }
+.diff button, .liveJoinBtn, .friendBtn, .accountGhost { border-color: var(--ink); color: var(--ink); }
+
+/* Tab bar: active tab in red (Home stays neutral, as before) */
+.tabBtn.active:not([data-view="homeView"]) .tabIcon svg { color: var(--mark); }
+.tabBtn.active:not([data-view="homeView"]) { color: var(--mark); }
+
+/* "This is you" rows: a faint wash instead of a coloured outline */
+.leaderRow.me, .livePlayer.me { box-shadow: none; background: var(--tile); border-color: var(--paper-line); }
+.leaderboard .leaderRow:first-child .leaderRank { color: var(--mark); font-weight: 700; }
+.leaderRank { font-weight: 600; }
+.streakBanner { border: 1px solid var(--paper-line); }
+.streakBanner.atRisk { box-shadow: inset 3px 0 0 0 var(--mark); border-radius: 0; }
+
+/* Result and dialog cards: headline style, left aligned, ink rule on top */
+.winCard {
+  text-align: left;
+  border-top: 4px solid var(--ink);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+  padding: 26px 24px 24px;
+}
+.winTitle { font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -0.01em; }
+.winDetail { font-size: 15px; line-height: 1.45; }
+.winCard button { font-weight: 600; }
+
+/* Settings */
+.settingsHeader span { font-size: 24px; }
+.themeSwatch.selected { border-color: var(--ink); background: var(--tile); }
+.swatchPreview { border-radius: 2px; }
+.toggle:checked::after { background: var(--paper); }

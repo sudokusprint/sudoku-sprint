@@ -5,7 +5,6 @@ import { gridToString, gridFromString } from '../core/grid.js';
 import { makeCode, normalizeCode, isValidCode, joinRoom, MAX_PLAYERS } from '../services/liveRace.js';
 import { getAccount } from '../services/account.js';
 import { createCell, highlightBoard, buildPad, updatePadState, isComplete, formatTime } from './board.js';
-import { launchConfetti } from './confetti.js';
 import { recordFriendRace } from '../services/progress.js';
 
 const $ = id => document.getElementById(id);
@@ -465,7 +464,6 @@ function finishMine() {
   room.send('finish', { raceId: race.raceId, id: me.id, seconds, mistakes });
   updateUndo();
   renderBars();
-  if (finishes[me.id].order === 1) launchConfetti();
   renderResults();
   els.resultOverlay.classList.add('show');
 }

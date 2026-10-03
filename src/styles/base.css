@@ -1,50 +1,58 @@
+/* Newspaper look: warm paper, black ink, one red for small highlights.
+   Main buttons are solid ink; the board's colours come from the chosen board
+   style (themes.js sets --tl-* for light mode and --td-* for dark mode). */
 :root {
-  --paper: #FAF8F3;
-  --paper-line: #E4E0D4;
-  --ink: #21262B;
-  --ink-soft: #6B7178;
-  --accent: #1B5FD6;
-  --accent-soft: #E7EEFB;
-  --good: #2E7D4F;
-  --bad: #C24B3F;
-  --given: #21262B;
-  --board-a: #FAF8F3;
-  --board-b: #F0EDE2;
-  --line: #21262B;
-  /* Stat tiles outside the board. Board themes override --accent-soft with a
-     light colour even in dark mode, so tiles use their own token. */
-  --tile: var(--accent-soft);
-  /* Accent-coloured text (stat numbers, best times). Lightened in dark mode,
-     because some board themes have a dark accent. */
-  --accent-text: var(--accent);
+  --paper: #F3EEE3;
+  --paper-line: #D8D0BF;
+  --ink: #1D1B18;
+  --ink-soft: #6B655B;
+  --mark: #B3261E;
+  --good: #2E6B45;
+  --bad: #B3261E;
+  --btn: var(--ink);
+  --btn-text: var(--paper);
+  --radius: 3px;
+  --font-body: 'Source Serif 4', Georgia, serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --board-a: var(--tl-board-a, #F3EEE3);
+  --board-b: var(--tl-board-b, #ECE5D6);
+  --line: var(--tl-line, #1D1B18);
+  --accent: var(--tl-accent, #2B4C7E);
+  --accent-soft: var(--tl-accent-soft, #E6DECF);
+  --given: var(--line);
+  /* Tiles and "this is you" rows: a faint ink wash, readable in both modes. */
+  --tile: color-mix(in srgb, var(--ink) 7%, var(--paper));
+  --accent-text: var(--ink);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #1B1D22;
-    --paper-line: #33363E;
-    --ink: #ECEAE3;
-    --ink-soft: #9A9FA6;
-    --accent: #6FA3F5;
-    --accent-soft: #1E2C42;
-    --good: #6FCF97;
-    --bad: #F2897C;
-    --given: #ECEAE3;
-    --tile: color-mix(in srgb, var(--accent) 16%, var(--paper));
-    --accent-text: color-mix(in srgb, var(--accent) 45%, var(--ink));
+    --paper: #1A1815;
+    --paper-line: #3A352E;
+    --ink: #ECE6D9;
+    --ink-soft: #9A9284;
+    --mark: #E2574C;
+    --good: #7FC79A;
+    --bad: #E2574C;
+    --board-a: var(--td-board-a, #1A1815);
+    --board-b: var(--td-board-b, #211E1A);
+    --line: var(--td-line, #ECE6D9);
+    --accent: var(--td-accent, #9DB8E0);
+    --accent-soft: var(--td-accent-soft, #2A2622);
   }
 }
 :root[data-theme="dark"] {
-  --paper: #1B1D22;
-  --paper-line: #33363E;
-  --ink: #ECEAE3;
-  --ink-soft: #9A9FA6;
-  --accent: #6FA3F5;
-  --accent-soft: #1E2C42;
-  --good: #6FCF97;
-  --bad: #F2897C;
-  --given: #ECEAE3;
-  --tile: color-mix(in srgb, var(--accent) 16%, var(--paper));
-  --accent-text: color-mix(in srgb, var(--accent) 45%, var(--ink));
+  --paper: #1A1815;
+  --paper-line: #3A352E;
+  --ink: #ECE6D9;
+  --ink-soft: #9A9284;
+  --mark: #E2574C;
+  --good: #7FC79A;
+  --bad: #E2574C;
+  --board-a: var(--td-board-a, #1A1815);
+  --board-b: var(--td-board-b, #211E1A);
+  --line: var(--td-line, #ECE6D9);
+  --accent: var(--td-accent, #9DB8E0);
+  --accent-soft: var(--td-accent-soft, #2A2622);
 }
 * { box-sizing: border-box; }
 /* The hidden attribute always hides, even on elements whose class sets display. */
@@ -54,7 +62,7 @@ html, body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-body);
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }

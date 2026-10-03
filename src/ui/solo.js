@@ -3,7 +3,6 @@ import { generatePuzzleByDifficulty, DIFFICULTY_TIER, MIN_CLUES } from '../core/
 import { TIER_NAME } from '../core/techniques.js';
 import { formatTime, createCell, highlightBoard, buildPad, updatePadState, isComplete } from './board.js';
 import { recordSolo, bestSeconds } from '../services/progress.js';
-import { launchConfetti } from './confetti.js';
 import { getSettings } from '../services/settings.js';
 import { findConflicts, peersOf } from '../core/grid.js';
 
@@ -38,6 +37,7 @@ export function initSolo() {
     mistakes: document.getElementById('mistakes'),
     genNote: document.getElementById('genNote'),
     winOverlay: document.getElementById('winOverlay'),
+    winTitle: document.getElementById('winTitle'),
     winDetail: document.getElementById('winDetail'),
     pauseOverlay: document.getElementById('pauseOverlay'),
     pauseBtn: document.getElementById('pauseBtn'),
@@ -365,9 +365,9 @@ function checkWin() {
   renderBest();
   renderMistakes();
   renderFullGridHint();
-  els.winDetail.textContent = 'Time: ' + els.timer.textContent + ' · ' + mistakes + (mistakes === 1 ? ' mistake' : ' mistakes');
+  els.winTitle.textContent = 'Solved in ' + els.timer.textContent;
+  els.winDetail.textContent = TIER_NAME[DIFFICULTY_TIER[difficulty]] + ' · ' + mistakes + (mistakes === 1 ? ' mistake' : ' mistakes');
   els.winOverlay.classList.add('show');
-  launchConfetti();
 }
 
 // Also called when stats change (sign-in, sign-out, progress loaded).

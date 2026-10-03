@@ -14,7 +14,6 @@ import {
 import { getAccount, onAccountChange } from '../services/account.js';
 import { createCell, highlightBoard, buildPad, formatTime } from './board.js';
 import { openAuth } from './accountView.js';
-import { launchConfetti } from './confetti.js';
 
 const $ = id => document.getElementById(id);
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -49,7 +48,7 @@ export function initDaily() {
     timer: $('dailyTimer'), title: $('dailyTitle'), playNote: $('dailyPlayNote'),
     grid: $('dailyGrid'), pad: $('dailyPad'),
     notesBtn: $('dailyNotesBtn'), eraseBtn: $('dailyEraseBtn'), undoBtn: $('dailyUndoBtn'),
-    resultOverlay: $('dailyResultOverlay'), resultDetail: $('dailyResultDetail')
+    resultOverlay: $('dailyResultOverlay'), resultTitle: $('dailyResultTitle'), resultDetail: $('dailyResultDetail')
   };
 
   els.boardTabs.querySelectorAll('button').forEach(btn => {
@@ -644,9 +643,9 @@ async function maybeSubmit() {
   updateUndo();
   els.timer.textContent = formatTime(result.seconds);
   els.playNote.textContent = 'Solved!';
-  els.resultDetail.textContent = 'Time: ' + formatTime(result.seconds) + ' · You\'re #' + result.rank + ' of ' + result.total + ' today on ' + cap(current.difficulty) + '.';
+  els.resultTitle.textContent = 'Solved in ' + formatTime(result.seconds);
+  els.resultDetail.textContent = 'You\'re #' + result.rank + ' of ' + result.total + ' today on ' + cap(current.difficulty) + '.';
   els.resultOverlay.classList.add('show');
-  launchConfetti();
   status = null;   // refresh the cards next time home is shown
   // Add the (server-computed) streak once it's in.
   const detail = els.resultDetail.textContent;

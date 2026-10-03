@@ -11,6 +11,9 @@
     if (a === 'light' || a === 'dark') document.documentElement.dataset.theme = a;
   } catch (e) {}
 </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
 <link rel="stylesheet" href="src/styles/base.css">
 <link rel="stylesheet" href="src/styles/controls.css">
 <link rel="stylesheet" href="src/styles/board.css">
@@ -20,16 +23,16 @@
 <link rel="stylesheet" href="src/styles/account.css">
 <link rel="stylesheet" href="src/styles/daily.css">
 <link rel="stylesheet" href="src/styles/friends.css">
+<link rel="stylesheet" href="src/styles/paper.css">
 <script type="module" src="src/main.js"></script>
 </head>
 <body>
-<canvas id="confettiCanvas" style="position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 200;"></canvas>
 <div class="view active" id="homeView">
   <div class="wrap">
     <div class="header">
       <div>
         <h1>Sudoku Sprint</h1>
-        <p class="tag">Jump into a puzzle, a race, or a lesson</p>
+        <p class="tag">A new puzzle every day, and races against friends</p>
       </div>
       <button class="iconBtn settingsGear" data-open-settings aria-label="Board style settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
@@ -394,9 +397,7 @@
   </button>
   <button class="tabBtn" data-view="soloView">
     <span class="tabIcon">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1 1 0 0 0-.878-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1 1 0 0 0-.289-.878L1.71 12.831a2.404 2.404 0 0 1-.706-1.704c0-.617.235-1.234.706-1.704L3.28 7.85a1 1 0 0 0 .29-.878c-.074-.493-.504-.84-.968-1.02a2.5 2.5 0 1 1 3.237-3.237c.18.464.527.894 1.02.967a1 1 0 0 0 .878-.289l1.568-1.568A2.404 2.404 0 0 1 11.009 1c.617 0 1.234.235 1.704.706l1.568 1.568c.23.23.556.338.878.29c.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/>
-      </svg>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M9.17 3.5v17M14.83 3.5v17M3.5 9.17h17M3.5 14.83h17"/></svg>
     </span>
     <span>Solo</span>
   </button>
@@ -432,7 +433,7 @@
 
 <div class="winOverlay" id="winOverlay">
   <div class="winCard">
-    <div class="winTitle">Solved!</div>
+    <div class="winTitle" id="winTitle">Solved!</div>
     <div class="winDetail" id="winDetail"></div>
     <button id="winAgain">New puzzle</button>
   </div>
@@ -489,7 +490,7 @@
 
 <div class="winOverlay" id="dailyResultOverlay">
   <div class="winCard">
-    <div class="winTitle">Solved!</div>
+    <div class="winTitle" id="dailyResultTitle">Solved!</div>
     <div class="winDetail" id="dailyResultDetail"></div>
     <button id="dailyResultBtn">See the leaderboard</button>
   </div>

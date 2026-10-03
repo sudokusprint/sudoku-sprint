@@ -72,6 +72,12 @@ the owner's preferences, where things live, dashboard-only settings, and decisio
   The race record shows Friends / Ghost / Overall.
 - Game screens: board, then tool row, then number pad (2 rows; Settings has a 1-row
   option). Solo tools: Notes / Erase / New puzzle (Undo hidden; New asks for a 2nd tap).
+- Look: newspaper puzzle page (chosen 2026-10-02). Fraunces for headings and numbers,
+  Source Serif 4 for text (Google Fonts), warm paper and ink, one red (--mark) for small
+  highlights, solid-ink main buttons, square corners. Tokens in base.css, finishing touches
+  in paper.css. No emojis, no confetti; wins show a headline like "Solved in 3:41". Board
+  styles stay (default Newsprint has its own dark version; others keep a light board in dark mode).
+- The Workshop was removed (2026-10-02), and puzzles no longer list the techniques they need.
 
 ## Environment quirks (Windows, PowerShell 5.1)
 
