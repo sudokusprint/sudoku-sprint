@@ -127,6 +127,7 @@
   white-space: nowrap;
 }
 .liveBarName.me { color: var(--ink); font-weight: 700; }
+#raceActive .liveBarName { width: 48px; }   /* ghost race: just "You" and "Ghost" */
 .liveDiffLabel { font-size: 14px; font-weight: 600; color: var(--ink-soft); }
 
 .liveCountdown {

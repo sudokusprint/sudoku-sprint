@@ -135,7 +135,7 @@ function renderStreak() {
   const main = document.createElement('div');
   main.className = 'streakMain';
   const s = myStats.current_streak;
-  main.textContent = s > 0 ? '🔥 ' + days(s) + ' streak' : '🔥 No streak yet';
+  main.textContent = s > 0 ? days(s) + ' streak' : 'No streak yet';
   const sub = document.createElement('div');
   sub.className = 'streakSub';
   if (s > 0 && !myStats.solved_today) {
@@ -202,7 +202,7 @@ function renderRows(list, rows, formatValue, emptyText) {
     row.className = 'leaderRow' + (r.is_me ? ' me' : '');
     const rank = document.createElement('span');
     rank.className = 'leaderRank';
-    rank.textContent = r.rank <= 3 ? ['🥇', '🥈', '🥉'][r.rank - 1] : '#' + r.rank;
+    rank.textContent = '#' + r.rank;
     const name = document.createElement('span');
     name.className = 'leaderName';
     name.textContent = '@' + r.username + (r.is_me ? ' (you)' : '');
@@ -654,6 +654,6 @@ async function maybeSubmit() {
   const detail = els.resultDetail.textContent;
   await loadMyStats();
   if (myStats && myStats.current_streak > 0 && els.resultOverlay.classList.contains('show')) {
-    els.resultDetail.textContent = detail + ' 🔥 Streak: ' + days(myStats.current_streak) + '.';
+    els.resultDetail.textContent = detail + ' Streak: ' + days(myStats.current_streak) + '.';
   }
 }

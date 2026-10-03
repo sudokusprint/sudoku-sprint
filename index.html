@@ -32,7 +32,7 @@
         <h1>Sudoku Sprint</h1>
         <p class="tag">Jump into a puzzle, a race, or a lesson</p>
       </div>
-      <button class="iconBtn settingsGear" data-open-settings aria-label="Board style settings">⚙️</button>
+      <button class="iconBtn settingsGear" data-open-settings aria-label="Board style settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
 
     <div class="bestGridTitle">Your progress</div>
@@ -41,35 +41,35 @@
 
     <div class="bestGridTitle" style="margin-top: 26px;">Play</div>
     <div class="lobbyCard" data-goto="dailyView" id="dailyLobbyCard">
-      <span class="lobbyIcon">📅</span>
+      <span class="lobbyIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>
       <div>
         <div class="lobbyTitle">Daily Challenge</div>
         <div class="lobbyDesc">Today's puzzles, same for everyone, with leaderboards</div>
       </div>
     </div>
     <div class="lobbyCard" data-goto="soloView">
-      <span class="lobbyIcon">🧩</span>
+      <span class="lobbyIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M9.17 3.5v17M14.83 3.5v17M3.5 9.17h17M3.5 14.83h17"/></svg></span>
       <div>
         <div class="lobbyTitle">Solo play</div>
         <div class="lobbyDesc">Practice at your own pace</div>
       </div>
     </div>
     <div class="lobbyCard" data-goto="raceView">
-      <span class="lobbyIcon">🏁</span>
+      <span class="lobbyIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg></span>
       <div>
         <div class="lobbyTitle">Race mode</div>
         <div class="lobbyDesc">Race friends live with an invite link, or practice against a ghost</div>
       </div>
     </div>
     <div class="lobbyCard" data-goto="workshopView">
-      <span class="lobbyIcon">💡</span>
+      <span class="lobbyIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/></svg></span>
       <div>
         <div class="lobbyTitle">Workshop</div>
         <div class="lobbyDesc">Learn techniques and practice them directly</div>
       </div>
     </div>
     <div class="lobbyCard" data-goto="profileView">
-      <span class="lobbyIcon">🙂</span>
+      <span class="lobbyIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span>
       <div>
         <div class="lobbyTitle">Profile</div>
         <div class="lobbyDesc">Best times, solves, and race record</div>
@@ -100,9 +100,9 @@
 
     <div class="bestGridTitle" style="margin-top: 30px;">All-time leaderboard</div>
     <div class="diff dailyBoardTabs" id="alltimeTabs">
-      <button data-k="streak" class="active">🔥 Streak</button>
-      <button data-k="best_streak">🏆 Best streak</button>
-      <button data-k="solves">✅ Solved</button>
+      <button data-k="streak" class="active">Streak</button>
+      <button data-k="best_streak">Best streak</button>
+      <button data-k="solves">Solved</button>
     </div>
     <p class="dailyNote" id="alltimeHint"></p>
     <div class="leaderboard" id="alltimeLeaderboard"></div>
@@ -175,8 +175,8 @@
         <button data-d="medium">Medium</button>
         <button data-d="hard">Hard</button>
       </div>
-      <button class="iconBtn" id="pauseBtn" aria-label="Pause">⏸</button>
-      <button class="iconBtn" id="settingsBtn" data-open-settings aria-label="Board style settings">⚙️</button>
+      <button class="iconBtn" id="pauseBtn" aria-label="Pause"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4.5" width="4" height="15" rx="1"/><rect x="14" y="4.5" width="4" height="15" rx="1"/></svg></button>
+      <button class="iconBtn" id="settingsBtn" data-open-settings aria-label="Board style settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
   </div>
 
@@ -186,7 +186,7 @@
     <div class="board" id="board"></div>
     <div class="pauseOverlay" id="pauseOverlay">
       <div class="pauseText">Paused</div>
-      <button id="resumeBtn">▶ Resume</button>
+      <button id="resumeBtn">Resume</button>
       <button id="quitBtn" class="quitBtn">Quit puzzle</button>
     </div>
   </div>
@@ -243,12 +243,12 @@
     <div id="raceActive" style="display: none;">
       <div class="raceProgressWrap">
         <div class="raceCardRow">
-          <span class="raceAvatar">🧑</span>
+          <span class="liveBarName me">You</span>
           <div class="raceBarTrack"><div class="raceBarFill" id="raceYouBar" style="width: 0%"></div></div>
           <span class="racePct" id="raceYouPct">0%</span>
         </div>
         <div class="raceCardRow">
-          <span class="raceAvatar">👻</span>
+          <span class="liveBarName">Ghost</span>
           <div class="raceBarTrack"><div class="raceBarFill ghost" id="raceGhostBar" style="width: 0%"></div></div>
           <span class="racePct" id="raceGhostPct">0%</span>
         </div>
@@ -331,7 +331,7 @@
 
 <div class="winOverlay" id="liveResultOverlay">
   <div class="winCard">
-    <div class="winTitle" id="liveResultTitle">🏁 Results</div>
+    <div class="winTitle" id="liveResultTitle">Results</div>
     <div class="liveResults" id="liveResults"></div>
     <button id="liveResultBtn">Back to the lobby</button>
   </div>
@@ -339,7 +339,7 @@
 
 <div class="winOverlay" id="raceResultOverlay">
   <div class="winCard">
-    <div class="winTitle" id="raceResultTitle">🏁 Result</div>
+    <div class="winTitle" id="raceResultTitle">Result</div>
     <div class="winDetail" id="raceResultDetail"></div>
     <button id="raceResultBtn">Back to race lobby</button>
   </div>
@@ -352,7 +352,7 @@
         <h1>Profile</h1>
         <p class="tag">Your best times, solves, and race record</p>
       </div>
-      <button class="iconBtn settingsGear" data-open-settings aria-label="Board style settings">⚙️</button>
+      <button class="iconBtn settingsGear" data-open-settings aria-label="Board style settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
 
     <div class="accountCard" id="accountCard"></div>
@@ -436,7 +436,11 @@
     <span>Solo</span>
   </button>
   <button class="tabBtn" data-view="raceView">
-    <span class="tabIcon">🏁</span>
+    <span class="tabIcon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/>
+      </svg>
+    </span>
     <span>Race</span>
   </button>
   <button class="tabBtn" data-view="dailyView" id="dailyTab">
@@ -463,7 +467,7 @@
 
 <div class="winOverlay" id="winOverlay">
   <div class="winCard">
-    <div class="winTitle">🎉 Solved!</div>
+    <div class="winTitle">Solved!</div>
     <div class="winDetail" id="winDetail"></div>
     <button id="winAgain">New puzzle</button>
   </div>
@@ -520,7 +524,7 @@
 
 <div class="winOverlay" id="dailyResultOverlay">
   <div class="winCard">
-    <div class="winTitle">🎉 Solved!</div>
+    <div class="winTitle">Solved!</div>
     <div class="winDetail" id="dailyResultDetail"></div>
     <button id="dailyResultBtn">See the leaderboard</button>
   </div>

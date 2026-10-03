@@ -10,7 +10,8 @@
   transition: border-color 0.15s ease;
 }
 .lobbyCard:hover { border-color: var(--accent); }
-.lobbyIcon { font-size: 28px; }
+.lobbyIcon { display: flex; flex-shrink: 0; color: var(--accent-text); }
+.lobbyIcon svg { width: 28px; height: 28px; }
 .lobbyTitle { font-size: 16px; font-weight: 600; }
 .lobbyDesc { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
 .lobbyBest {

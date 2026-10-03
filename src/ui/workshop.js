@@ -159,9 +159,9 @@ function checkWorkWin() {
   if (workGenuineMatch) {
     recordWorkshop({ technique: workTechnique });
     const count = masteryCount(workTechnique);
-    els.genNote.textContent = '🎉 Solved! This puzzle required: ' + workTechnique + '. (' + count + '/' + MASTERY_TARGET + ' toward mastery)';
+    els.genNote.textContent = 'Solved! This puzzle required: ' + workTechnique + '. (' + count + '/' + MASTERY_TARGET + ' toward mastery)';
   } else {
-    els.genNote.textContent = '🎉 Solved! (This one was a fallback puzzle, so it doesn\'t count toward ' + workTechnique + ' mastery.)';
+    els.genNote.textContent = 'Solved! (This one was a fallback puzzle, so it doesn\'t count toward ' + workTechnique + ' mastery.)';
   }
   launchConfetti();
 }

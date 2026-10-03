@@ -496,7 +496,7 @@ function renderBars() {
     track.appendChild(fill);
     const label = document.createElement('span');
     label.className = 'racePct';
-    label.textContent = finishes[r.id] ? '🏁' : r.left ? 'left' : pct + '%';
+    label.textContent = finishes[r.id] ? 'Done' : r.left ? 'left' : pct + '%';
     row.append(name, track, label);
     els.bars.appendChild(row);
   }
@@ -508,11 +508,11 @@ function renderResults() {
   const done = all.filter(r => finishes[r.id]).sort((a, b) => finishes[a.id].order - finishes[b.id].order);
   const rest = all.filter(r => !finishes[r.id]);
   const myPlace = finishes[me.id] ? finishes[me.id].order : null;
-  els.resultTitle.textContent = myPlace === 1 ? '🏆 You won!' : myPlace ? '🏁 You finished #' + myPlace : '🏁 Results';
+  els.resultTitle.textContent = myPlace === 1 ? 'You won!' : myPlace ? 'You finished #' + myPlace : 'Results';
   els.results.innerHTML = '';
   done.forEach((r, i) => {
     const f = finishes[r.id];
-    addResultRow((i < 3 ? ['🥇', '🥈', '🥉'][i] : '#' + (i + 1)), r.id === me.id ? 'You' : r.name,
+    addResultRow('#' + (i + 1), r.id === me.id ? 'You' : r.name,
       formatTime(f.seconds) + ' · ' + f.mistakes + (f.mistakes === 1 ? ' mistake' : ' mistakes'), r.id === me.id);
   });
   for (const r of rest) {

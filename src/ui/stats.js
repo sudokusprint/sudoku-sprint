@@ -17,7 +17,7 @@ export function renderHomeStats(dailyStreak = null) {
   grid.innerHTML =
     '<div class="bestStat"><div class="bestStatLabel">Solved</div><div class="bestStatValue' + (totalSolved === 0 ? ' empty' : '') + '">' + (totalSolved || '—') + '</div></div>' +
     '<div class="bestStat"><div class="bestStatLabel">Race record</div><div class="bestStatValue' + (racedAny ? '' : ' empty') + '">' + (racedAny ? (wins + '-' + losses) : '—') + '</div></div>' +
-    '<div class="bestStat"><div class="bestStatLabel">Daily streak</div><div class="bestStatValue' + (hasStreak ? '' : ' empty') + '">' + (hasStreak ? '🔥 ' + dailyStreak : (dailyStreak === 0 ? '0' : '—')) + '</div></div>';
+    '<div class="bestStat"><div class="bestStatLabel">Daily streak</div><div class="bestStatValue' + (hasStreak ? '' : ' empty') + '">' + (hasStreak ? dailyStreak : (dailyStreak === 0 ? '0' : '—')) + '</div></div>';
 }
 
 export function renderProfile() {

@@ -197,10 +197,10 @@ function endRace(winner) {
   clearTimeout(raceGhostTimeout);
   recordRace({ difficulty: raceDifficulty, seconds: raceElapsed(), won: winner === 'you' });
   if (winner === 'you') {
-    els.resultTitle.textContent = '🎉 You won the race!';
+    els.resultTitle.textContent = 'You won the race!';
     els.resultDetail.textContent = 'You finished in ' + els.timer.textContent + ', ahead of the ghost.';
   } else {
-    els.resultTitle.textContent = '👻 Ghost won this one';
+    els.resultTitle.textContent = 'The ghost won this one';
     els.resultDetail.textContent = 'The ghost finished first at ' + els.timer.textContent + '. Try again?';
   }
   els.resultOverlay.classList.add('show');

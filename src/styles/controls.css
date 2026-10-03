@@ -90,7 +90,13 @@
   font-size: 14px;
   cursor: pointer;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
+.iconBtn svg { width: 17px; height: 17px; }
+.iconBtn.settingsGear svg { width: 26px; height: 26px; }
 
 /* Solo's top bar on narrow phones: tighten spacing so "12 mistakes" fits on one line. */
 .stats { flex-shrink: 0; }

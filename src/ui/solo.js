@@ -26,6 +26,9 @@ let notesMode = false;
 let genSeq = 0;
 let genNoteText = '';       // the puzzle info line shown above the board
 
+const PAUSE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4.5" width="4" height="15" rx="1"/><rect x="14" y="4.5" width="4" height="15" rx="1"/></svg>';
+const PLAY_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
+
 export function initSolo() {
   els = {
     board: document.getElementById('board'),
@@ -123,7 +126,7 @@ function showPicker() {
   els.board.classList.remove('paused');
   els.board.innerHTML = '';
   els.pauseOverlay.classList.remove('show');
-  els.pauseBtn.textContent = '⏸';
+  els.pauseBtn.innerHTML = PAUSE_ICON;
   els.winOverlay.classList.remove('show');
   els.timer.textContent = '0:00';
   genNoteText = '';
@@ -162,7 +165,7 @@ function startPuzzle() {
   paused = false;
   els.board.classList.remove('paused');
   els.pauseOverlay.classList.remove('show');
-  els.pauseBtn.textContent = '⏸';
+  els.pauseBtn.innerHTML = PAUSE_ICON;
   mistakes = 0;
   moveHistory = [];
   updateUndoState();
@@ -385,7 +388,7 @@ export function pauseGame() {
   els.quitBtn.classList.remove('confirm');
   els.quitBtn.textContent = 'Quit puzzle';
   els.pauseOverlay.classList.add('show');
-  els.pauseBtn.textContent = '▶';
+  els.pauseBtn.innerHTML = PLAY_ICON;
 }
 
 function resumeGame() {
@@ -396,5 +399,5 @@ function resumeGame() {
   ticking = setInterval(tick, 1000);
   els.board.classList.remove('paused');
   els.pauseOverlay.classList.remove('show');
-  els.pauseBtn.textContent = '⏸';
+  els.pauseBtn.innerHTML = PAUSE_ICON;
 }

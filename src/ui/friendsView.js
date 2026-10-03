@@ -255,7 +255,7 @@ async function invite(username, difficulty) {
 function showNextToast() {
   if (!els.toast.hidden || !toastQueue.length) return;
   const invite = toastQueue[0];
-  els.toastText.textContent = '🏁 @' + invite.from_username + ' invited you to race (' + cap(invite.difficulty) + ')';
+  els.toastText.textContent = '@' + invite.from_username + ' invited you to race (' + cap(invite.difficulty) + ')';
   els.toast.hidden = false;
   requestAnimationFrame(() => els.toast.classList.add('show'));
 }
