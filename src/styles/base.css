@@ -99,7 +99,6 @@ html, body {
   cursor: pointer;
 }
 .tabBtn.active { color: var(--accent-text); }
-.tabBtn[data-view="homeView"].active { color: var(--ink-soft); }
 .tabIcon { font-size: 30px; }
 .tabIcon svg { color: var(--ink); }
 

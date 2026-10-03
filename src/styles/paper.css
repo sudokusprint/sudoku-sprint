@@ -83,9 +83,8 @@ h1:last-child { margin-bottom: 20px; }
 .pad.oneRow button { font-size: 19px; }
 .diff button, .liveJoinBtn, .friendBtn, .accountGhost { border-color: var(--ink); color: var(--ink); }
 
-/* Tab bar: active tab in red (Home stays neutral, as before) */
-.tabBtn.active:not([data-view="homeView"]) .tabIcon svg { color: var(--mark); }
-.tabBtn.active:not([data-view="homeView"]) { color: var(--mark); }
+/* Tab bar: active tab in red */
+.tabBtn.active, .tabBtn.active .tabIcon svg { color: var(--mark); }
 
 /* "This is you" rows: a faint wash instead of a coloured outline */
 .leaderRow.me, .livePlayer.me { box-shadow: none; background: var(--tile); border-color: var(--paper-line); }
