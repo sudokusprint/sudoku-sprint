@@ -15,8 +15,11 @@ h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.015em; line-height: 1
 .tag { font-style: italic; }
 
 /* Masthead rule under the Home and Profile headers */
-.header { border-bottom: 2px solid var(--ink); padding-bottom: 12px; margin-bottom: 4px; }
+.header { border-bottom: 2px solid var(--ink); padding-bottom: 12px; margin-bottom: 4px; align-items: center; }
 .header .tag { margin-bottom: 0; }
+/* Most screens have just a title (no tagline): keep the gap below it */
+h1:last-child { margin-bottom: 20px; }
+.header h1:last-child { margin-bottom: 0; }
 
 /* Section heads: a thin rule above, like a newspaper section */
 .bestGridTitle {
