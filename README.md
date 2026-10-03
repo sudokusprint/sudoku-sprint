@@ -1,7 +1,7 @@
 # Sudoku Sprint
 
-Solo play with verified difficulty grading, a race mode against a ghost, and a technique
-workshop, with optional player accounts. Plain JavaScript ES modules with no build step.
+Solo play with verified difficulty grading, a Daily Challenge, live friend races and a race
+mode against a ghost, with optional player accounts. Plain JavaScript ES modules with no build step.
 The only runtime dependency is `supabase-js`, loaded from a CDN for accounts; if it can't
 load, the game still works in guest mode.
 
@@ -23,7 +23,7 @@ If Node is available, `npx serve .` or `npx vite` work too.
 ## Layout
 
 ```
-index.html                  markup for every view (Home, Solo, Race, Workshop, Profile) and dialogs
+index.html                  markup for every view (Home, Daily, Solo, Race, Profile) and dialogs
 privacy.html                privacy policy (linked from sign-in and Profile)
 src/
   main.js                   entry point: tab navigation, keyboard shortcuts, startup
@@ -32,7 +32,7 @@ src/
     grid.js                 emptyGrid, cloneGrid, shuffled, valid
     solver.js               countSolutions (brute force) + solveLogical (human techniques)
     generator.js            generatePuzzle, generatePuzzleByDifficulty, generatePuzzleForTechnique
-    techniques.js           technique catalogue, mastery rules, worked-example data
+    techniques.js           technique names and tiers (the Workshop that used the rest was removed)
     stats.js                player stats model shared by guest and signed-in play
   services/                 data and network; no DOM rendering
     supabase.js             lazy Supabase client (null if it can't load)
@@ -44,8 +44,6 @@ src/
     board.js                shared board/pad rendering and highlighting
     solo.js                 Solo mode
     race.js                 Race mode
-    workshop.js             Workshop lessons + practice
-    techniqueDiagram.js     worked-example boards for detection-only techniques
     stats.js                Home tiles and Profile page
     themes.js               board themes + settings panel
     confetti.js             win animation

@@ -192,10 +192,10 @@ function startPuzzle() {
     renderBoard();
     renderBest();
     tick();
-    const base = 'Verified ' + TIER_NAME[gen.tier] + ' · ' + gen.clueCount + ' clues · needs: ' + (gen.techniques.join(', ') || 'Singles only');
+    // Only speak up when the generator fell short of the requested difficulty.
     genNoteText = gen.tier < targetTier
-      ? base + '  (couldn\'t find a genuine ' + TIER_NAME[targetTier] + ' this time — try New Puzzle again)'
-      : base;
+      ? 'This one came out easier than ' + TIER_NAME[targetTier] + '. Try a new puzzle for a harder one.'
+      : '';
     els.genNote.textContent = genNoteText;
   }, 20);
 }

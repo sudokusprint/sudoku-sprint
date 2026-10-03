@@ -1,7 +1,6 @@
 // App entry point: wires the views together, handles tab navigation and the keyboard.
 import * as solo from './ui/solo.js';
 import * as race from './ui/race.js';
-import * as workshop from './ui/workshop.js';
 import * as daily from './ui/daily.js';
 import * as liveRace from './ui/liveRace.js';
 import { initFriendsView, onProfileShown } from './ui/friendsView.js';
@@ -40,26 +39,23 @@ function switchView(viewId) {
   if (viewId === 'dailyView') { daily.onShow(); }
 }
 
-// Digits place a value; Backspace / Delete / 0 erase (Solo, Workshop, Daily) or undo (races).
+// Digits place a value; Backspace / Delete / 0 erase (Solo, Daily) or undo (races).
 document.addEventListener('keydown', (e) => {
   if (e.target.closest && e.target.closest('input, textarea')) return;  // typing in a form field
   const soloIsActive = isViewActive('soloView');
   const raceIsActive = isViewActive('raceView');
-  const workIsActive = isViewActive('workshopView') && workshop.isPracticeOpen();
   const dailyIsActive = ACCOUNTS_ENABLED && daily.isPlaying();
   if (e.key >= '1' && e.key <= '9') {
     const v = parseInt(e.key, 10);
     if (soloIsActive) solo.place(v);
     else if (raceIsActive && liveRace.isRacing()) liveRace.place(v);
     else if (raceIsActive) race.racePlace(v);
-    else if (workIsActive) workshop.workPlace(v);
     else if (dailyIsActive) daily.place(v);
   }
   if (e.key === 'Backspace' || e.key === '0' || e.key === 'Delete') {
     if (soloIsActive) solo.erase();
     else if (raceIsActive && liveRace.isRacing()) liveRace.undo();
     else if (raceIsActive) race.raceUndo();
-    else if (workIsActive) workshop.workErase();
     else if (dailyIsActive) daily.erase();
   }
 });
@@ -77,14 +73,12 @@ onProgressChange(() => {
   renderProfile();
   renderLobbyBest();
   solo.renderBest();
-  workshop.refreshTechniqueList();
 });
 
 // Gameplay settings change how boards are drawn: redraw whatever is on screen.
 onSettingsChange(() => {
   solo.refreshBoard();
   race.refreshHighlight();
-  workshop.refreshHighlight();
   if (ACCOUNTS_ENABLED) daily.refreshBoard();
 });
 
@@ -92,7 +86,6 @@ initSettingsPanel();
 initProgress();
 race.initRace();
 liveRace.initLiveRace();
-workshop.initWorkshop();
 initThemes({ onChange: solo.refreshBoard });
 loadTheme();
 solo.initSolo();

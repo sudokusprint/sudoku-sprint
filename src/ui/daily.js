@@ -431,9 +431,7 @@ async function play(difficulty) {
   lastSubmitted = null;
   els.note.textContent = '';
   renderTitle();
-  els.playNote.textContent = attempt.techniques && attempt.techniques.length
-    ? 'Needs: ' + attempt.techniques.join(', ')
-    : '';
+  els.playNote.textContent = '';
   els.home.hidden = true;
   els.play.hidden = false;
   window.scrollTo(0, 0);
